@@ -1,5 +1,5 @@
 // ClimbR service worker — offline cache. Bump VERSION on every change.
-const VERSION = 'climbr-v16';
+const VERSION = 'climbr-v17';
 const ASSETS = ['/', '/index.html', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png', '/icons/maskable-512.png', '/icons/apple-touch-icon.png', '/icons/ui/logo.png', '/icons/ui/timer.png', '/icons/ui/skip.png', '/icons/ui/catchup.png', '/icons/ui/streak.png', '/icons/ui/warmup.png', '/icons/ui/cooldown.png', '/icons/ui/backup.png'];
 

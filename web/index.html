@@ -191,6 +191,28 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .parea input[type=range]{width:100%;accent-color:#fff}
 .chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
 .chk input{accent-color:#fff;width:18px;height:18px}
+
+/* ---- v8: tabs & outdoor ---- */
+body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:rgba(0,0,0,.94);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--muted);font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:6px 0}
+.tabbar button img{width:24px;height:24px;opacity:.5}
+.tabbar button.on{color:#fff}.tabbar button.on img{opacity:1}
+.olist{display:flex;flex-direction:column;gap:12px}
+.ocard{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer}
+.ocard .oimg{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#111}
+.ocard .ob{padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.ocard .ot{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ocard .on{font-weight:700;font-size:16px;min-width:0}
+.ocard .og{font-family:var(--font-display);font-size:26px;line-height:1;flex:none}
+.ocard .om{font-family:var(--font-mono);font-size:11.5px;color:var(--muted)}
+.osort{display:flex;gap:8px;flex-wrap:wrap}
+.osort button{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.osort button.on{background:#fff;color:#000;border-color:#fff}
+.photo-prev{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block;background:#111}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gps{font-family:var(--font-mono);font-size:13px}
+.empty{color:var(--muted);font-size:13.5px;text-align:center;padding:30px 10px;border:1px dashed var(--line);border-radius:16px;line-height:1.5}
 /* ---- v2: routines, cues, timer ---- */
 .ex .cue{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.35}
 .ex .tbtn{flex:none;border:1px solid var(--ausgleich);background:transparent;color:var(--ausgleich-fg);border-radius:10px;padding:7px 9px;font-family:var(--font-mono);font-size:12px;font-weight:600}
@@ -228,7 +250,7 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .timer .tbtns button.main{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 </style>
 
-<div class="wrap">
+<div class="wrap" id="tabTrain">
   <header class="top">
     <h1 class="brand" aria-label="ClimbR"><img src="/icons/ui/logo.png" alt="" class="logoC"><span aria-hidden="true">limb<span class="mr">R</span></span></h1>
     <div class="dateline" id="dateline"></div>
@@ -276,6 +298,21 @@ button.guided{background:#fff;color:#000;border-color:#fff}
     <input type="file" id="importFile" accept="application/json" hidden>
   </div>
 </div>
+
+<div class="wrap" id="tabOut" hidden>
+  <header class="top">
+    <h1 class="brand" aria-label="Outdoor"><img src="/icons/ui/logo.png" alt="" class="logoC"><span aria-hidden="true">utdoor</span></h1>
+    <div class="dateline" id="outStats"></div>
+  </header>
+  <button class="guided" style="margin:0" onclick="openRouteForm()">+ Add route</button>
+  <div class="osort" id="outSort"></div>
+  <div id="outList" class="olist"></div>
+</div>
+
+<nav class="tabbar" id="tabbar">
+  <button class="on" data-tab="train" onclick="showTab('train')"><img src="/icons/ui/streak.png" alt=""><span>Training</span></button>
+  <button data-tab="out" onclick="showTab('out')"><img src="/icons/ui/logo.png" alt=""><span>Outdoor</span></button>
+</nav>
 
 <div class="sheet" id="sheet" hidden></div>
 <div class="timer" id="timer" hidden></div>
@@ -1027,6 +1064,216 @@ function climbAdvice(){
   return `<div class="note">${up >= 4 ? '<b>Climbing isn’t ideal today.</b> ' + (sharpUp ? 'You logged sharp pain in your arms or hands' : 'Your arms or hands hurt at ' + up + '/10') + ' — cross-training for the rest of the body or a rest day is the safer choice.<br>' : '<b>Climbing with a niggle:</b> keep it easy and pain ≤ 3/10.<br>'}${tips.map(esc).join('<br>')}</div>`;
 }
 
+
+/* ============ Tabs ============ */
+function showTab(t){
+  document.getElementById('tabTrain').hidden = t !== 'train';
+  document.getElementById('tabOut').hidden = t !== 'out';
+  document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  try { localStorage.setItem('climbr.tab', t); } catch(e){}
+  if (t === 'out') renderOutdoor();
+  window.scrollTo(0, 0);
+}
+
+/* ============ Outdoor log ============ */
+const OUT_KEY = 'climbr.outdoor.v1';
+let outdoor = [];
+try { outdoor = JSON.parse(localStorage.getItem(OUT_KEY) || '[]'); } catch(e){ outdoor = []; }
+function saveOutdoor(){ try { localStorage.setItem(OUT_KEY, JSON.stringify(outdoor)); } catch(e){ alert('Saving failed — storage full?'); } }
+const GRADES = {
+  UIAA: ['3','3+','4-','4','4+','5-','5','5+','6-','6','6+','7-','7','7+','8-','8','8+','9-','9','9+','10-','10','10+','11-','11','11+','12-'],
+  French: ['3','4a','4b','4c','5a','5b','5c','6a','6a+','6b','6b+','6c','6c+','7a','7a+','7b','7b+','7c','7c+','8a','8a+','8b','8b+','8c','8c+','9a'],
+  Font: ['3','4','4+','5','5+','6A','6A+','6B','6B+','6C','6C+','7A','7A+','7B','7B+','7C','7C+','8A','8A+','8B','8B+','8C'],
+  V: ['VB','V0','V1','V2','V3','V4','V5','V6','V7','V8','V9','V10','V11','V12','V13','V14','V15','V16'],
+  YDS: ['5.5','5.6','5.7','5.8','5.9','5.10a','5.10b','5.10c','5.10d','5.11a','5.11b','5.11c','5.11d','5.12a','5.12b','5.12c','5.12d','5.13a','5.13b','5.13c','5.13d','5.14a','5.14b','5.14c','5.14d','5.15a'],
+};
+const STYLES = ['Onsight','Flash','Redpoint','Top-rope','Project','Attempt'];
+const KINDS = ['Sport route','Multi-pitch','Trad','Boulder','Alpine'];
+
+// ---- photo storage (IndexedDB: photos are too big for localStorage) ----
+let _pdb = null;
+function photoDB(){
+  if (_pdb) return _pdb;
+  _pdb = new Promise((res, rej) => { const r = indexedDB.open('climbr-photos', 1); r.onupgradeneeded = () => r.result.createObjectStore('photos'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  return _pdb;
+}
+async function photoPut(id, blob){ const db = await photoDB(); return new Promise((res, rej) => { const tx = db.transaction('photos','readwrite'); tx.objectStore('photos').put(blob, id); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
+async function photoGet(id){ const db = await photoDB(); return new Promise((res, rej) => { const q = db.transaction('photos').objectStore('photos').get(id); q.onsuccess = () => res(q.result || null); q.onerror = () => rej(q.error); }); }
+async function photoDel(id){ const db = await photoDB(); return new Promise(res => { const tx = db.transaction('photos','readwrite'); tx.objectStore('photos').delete(id); tx.oncomplete = res; tx.onerror = res; }); }
+const _urls = {};
+async function photoURL(id){ if (_urls[id]) return _urls[id]; const b = await photoGet(id); if (!b) return null; return (_urls[id] = URL.createObjectURL(b)); }
+async function shrinkImage(blob, max = 1600, q = .82){
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return await new Promise(res => c.toBlob(res, 'image/jpeg', q));
+  } finally { URL.revokeObjectURL(url); }
+}
+
+// ---- location ----
+async function currentPosition(){
+  const G = IS_NATIVE && window.Capacitor.Plugins.Geolocation;
+  if (G) { const p = await G.getCurrentPosition({ enableHighAccuracy: true, timeout: 20000 }); return p.coords; }
+  return new Promise((res, rej) => navigator.geolocation ? navigator.geolocation.getCurrentPosition(p => res(p.coords), rej, { enableHighAccuracy: true, timeout: 20000 }) : rej(new Error('No GPS available')));
+}
+function fmtCoord(lat, lng){ return `${(+lat).toFixed(5)}, ${(+lng).toFixed(5)}`; }
+function parseCoord(s){ const m = String(s).match(/(-?\d+(?:\.\d+)?)\s*[,; ]\s*(-?\d+(?:\.\d+)?)/); if (!m) return null; const lat = +m[1], lng = +m[2]; return (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) ? {lat, lng} : null; }
+function mapsURL(r){ return `https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lng}`; }
+function distKm(a, b){ const R = 6371, t = x => x * Math.PI / 180; const dLat = t(b.lat - a.lat), dLng = t(b.lng - a.lng); const h = Math.sin(dLat/2)**2 + Math.cos(t(a.lat)) * Math.cos(t(b.lat)) * Math.sin(dLng/2)**2; return 2 * R * Math.asin(Math.sqrt(h)); }
+
+// ---- list ----
+let outSort = 'date', here = null;
+async function renderOutdoor(){
+  const list = document.getElementById('outList');
+  const n = outdoor.length, sent = outdoor.filter(r => ['Onsight','Flash','Redpoint'].includes(r.style)).length;
+  document.getElementById('outStats').textContent = n ? `${n} route${n === 1 ? '' : 's'} · ${sent} sent` : '';
+  document.getElementById('outSort').innerHTML = n > 1 ? `<button class="${outSort==='date'?'on':''}" onclick="setOutSort('date')">Newest</button><button class="${outSort==='near'?'on':''}" onclick="setOutSort('near')">Nearest</button>` : '';
+  if (!n) { list.innerHTML = '<div class="empty">No routes yet.<br>Add your first one at the crag — the app grabs your GPS position and you can snap a photo of the line.</div>'; return; }
+  let items = [...outdoor];
+  if (outSort === 'near' && here) items.sort((a, b) => (a.lat == null) - (b.lat == null) || distKm(here, a) - distKm(here, b));
+  else items.sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.created - a.created);
+  list.innerHTML = items.map(r => `
+    <div class="ocard" onclick="openRoute('${r.id}')">
+      ${r.photo ? `<img class="oimg" data-photo="${r.photo}" alt="">` : ''}
+      <div class="ob">
+        <div class="ot"><span class="on">${esc(r.title)}</span><span class="og">${esc(r.grade || '')}</span></div>
+        <div class="om">${[r.style, r.kind, r.date ? dayShort(r.date) + '/' + r.date.slice(0,4) : '', (outSort === 'near' && here && r.lat != null) ? distKm(here, r).toFixed(1) + ' km' : ''].filter(Boolean).map(esc).join(' · ')}</div>
+        ${r.crag ? `<div class="om">${esc(r.crag)}</div>` : ''}
+      </div>
+    </div>`).join('');
+  for (const img of list.querySelectorAll('img[data-photo]')) { photoURL(img.dataset.photo).then(u => { if (u) img.src = u; else img.remove(); }); }
+}
+async function setOutSort(s){
+  outSort = s;
+  if (s === 'near' && !here) { try { const c = await currentPosition(); here = {lat:c.latitude, lng:c.longitude}; } catch(e){ alert('Couldn’t get your location: ' + (e && e.message || e)); outSort = 'date'; } }
+  renderOutdoor();
+}
+
+// ---- detail ----
+async function openRoute(id){
+  const r = outdoor.find(x => x.id === id); if (!r) return;
+  const sh = document.getElementById('sheet');
+  sh.innerHTML = `<div class="wrap">
+    <button class="close" onclick="closeSheet()">← Back</button>
+    ${r.photo ? `<img class="photo-prev" id="detImg" alt="">` : ''}
+    <header><div class="eyebrow">${esc([r.kind, r.style].filter(Boolean).join(' · '))}</div><h1>${esc(r.title)}</h1></header>
+    <div class="statrow"><div class="stat"><div class="n">${esc(r.grade || '–')}</div><div class="l">${esc(r.system || '')} grade</div></div>
+      <div class="stat"><div class="n" style="font-size:22px">${r.date ? esc(dayShort(r.date)) : '–'}</div><div class="l">${r.date ? r.date.slice(0,4) : 'date'}</div></div></div>
+    ${r.crag ? `<div class="intro"><b>Crag / area:</b> ${esc(r.crag)}</div>` : ''}
+    ${r.lat != null ? `<div class="box2"><h3>Location</h3><div class="gps">${fmtCoord(r.lat, r.lng)}${r.acc ? ' · ±' + Math.round(r.acc) + ' m' : ''}</div>
+      <a class="btn main" style="text-align:center;text-decoration:none" href="${mapsURL(r)}" target="_blank" rel="noopener">Open in Maps</a></div>` : ''}
+    ${r.notes ? `<div class="intro">${esc(r.notes).replace(/\n/g,'<br>')}</div>` : ''}
+    <button class="btn" onclick="openRouteForm('${r.id}')">Edit</button>
+  </div>`;
+  sh.hidden = false; sh.scrollTop = 0;
+  if (r.photo) { const u = await photoURL(r.photo); const el = document.getElementById('detImg'); if (el && u) el.src = u; }
+}
+
+// ---- add / edit form ----
+let RF = null;
+function gradeOptions(sys, cur){ return GRADES[sys].map(g => `<option ${g === cur ? 'selected' : ''}>${g}</option>`).join(''); }
+async function openRouteForm(id){
+  const r = id ? outdoor.find(x => x.id === id) : null;
+  let sysPref = 'UIAA'; try { sysPref = localStorage.getItem('climbr.gradeSystem') || 'UIAA'; } catch(e){}
+  RF = r ? {...r, newPhoto:null, removePhoto:false} : {id:'r' + Date.now(), title:'', crag:'', system:sysPref, grade:'', style:'Redpoint', kind:'Sport route', date:TODAY, notes:'', lat:null, lng:null, acc:null, photo:null, newPhoto:null, removePhoto:false, isNew:true};
+  const sh = document.getElementById('sheet');
+  sh.innerHTML = `<div class="wrap">
+    <button class="close" onclick="${RF.isNew ? 'closeSheet()' : `openRoute('${RF.id}')`}">← Back</button>
+    <header><div class="eyebrow">Outdoor</div><h1>${RF.isNew ? 'New route' : 'Edit route'}</h1></header>
+    <div class="box2"><h3>Photo</h3>
+      <img class="photo-prev" id="rfImg" alt="" ${RF.photo ? '' : 'hidden'}>
+      <div class="row2"><button class="btn" onclick="pickPhoto('camera')">Take photo</button><button class="btn" onclick="pickPhoto('gallery')">From gallery</button></div>
+      <button class="btn danger" id="rfImgDel" onclick="dropPhoto()" ${RF.photo ? '' : 'hidden'}>Remove photo</button>
+      <input type="file" id="rfFile" accept="image/*" hidden onchange="photoFromInput(this)">
+    </div>
+    <div class="field"><label>Route name</label><input id="rfTitle" value="${esc(RF.title)}" placeholder="e.g. Schwarze Wand direkt"></div>
+    <div class="field"><label>Crag / area (optional)</label><input id="rfCrag" value="${esc(RF.crag || '')}" placeholder="e.g. Traunstein, Gmunden"></div>
+    <div class="row2">
+      <div class="field"><label>Grade system</label><select id="rfSys" onchange="document.getElementById('rfGrade').innerHTML=gradeOptions(this.value,'')">${Object.keys(GRADES).map(s => `<option ${s === RF.system ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label>Grade</label><select id="rfGrade">${gradeOptions(RF.system, RF.grade)}</select></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Style</label><select id="rfStyle">${STYLES.map(s => `<option ${s === RF.style ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label>Type</label><select id="rfKind">${KINDS.map(s => `<option ${s === RF.kind ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label>Date</label><input id="rfDate" type="date" value="${RF.date || TODAY}"></div>
+    <div class="box2"><h3>Location</h3>
+      <div class="field"><label>GPS (lat, lng)</label><input id="rfGps" class="gps" inputmode="decimal" value="${RF.lat != null ? fmtCoord(RF.lat, RF.lng) : ''}" placeholder="47.81234, 13.79876"></div>
+      <div class="hint" id="rfGpsInfo">${RF.acc ? 'Accuracy ±' + Math.round(RF.acc) + ' m' : 'Use your current position, or paste coordinates.'}</div>
+      <button class="btn" id="rfGpsBtn" onclick="useMyLocation()">📍 Use my current location</button>
+    </div>
+    <div class="field"><label>Notes (optional)</label><input id="rfNotes" value="${esc(RF.notes || '')}" placeholder="Beta, conditions, partner…"></div>
+    <button class="btn main" onclick="saveRoute()">Save route</button>
+    ${RF.isNew ? '' : `<button class="btn danger" onclick="deleteRoute()">Delete route</button>`}
+  </div>`;
+  sh.hidden = false; sh.scrollTop = 0;
+  if (RF.photo) { const u = await photoURL(RF.photo); if (u) document.getElementById('rfImg').src = u; }
+  if (RF.isNew) useMyLocation(true);
+}
+function showFormPhoto(blob){ const el = document.getElementById('rfImg'); el.src = URL.createObjectURL(blob); el.hidden = false; document.getElementById('rfImgDel').hidden = false; }
+async function pickPhoto(src){
+  const Cam = IS_NATIVE && window.Capacitor.Plugins.Camera;
+  if (!Cam) { const f = document.getElementById('rfFile'); if (src === 'camera') f.setAttribute('capture', 'environment'); else f.removeAttribute('capture'); f.click(); return; }
+  try {
+    const p = await Cam.getPhoto({ source: src === 'camera' ? 'CAMERA' : 'PHOTOS', resultType: 'dataUrl', quality: 85, width: 1600, correctOrientation: true, saveToGallery: false });
+    const blob = await (await fetch(p.dataUrl)).blob();
+    RF.newPhoto = await shrinkImage(blob); RF.removePhoto = false; showFormPhoto(RF.newPhoto);
+  } catch(e) { const m = String(e && e.message || e); if (!/cancel/i.test(m)) alert('Photo failed: ' + m); }
+}
+async function photoFromInput(inp){ const f = inp.files && inp.files[0]; if (!f) return; RF.newPhoto = await shrinkImage(f); RF.removePhoto = false; showFormPhoto(RF.newPhoto); inp.value = ''; }
+function dropPhoto(){ RF.newPhoto = null; RF.removePhoto = true; document.getElementById('rfImg').hidden = true; document.getElementById('rfImgDel').hidden = true; }
+async function useMyLocation(silent){
+  const btn = document.getElementById('rfGpsBtn'), info = document.getElementById('rfGpsInfo');
+  if (!btn) return; btn.disabled = true; btn.textContent = 'Getting GPS…';
+  try {
+    const c = await currentPosition();
+    if (!document.getElementById('rfGps')) return;
+    document.getElementById('rfGps').value = fmtCoord(c.latitude, c.longitude);
+    RF.acc = c.accuracy || null; info.textContent = c.accuracy ? `Current position · accuracy ±${Math.round(c.accuracy)} m` : 'Current position';
+  } catch(e) { if (!silent) alert('Couldn’t get your location: ' + (e && e.message || e)); info.textContent = 'No GPS fix — paste coordinates or try again outside.'; }
+  finally { if (document.getElementById('rfGpsBtn')) { btn.disabled = false; btn.textContent = '📍 Use my current location'; } }
+}
+async function saveRoute(){
+  const title = document.getElementById('rfTitle').value.trim();
+  if (!title) { alert('Give the route a name.'); return; }
+  const gpsTxt = document.getElementById('rfGps').value.trim(), pos = gpsTxt ? parseCoord(gpsTxt) : null;
+  if (gpsTxt && !pos) { alert('GPS format: 47.81234, 13.79876'); return; }
+  const sys = document.getElementById('rfSys').value;
+  try { localStorage.setItem('climbr.gradeSystem', sys); } catch(e){}
+  let photo = RF.photo;
+  try {
+    if (RF.newPhoto) { if (photo) await photoDel(photo); photo = 'p' + Date.now(); await photoPut(photo, RF.newPhoto); }
+    else if (RF.removePhoto && photo) { await photoDel(photo); photo = null; }
+  } catch(e) { alert('Saving the photo failed: ' + (e && e.message || e)); return; }
+  const rec = { id:RF.id, title, crag:document.getElementById('rfCrag').value.trim(), system:sys, grade:document.getElementById('rfGrade').value,
+    style:document.getElementById('rfStyle').value, kind:document.getElementById('rfKind').value, date:document.getElementById('rfDate').value || TODAY,
+    notes:document.getElementById('rfNotes').value.trim(), lat:pos ? pos.lat : null, lng:pos ? pos.lng : null, acc:pos ? RF.acc : null, photo,
+    created:RF.created || Date.now(), updated:Date.now() };
+  outdoor = outdoor.filter(x => x.id !== rec.id).concat([rec]); saveOutdoor();
+  renderOutdoor(); openRoute(rec.id);
+}
+async function deleteRoute(){
+  if (!confirm('Delete "' + RF.title + '"?')) return;
+  if (RF.photo) await photoDel(RF.photo);
+  outdoor = outdoor.filter(x => x.id !== RF.id); saveOutdoor(); closeSheet(); renderOutdoor();
+}
+async function outdoorBackup(){
+  const photos = {};
+  for (const r of outdoor) if (r.photo) { const b = await photoGet(r.photo); if (b) photos[r.photo] = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); }); }
+  return {routes:outdoor, photos};
+}
+async function outdoorRestore(data){
+  if (!data || !Array.isArray(data.routes)) return 0;
+  const have = new Set(outdoor.map(r => r.id)); let n = 0;
+  for (const r of data.routes) { if (!r || !r.id || have.has(r.id)) continue;
+    if (r.photo && data.photos && data.photos[r.photo]) { try { await photoPut(r.photo, await (await fetch(data.photos[r.photo])).blob()); } catch(e){ r.photo = null; } } else r.photo = null;
+    outdoor.push(r); n++; }
+  saveOutdoor(); renderOutdoor(); return n;
+}
+
 /* ============ Plan reference toggle ============ */
 const refToggle = document.getElementById('refToggle');
 refToggle.addEventListener('click', () => {
@@ -1041,12 +1288,12 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     try {
       const { Filesystem, Share } = window.Capacitor.Plugins;
       const name = 'climbr-backup-' + TODAY + '.json';
-      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:4, sessions, customs, pain:painLog, fingers}, null, 2), directory: 'CACHE', encoding: 'utf8' });
+      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:5, sessions, customs, pain:painLog, fingers, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
       await Share.share({ title: 'ClimbR backup', files: [res.uri], dialogTitle: 'Save or send your backup' });
     } catch(e) { if (!String(e && e.message || e).toLowerCase().includes('cancel')) alert('Backup failed: ' + (e && e.message || e)); }
     return;
   }
-  const blob = new Blob([JSON.stringify({app:'climbr', version:4, sessions, customs, pain:painLog, fingers}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({app:'climbr', version:5, sessions, customs, pain:painLog, fingers, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'climbr-backup-' + TODAY + '.json';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
@@ -1059,10 +1306,11 @@ document.getElementById('importFile').addEventListener('change', async (ev) => {
     const byDate = new Map(sessions.map(s => [s.date, s]));
     for (const s of incoming) { if (!s || !s.date) continue; const cur = byDate.get(s.date); if (!cur || (s.updatedAt||0) >= (cur.updatedAt||0)) byDate.set(s.date, s); }
     sessions = [...byDate.values()]; sortSessions(); persist(); draft = null;
+    const nOut = await outdoorRestore(data.outdoor);
     if (data.pain && typeof data.pain === 'object') { painLog = {...data.pain, ...painLog}; savePain(); }
     if (Array.isArray(data.customs)) { const ids = new Set(customs.map(c => c.id)); customs = customs.concat(data.customs.filter(c => c && c.id && !ids.has(c.id))); persistCustoms(); renderRoutines(); }
     render();
-    alert(incoming.length + ' entries imported.');
+    alert(incoming.length + ' training entries' + (nOut ? ' and ' + nOut + ' outdoor routes' : '') + ' imported.');
   } catch(e){ alert('Could not read that file.'); }
   ev.target.value = '';
 });
@@ -1091,6 +1339,7 @@ const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && wi
 /* ============ Boot ============ */
 sessions = loadSessions(); sortSessions(); customs = loadCustoms();
 renderReference(); renderRoutines(); renderTools(); render();
+try { if (localStorage.getItem('climbr.tab') === 'out') showTab('out'); } catch(e){}
 if (!IS_NATIVE && 'serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
 </body></html>
