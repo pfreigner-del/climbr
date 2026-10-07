@@ -173,6 +173,7 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .install .it{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;color:var(--muted);line-height:1.35}
 .install .it b{color:var(--fg);font-size:14px}
 .install .ib{flex:none;background:#fff;color:#000;border:none;border-radius:10px;padding:9px 14px;font-family:var(--font-body);font-weight:700;font-size:14px}
+.install a.ib{text-decoration:none;display:inline-block}
 .install .ix{flex:none;background:none;border:none;color:var(--muted);font-size:16px;padding:6px}
 
 /* ---- v6: rest day ---- */
@@ -274,6 +275,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
     <button class="ib" id="installBtn">Install</button>
     <button class="ix" id="installClose" aria-label="Dismiss">✕</button>
   </div>
+
+  <div class="install" id="updateBar" hidden></div>
 
   <div id="banner"></div>
 
@@ -604,7 +607,7 @@ function renderReference(){
 function render(){
   document.getElementById('dateline').textContent = fmtDate(TODAY);
   renderStats(); renderToday(); renderHistory();
-  document.getElementById('foot').textContent = IS_NATIVE ? 'Saved on this phone — fully offline.' : 'Saved on this device — works offline too.';
+  document.getElementById('foot').textContent = IS_NATIVE ? 'Saved on this phone — fully offline.' + (window.APP_VERSION ? ' · v' + window.APP_VERSION : '') : 'Saved on this device — works offline too.';
 }
 
 /* ============ Routines (built-in + custom) ============ */
@@ -1348,10 +1351,40 @@ const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && wi
   document.getElementById('installClose').addEventListener('click', () => { bar.hidden = true; try { localStorage.setItem('climbr.installDismissed','1'); } catch(e){} });
 })();
 
+
+/* ============ Update check (public download repo) ============ */
+const UPDATE_API = 'https://api.github.com/repos/pfreigner-del/climbr-download/releases/latest';
+function verParts(v){ return String(v || '').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0); }
+function newerThan(a, b){ const x = verParts(a), y = verParts(b); for (let i = 0; i < Math.max(x.length, y.length); i++) { if ((x[i]||0) !== (y[i]||0)) return (x[i]||0) > (y[i]||0); } return false; }
+async function checkForUpdate(force){
+  if (!IS_NATIVE) return;                       // the web version updates itself
+  let last = 0; try { last = +localStorage.getItem('climbr.updateChecked') || 0; } catch(e){}
+  if (!force && Date.now() - last < 6 * 3600 * 1000) return;   // at most every 6 h
+  try {
+    const mine = await (await fetch('/version.json', {cache:'no-store'})).json();
+    const r = await fetch(UPDATE_API, {headers:{Accept:'application/vnd.github+json'}});
+    if (!r.ok) return;
+    const rel = await r.json();
+    try { localStorage.setItem('climbr.updateChecked', String(Date.now())); } catch(e){}
+    const apk = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
+    if (!apk || !newerThan(rel.tag_name, mine.version)) return;
+    let skipped = ''; try { skipped = localStorage.getItem('climbr.updateSkipped') || ''; } catch(e){}
+    if (!force && skipped === rel.tag_name) return;
+    const bar = document.getElementById('updateBar');
+    bar.innerHTML = `<img src="/icons/ui/logo.png" alt=""><div class="it"><b>Update available: ${esc(rel.tag_name.replace(/^v/,''))}</b><span>You have ${esc(mine.version)}. Install it over the old one — your data stays.</span></div>
+      <a class="ib" href="${apk.browser_download_url}" target="_blank" rel="noopener">Download</a><button class="ix" aria-label="Later" onclick="skipUpdate('${esc(rel.tag_name)}')">✕</button>`;
+    bar.hidden = false;
+  } catch(e) { /* offline: try again next launch */ }
+}
+function skipUpdate(tag){ try { localStorage.setItem('climbr.updateSkipped', tag); } catch(e){} document.getElementById('updateBar').hidden = true; }
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
+
 /* ============ Boot ============ */
 sessions = loadSessions(); sortSessions(); customs = loadCustoms();
 renderReference(); renderRoutines(); renderTools(); render();
 try { if (localStorage.getItem('climbr.tab') === 'out') showTab('out'); } catch(e){}
+setTimeout(() => checkForUpdate(), 1500);
+fetch('/version.json', {cache:'no-store'}).then(r => r.json()).then(v => { window.APP_VERSION = v.version; render(); }).catch(() => {});
 if (!IS_NATIVE && 'serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
 </body></html>

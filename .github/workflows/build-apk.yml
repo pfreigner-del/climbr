@@ -37,6 +37,7 @@ jobs:
       - name: Copy web app and sync Capacitor
         run: |
           node scripts/copy-web.js
+          echo '{"version":"1.0.${{ github.run_number }}"}' > www/version.json
           npx cap sync android
 
       - name: Build signed APK
@@ -61,3 +62,14 @@ jobs:
           body: "Install: download the APK on your phone and open it. Updates install over the old version and keep your data."
           files: ClimbR-1.0.${{ github.run_number }}.apk
           make_latest: true
+
+      - name: Publish to public download repo (if token is set)
+        env:
+          GH_TOKEN: ${{ secrets.DOWNLOAD_REPO_TOKEN }}
+        if: ${{ env.GH_TOKEN != '' }}
+        run: |
+          gh release create "v1.0.${{ github.run_number }}" "ClimbR-1.0.${{ github.run_number }}.apk" \
+            --repo pfreigner-del/climbr-download \
+            --title "ClimbR 1.0.${{ github.run_number }}" \
+            --notes "Android: download the APK and open it. Updates install over the old version and keep your data." \
+            --latest
