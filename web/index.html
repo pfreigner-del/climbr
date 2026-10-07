@@ -1,0 +1,1096 @@
+<!doctype html><html lang="en"><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#000000">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ClimbЯ">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>ClimbЯ</title>
+<style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:#fff}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><style>
+/*
+  Layout: single scrollable column, phone-first. A "Route-Karte" (route
+  card) for today sits up top with a colored spine marking the day type
+  (amber = climbing, teal = cross-training); below it a 14-day streak strip
+  of small dots, then a collapsible reference of both training templates.
+*/
+:root{
+  --bg:#000000; --surface:#0e0e0e; --surface-2:#161616; --fg:#ffffff;
+    --muted:#9b9b9b; --line:#2b2b2b;
+    --climb:#ffffff; --climb-fg:#ffffff;
+    --ausgleich:#cfcfcf; --ausgleich-fg:#e8e8e8;
+    --good:#ffffff; --warn:#8c8c8c;
+  --font-display:'Bebas Neue',Impact,'Arial Narrow Bold',sans-serif;
+  --font-body:'Work Sans',system-ui,-apple-system,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#000000; --surface:#0e0e0e; --surface-2:#161616; --fg:#ffffff;
+    --muted:#9b9b9b; --line:#2b2b2b;
+    --climb:#ffffff; --climb-fg:#ffffff;
+    --ausgleich:#cfcfcf; --ausgleich-fg:#e8e8e8;
+    --good:#ffffff; --warn:#8c8c8c;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#000000; --surface:#0e0e0e; --surface-2:#161616; --fg:#ffffff;
+    --muted:#9b9b9b; --line:#2b2b2b;
+    --climb:#ffffff; --climb-fg:#ffffff;
+    --ausgleich:#cfcfcf; --ausgleich-fg:#e8e8e8;
+    --good:#ffffff; --warn:#8c8c8c;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body)}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:18px}
+h1,h2{margin:0;font-family:var(--font-display);letter-spacing:.02em;font-weight:400}
+h1{font-size:clamp(34px,9vw,44px);line-height:.95}
+h2{font-size:20px;color:var(--fg)}
+.eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.dateline{font-family:var(--font-mono);font-size:13px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.top{padding-top:4px}
+
+.statrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:0}
+.stat .n{font-family:var(--font-display);font-size:30px;line-height:1}
+.stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.card .spine{height:5px;width:100%}
+.spine.klettern{background:var(--climb)}
+.spine.ausgleich{background:var(--ausgleich)}
+.card-body{padding:18px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid var(--line)}
+.badge.klettern{color:var(--climb-fg);border-color:var(--climb);background:color-mix(in srgb, var(--climb) 12%, transparent)}
+.badge.ausgleich{color:var(--ausgleich-fg);border-color:var(--ausgleich);background:color-mix(in srgb, var(--ausgleich) 12%, transparent)}
+.badge.good{color:var(--good);border-color:var(--good);background:color-mix(in srgb, var(--good) 14%, transparent)}
+.badge.warn{color:var(--warn);border-color:var(--warn);background:color-mix(in srgb, var(--warn) 14%, transparent)}
+
+.toggle{display:flex;gap:8px;margin:14px 0 4px}
+.toggle button{flex:1;min-width:0;padding:10px 8px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-family:var(--font-body);font-weight:600;font-size:14px}
+.toggle button.active.klettern{background:var(--climb);border-color:var(--climb);color:#fff}
+.toggle button.active.ausgleich{background:var(--ausgleich);border-color:var(--ausgleich);color:#fff}
+
+.note{font-size:13px;color:var(--muted);background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:9px 11px;margin:12px 0}
+
+.exlist{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ex{display:flex;align-items:center;gap:11px;padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.ex.catchup{border-color:var(--warn);background:color-mix(in srgb, var(--warn) 9%, var(--surface-2))}
+.ex .box{width:22px;height:22px;flex:none;border-radius:7px;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent}
+.ex.done .box{background:var(--good);border-color:var(--good);color:#fff}
+.ex .tx{min-width:0;flex:1}
+.ex .nm{font-size:14.5px;font-weight:600;line-height:1.25}
+.ex.done .nm{text-decoration:line-through;color:var(--muted)}
+.ex .sets{font-family:var(--font-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ex .tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--warn)}
+
+.actions{display:flex;gap:10px;margin-top:16px}
+.actions button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--line);font-family:var(--font-body);font-weight:700;font-size:14px;background:var(--surface-2);color:var(--fg)}
+.actions button.yes{background:var(--good);border-color:var(--good);color:#fff}
+.actions button.no{background:transparent;color:var(--warn);border-color:var(--warn)}
+.edit-link{margin-top:14px;background:none;border:none;color:var(--ausgleich-fg);font-family:var(--font-body);font-size:13px;font-weight:600;text-decoration:underline;padding:0}
+
+.history h2{margin-bottom:10px}
+.dots{display:flex;gap:7px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--muted);flex:none}
+.dot.klettern-good{background:var(--climb);border-color:var(--climb);color:#fff}
+.dot.ausgleich-good{background:var(--ausgleich);border-color:var(--ausgleich);color:#fff}
+.dot.klettern-bad{border-color:var(--climb);color:var(--climb-fg)}
+.dot.ausgleich-bad{border-color:var(--ausgleich);color:var(--ausgleich-fg)}
+
+.reference{border-top:1px solid var(--line);padding-top:16px}
+.ref-toggle{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 15px;font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--fg);display:flex;justify-content:space-between;align-items:center}
+.ref-toggle .car{color:var(--muted);transition:transform .15s}
+.ref-toggle[aria-expanded="true"] .car{transform:rotate(180deg)}
+.ref-body{margin-top:12px;display:flex;flex-direction:column;gap:14px}
+.plan{border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:var(--surface)}
+.plan h3{margin:0 0 8px;font-family:var(--font-display);font-weight:400;font-size:19px}
+.plan h3.a{color:var(--climb-fg)}
+.plan h3.b{color:var(--ausgleich-fg)}
+.plan ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7}
+.plan .sets{font-family:var(--font-mono);color:var(--muted);font-size:12px}
+
+.foot{text-align:center;font-size:12px;color:var(--muted);padding-top:4px}
+.backup{display:flex;gap:10px;justify-content:center;margin-top:8px}
+.backup button{background:none;border:1px solid var(--line);border-radius:10px;padding:7px 12px;color:var(--muted);font-family:var(--font-body);font-size:12px}
+.banner{font-size:12.5px;background:color-mix(in srgb, var(--warn) 14%, var(--surface));border:1px solid var(--warn);color:var(--warn);border-radius:12px;padding:10px 12px}
+</style><style>
+.brand{display:flex;align-items:center;gap:8px}
+.brand svg{flex:none;margin-left:-6px}
+
+/* ---- v3: black & white ---- */
+.toggle button.active.klettern,.toggle button.active.ausgleich,.actions button.yes,.dot.klettern-good,.dot.ausgleich-good{color:#000}
+.toggle button.active.ausgleich{background:#fff;border-color:#fff}
+.dot.ausgleich-good{background:#cfcfcf;border-color:#cfcfcf}
+.ex.catchup{border-color:#fff;border-style:dashed;background:var(--surface-2)}
+.ex .tag{color:#fff;display:inline-flex;align-items:center;gap:3px}
+.ex .tag img{width:13px;height:13px}
+.ex.done .box{color:#000}
+button.guided{background:#fff;color:#000;border-color:#fff}
+.timer.work{background:#000}.timer.rest{background:#141414}.timer.manual{background:#0a0a0a}
+.timer .bar i{background:#fff}
+.ico{width:18px;height:18px;vertical-align:-3px}
+.rcard .ri{width:30px;height:30px;display:block;margin-bottom:8px}
+.rcard.add{border-style:dashed;display:flex;flex-direction:column;justify-content:center}
+.rcard.add .rt{font-size:26px}
+.rgrid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+.stat .n{display:flex;align-items:center;gap:8px}.stat .n img{width:26px;height:26px}
+.brand .mr{display:inline-block;transform:scaleX(-1)}
+.brand{gap:0!important;align-items:flex-end!important;font-size:clamp(46px,13vw,60px)!important;line-height:1!important}
+.brand img.logoC{width:1.04em;height:1.04em;margin:0 -0.05em 0.07em -0.07em;flex:none}
+.brand > span{padding-bottom:0}
+.actions button.no{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.actions button.no img{width:16px;height:16px;opacity:.8}
+.backup button{display:inline-flex;align-items:center;gap:6px}.backup img{width:16px;height:16px;opacity:.75}
+/* builder */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-family:var(--font-body);font-size:15px}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.box2{border:1px solid var(--line);border-radius:14px;padding:13px;background:var(--surface);display:flex;flex-direction:column;gap:10px}
+.box2 h3{margin:0;font-family:var(--font-display);font-weight:400;font-size:19px}
+.btn{padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-family:var(--font-body);font-weight:700;font-size:14px}
+.btn.main{background:#fff;color:#000;border-color:#fff}
+.btn.danger{background:transparent;color:var(--muted)}
+.mini{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:9px;padding:6px 9px;font-size:13px;flex:none}
+.hint{font-size:12.5px;color:var(--muted)}
+
+/* ---- v4: tools & finger check-in ---- */
+.fing{display:flex;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap}
+.fing .fl{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.fing button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-mono);font-weight:600}
+.fing button.on{background:#fff;color:#000;border-color:#fff}
+.fnote{font-size:12.5px;color:var(--fg);border:1px dashed #fff;border-radius:10px;padding:8px 10px;margin-top:8px}
+.preset{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.preset button{padding:16px 6px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-family:var(--font-display);font-size:28px}
+.preset button small{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--muted);margin-top:4px;letter-spacing:.04em}
+
+/* ---- v5: install bar ---- */
+.install{display:flex;align-items:center;gap:10px;border:1px solid #fff;border-radius:14px;padding:10px 10px 10px 12px;background:var(--surface)}
+.install img{width:34px;height:34px;flex:none}
+.install .it{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;color:var(--muted);line-height:1.35}
+.install .it b{color:var(--fg);font-size:14px}
+.install .ib{flex:none;background:#fff;color:#000;border:none;border-radius:10px;padding:9px 14px;font-family:var(--font-body);font-weight:700;font-size:14px}
+.install .ix{flex:none;background:none;border:none;color:var(--muted);font-size:16px;padding:6px}
+
+/* ---- v6: rest day ---- */
+.spine.rest{background:#555}
+.badge.rest{color:#fff;border-color:#777}
+.toggle button.active.rest{background:#fff;color:#000;border-color:#fff}
+.dot.rest{border-style:dashed;border-color:#777;color:#bbb}
+
+/* ---- v7: pain log ---- */
+.painrow{margin-top:10px}
+.painbtn{width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);background:transparent;color:var(--muted);font-family:var(--font-body);font-size:13.5px;font-weight:600}
+.painbtn.on{border:1px solid #fff;color:#fff}
+.ex .tag.watch{color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:1px 5px;margin-left:2px}
+.parea .ph{display:flex;justify-content:space-between;align-items:baseline}
+.parea .pv{font-family:var(--font-display);font-size:24px}
+.parea input[type=range]{width:100%;accent-color:#fff}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+.chk input{accent-color:#fff;width:18px;height:18px}
+/* ---- v2: routines, cues, timer ---- */
+.ex .cue{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+.ex .tbtn{flex:none;border:1px solid var(--ausgleich);background:transparent;color:var(--ausgleich-fg);border-radius:10px;padding:7px 9px;font-family:var(--font-mono);font-size:12px;font-weight:600}
+.guided{width:100%;margin-top:14px;padding:12px;border-radius:12px;border:1px solid var(--ausgleich);background:color-mix(in srgb,var(--ausgleich) 12%,transparent);color:var(--ausgleich-fg);font-family:var(--font-body);font-weight:700;font-size:14px}
+.routines h2{margin-bottom:10px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 10px;text-align:left;color:var(--fg);font-family:var(--font-body);min-width:0}
+.rcard .rt{font-family:var(--font-display);font-size:20px;line-height:1}
+.rcard .rm{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px}
+.rcard.warm .rt{color:var(--climb-fg)} .rcard.cool .rt{color:var(--ausgleich-fg)}
+.quick{display:flex;gap:8px;margin-top:12px}
+.quick button{flex:1;min-width:0;padding:9px 6px;border-radius:10px;border:1px dashed var(--line);background:transparent;color:var(--fg);font-family:var(--font-body);font-size:13px;font-weight:600}
+
+.sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.sheet .wrap{gap:14px}
+.sheet .close{align-self:flex-start;background:none;border:none;color:var(--muted);font-family:var(--font-body);font-size:14px;font-weight:600;padding:0}
+.sheet .intro{font-size:13.5px;color:var(--muted);line-height:1.5}
+.evidence{font-size:12.5px;color:var(--muted);border-left:3px solid var(--ausgleich);padding:4px 0 4px 10px;line-height:1.45}
+
+.timer{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(24px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));text-align:center;background:var(--bg);color:var(--fg);transition:background .25s}
+.timer.work{background:color-mix(in srgb,var(--climb) 22%,var(--bg))}
+.timer.rest{background:color-mix(in srgb,var(--ausgleich) 20%,var(--bg))}
+.timer.manual{background:var(--surface-2)}
+.timer .tprog{font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.timer .tname{font-family:var(--font-display);font-size:clamp(28px,8vw,40px);line-height:1;margin-top:10px;max-width:520px}
+.timer .tcue{font-size:14px;color:var(--muted);max-width:420px;margin:10px auto 0;line-height:1.45}
+.timer .tphase{font-family:var(--font-mono);font-size:15px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.timer .tclock{font-family:var(--font-display);font-size:clamp(110px,38vw,190px);line-height:.9;font-variant-numeric:tabular-nums}
+.timer .tsub{font-family:var(--font-mono);font-size:14px;color:var(--muted);margin-top:6px}
+.timer .tdose{font-family:var(--font-display);font-size:clamp(48px,14vw,72px);line-height:1}
+.timer .bar{width:100%;max-width:420px;height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin:14px auto 0}
+.timer .bar i{display:block;height:100%;background:var(--fg);width:0;transition:width .25s linear}
+.timer .tbtns{display:flex;gap:10px;width:100%;max-width:420px}
+.timer .tbtns button{flex:1;padding:14px 8px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-family:var(--font-body);font-size:15px;font-weight:700}
+.timer .tbtns button.main{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1 class="brand" aria-label="ClimbR"><img src="/icons/ui/logo.png" alt="" class="logoC"><span aria-hidden="true">limb<span class="mr">R</span></span></h1>
+    <div class="dateline" id="dateline"></div>
+  </header>
+
+  <div class="install" id="installBar" hidden>
+    <img src="/icons/ui/logo.png" alt="">
+    <div class="it"><b>Install ClimbЯ</b><span id="installHint">Works offline, opens like an app.</span></div>
+    <button class="ib" id="installBtn">Install</button>
+    <button class="ix" id="installClose" aria-label="Dismiss">✕</button>
+  </div>
+
+  <div id="banner"></div>
+
+  <div class="statrow" id="statrow"></div>
+
+  <section class="card" id="todayCard"></section>
+
+  <section class="routines">
+    <h2>Routines</h2>
+    <div class="rgrid" id="rgrid"></div>
+  </section>
+
+  <section class="routines">
+    <h2>Tools</h2>
+    <div class="rgrid" id="tgrid"></div>
+  </section>
+
+  <section class="history">
+    <h2>Recent days</h2>
+    <div class="dots" id="dots"></div>
+  </section>
+
+  <section class="reference">
+    <button class="ref-toggle" id="refToggle" aria-expanded="false">
+      <span>View training plans &amp; evidence</span><span class="car">&#9662;</span>
+    </button>
+    <div class="ref-body" id="refBody" hidden></div>
+  </section>
+
+  <div class="foot" id="foot"></div>
+  <div class="backup">
+    <button id="exportBtn"><img src="/icons/ui/backup.png" alt="" style="transform:rotate(180deg)">Export backup</button>
+    <button id="importBtn"><img src="/icons/ui/backup.png" alt="">Import backup</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden></div>
+<div class="timer" id="timer" hidden></div>
+
+<script>
+/* ============ Exercise library ============
+   timer: {work, sets, sides=1, reps=1, rest=0 (between reps), setRest, switchRest}
+   prio: 1 = keep at all costs, 3 = first to drop on catch-up days            */
+const EX = {
+  // Plan A
+  pushup: {name:"Push-ups (or dips between two chairs)", dose:"3 × 8–12, 3 s down", prio:2, cue:"Body in one line, lower for 3 seconds. Feet elevated or dips once push-ups get easy."},
+  pushplus: {name:"Push-up plus", dose:"2 × 12", prio:1, cue:"Arms straight in plank: let shoulder blades sink together, then push the floor away and round the upper back."},
+  extrot: {name:"Side-lying external rotation (dumbbell)", dose:"3 × 12 / side, 3 s return", prio:1, cue:"Lie on your side, top elbow pinned to your ribs at 90°, light dumbbell. Rotate the forearm up, lower for 3 s."},
+  ytw: {name:"Prone Y-T-W raises", dose:"2 × 8 each", prio:2, cue:"Lying face down, thumbs up. Squeeze shoulder blades down and back before lifting. No weight or very light dumbbells."},
+  ohp: {name:"Dumbbell overhead press", dose:"3 × 8", prio:3, cue:"Ribs down, glutes tight. Press straight up, biceps by your ears. Pike push-ups work as a no-weight alternative."},
+  plank:    {name:"Plank", dose:"3 × 45 s", prio:2, cue:"Elbows under shoulders, squeeze glutes, tuck pelvis slightly. Breathe.", timer:{work:45, sets:3, setRest:30}},
+  sideplank:{name:"Side plank", dose:"2 × 30 s / side", prio:3, cue:"Elbow under shoulder, hips high and stacked. Drop to knees to regress.", timer:{work:30, sets:2, sides:2, setRest:20, switchRest:8}},
+  // Plan B
+  fingext: {name:"Finger extensor isometrics", dose:"4 × 8 reps · 5 s open / 6 s rest", prio:1, cue:"Extension band around your fingertips: open hard (~80 %) and hold 5 s. No band? Push fingertips up under a table edge.", timer:{work:5, rest:6, reps:8, sets:4, setRest:60}},
+  wristext: {name:"Eccentric wrist extension", dose:"3 × 15, 3 s down", prio:1, cue:"Forearm on your thigh, palm down, light dumbbell. Help it up with the other hand, lower for 3 s."},
+  pronsup: {name:"Pronation / supination (dumbbell)", dose:"2 × 12 / side", prio:3, cue:"Hold a dumbbell at one end like a hammer, elbow at 90°. Rotate slowly palm-up ↔ palm-down."},
+  squat: {name:"Goblet squat", dose:"3 × 10", prio:2, cue:"Dumbbell at your chest, knees track over toes, sit between your heels, 3 s down."},
+  lunge: {name:"Bulgarian split squat", dose:"3 × 8 / leg", prio:3, cue:"Rear foot on a chair or bed, front knee over the foot, lower straight down. Add dumbbells when bodyweight gets easy."},
+  sldl: {name:"Single-leg Romanian deadlift", dose:"2 × 8 / leg", prio:3, cue:"Dumbbell in the opposite hand, hinge at the hip, back leg long, hips square."},
+  hollow: {name:"Hanging leg raises", dose:"3 × 6–10", prio:2, cue:"Hang from the pull-up bar, shoulders engaged, raise straight or bent legs to hip height with control. Mimics lifting your feet to high holds."},
+  hip9090:  {name:"Hip mobility 90/90", dose:"2 × 40 s / side", prio:3, cue:"Both knees at 90°, sit tall, lean gently over the front shin.", timer:{work:40, sets:2, sides:2, setRest:10, switchRest:8}},
+  // Catch-up / legacy
+  plank40:  {name:"Plank", dose:"2 × 40 s", prio:1, cue:"Elbows under shoulders, squeeze glutes, breathe.", timer:{work:40, sets:2, setRest:30}},
+
+  // Warm-up
+  pulse: {name:"Pulse raiser", dose:"3 min", cue:"Jumping jacks, skipping on the spot or the approach walk. Get slightly warm.", timer:{work:180, sets:1}},
+  armcirc: {name:"Arm circles + shoulder CARs", dose:"1 min", cue:"Big forward and backward arm circles, then slow full shoulder rotations (controlled articular rotations) on each side.", timer:{work:60, sets:1}},
+  pullapart: {name:"Wall slides", dose:"2 × 10", cue:"Back, arms and wrists against a wall or rock, slide arms up into a Y and down into a W. Keep ribs down."},
+  scappull: {name:"Scapular pull-ups", dose:"2 × 8", cue:"Hang on the pull-up bar (or Beastmaker jugs), arms straight. Pull shoulder blades down without bending the elbows."},
+  wristmob: {name:"Wrist & finger mobility", dose:"1 min", cue:"Wrist circles, finger flicks, make a fist then spread wide. Gentle prayer stretch.", timer:{work:60, sets:1}},
+  legswing: {name:"Leg swings + hip openers", dose:"1 min", cue:"Front/back and side leg swings, then knee-up hip circles (open the gate).", timer:{work:60, sets:1}},
+  easyclimb: {name:"Easy climbing, progressive", dose:"~6 min", cue:"3–5 easy pitches or problems. Start on jugs, then slopers and pinches, crimps last. Easy breathing.", timer:{work:360, sets:1}},
+  hangs: {name:"Progressive hangs (optional)", dose:"3 × 10 s", cue:"Before hard sessions: Beastmaker big edge, feet assisting at first. ~50 % → 70 % → 85 % effort. Skip if fingers feel tweaky.", timer:{work:10, sets:3, setRest:60}},
+  // Cool-down & stretching
+  easymove: {name:"Easy movement", dose:"3 min", cue:"A couple of very easy climbs or relaxed walking. Let your breathing settle.", timer:{work:180, sets:1}},
+  flexstr:  {name:"Forearm flexor stretch", dose:"2 × 30 s / side", cue:"Arm straight, palm out, fingers up: gently pull fingers back with the other hand.", timer:{work:30, sets:2, sides:2, setRest:5, switchRest:5}},
+  extstr:   {name:"Forearm extensor stretch", dose:"2 × 30 s / side", cue:"Arm straight, palm down, gently bend wrist down with the other hand.", timer:{work:30, sets:2, sides:2, setRest:5, switchRest:5}},
+  chest:    {name:"Doorway chest stretch", dose:"2 × 30 s / side", cue:"Forearm on the door frame at shoulder height, step through until you feel the chest open.", timer:{work:30, sets:2, sides:2, setRest:5, switchRest:5}},
+  latstr:   {name:"Lat stretch (side reach)", dose:"2 × 30 s / side", cue:"Hold a doorframe or rail, sit hips back and away until you feel the side of your back.", timer:{work:30, sets:2, sides:2, setRest:5, switchRest:5}},
+  thread:   {name:"Thread the needle", dose:"1 × 30 s / side", cue:"On all fours, slide one arm under your body and rest the shoulder down. Breathe into the upper back.", timer:{work:30, sets:1, sides:2, switchRest:5}},
+  hipflex:  {name:"Half-kneeling hip flexor stretch", dose:"2 × 40 s / side", cue:"Tuck pelvis under, squeeze the glute of the back leg, shift forward slightly.", timer:{work:40, sets:2, sides:2, setRest:5, switchRest:5}},
+  frog:     {name:"Frog stretch", dose:"2 × 40 s", cue:"On all fours, knees wide, ankles in line with knees. Rock hips back gently.", timer:{work:40, sets:2, setRest:10}},
+  pigeon:   {name:"Pigeon stretch", dose:"2 × 40 s / side", cue:"Front shin across, back leg long. Keep hips square, fold forward if comfortable.", timer:{work:40, sets:2, sides:2, setRest:5, switchRest:5}},
+  hamstr: {name:"Straddle stretch (seated wide-leg)", dose:"2 × 40 s", cue:"Sit tall with legs wide, hinge forward from the hips with a long back. Hip abduction is linked to climbing level.", timer:{work:40, sets:2, setRest:10}},
+  childside:{name:"Child's pose with side reach", dose:"2 × 40 s / side", cue:"Sit back to heels, walk both hands to one side.", timer:{work:40, sets:2, sides:2, setRest:5, switchRest:5}},
+  chest40:  {name:"Doorway chest stretch", dose:"2 × 40 s / side", cue:"Forearm on the frame at shoulder height, step through gently.", timer:{work:40, sets:2, sides:2, setRest:5, switchRest:5}},
+  sleeper:  {name:"Cross-body shoulder stretch", dose:"2 × 30 s / side", cue:"Pull one arm across your chest at shoulder height, keep the shoulder down.", timer:{work:30, sets:2, sides:2, setRest:5, switchRest:5}},
+};
+
+const PLANS = {
+  A: {title:"Plan A — Push & shoulder health", ids:["pushup","pushplus","extrot","ytw","ohp","plank","sideplank"]},
+  B: {title:"Plan B — Legs, hips & forearm balance", ids:["fingext","wristext","pronsup","squat","lunge","sldl","hollow","hip9090"]},
+};
+const ROUTINES = {
+  warmup:  {title:"Warm-up", sub:"Before climbing · ~13 min",
+    intro:"Raise your temperature, wake up shoulders and fingers, then climb progressively easy → harder.",
+    evidence:"Climbing studies: a 10-min climbing-specific warm-up (easy climbing + finger-bar hangs) raised shoulder and elbow strength in climbers but not finger strength, and warm-ups showed no injury protection on their own. Use it to feel ready, not as insurance.",
+    ids:["pulse","armcirc","pullapart","scappull","wristmob","legswing","easyclimb","hangs"]},
+  cooldown:{title:"Cool-down", sub:"After climbing · ~10 min",
+    intro:"Settle down and stretch the muscles climbing shortens: forearms, chest, lats.",
+    evidence:"Climbing studies found no protective effect of cool-downs, so keep this short. No climbing study has tested specific cool-down content — the stretches target muscles climbing shortens.",
+    ids:["easymove","flexstr","extstr","chest","latstr","thread"]},
+  stretch: {title:"Stretching", sub:"Any day · ~15 min",
+    intro:"Longer holds for mobility — hip opening for high steps, drop-knees and stemming, plus shoulders and forearms.",
+    evidence:"In 60 advanced-to-elite climbers, hip abduction (straddle) correlated with climbing level — hamstring flexibility far less. Hold length (≤ 40 s) comes from general sports science: strength loss grows above 60 s per stretch.",
+    ids:["hipflex","frog","pigeon","hamstr","childside","chest40","sleeper","flexstr"]},
+};
+// catch-up: from a missed plan, its 2 highest-priority exercises
+function catchUpFrom(tpl){ return PLANS[tpl].ids.filter(id => EX[id].prio === 1).slice(0,2); }
+
+function exItem(id, extra){ const e = EX[id]; return {id, name:e.name, sets:e.dose, done:false, ...(extra||{})}; }
+function exMeta(item){ return (item && item.id && EX[item.id]) || null; }
+
+/* ============ Dates ============ */
+function todayISO(){
+  const d = new Date(); const local = new Date(d.getTime() - d.getTimezoneOffset()*60000);
+  return local.toISOString().slice(0,10);
+}
+function fmtDate(iso){ const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}); }
+function dayShort(iso){ const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit'}); }
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ============ State & storage ============ */
+const STORE_KEY = 'climber.sessions.v1';
+const TODAY = todayISO();
+let sessions = [], draft = null;
+function loadSessions(){ try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e){ return []; } }
+function persist(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(sessions)); }
+  catch(e){ showBanner('Saving failed — is storage full or in private mode?'); }
+}
+function sessionFor(date){ return sessions.find(s => s.date === date) || null; }
+function sortSessions(){ sessions.sort((a,b) => a.date < b.date ? 1 : -1); }
+
+function isoAdd(iso, days){ const [y,m,d] = iso.split('-').map(Number); const t = new Date(y, m-1, d + days); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
+// training days in a row right before today (completed climbing or cross-training)
+function trainingStreakBeforeToday(){
+  let n = 0, day = isoAdd(TODAY, -1);
+  for (;;) { const s = sessionFor(day); if (s && s.completed && s.type !== 'rest') { n++; day = isoAdd(day, -1); } else break; }
+  return n;
+}
+function trainedLast7(){ let n = 0; for (let i = 1; i <= 7; i++) { const s = sessionFor(isoAdd(TODAY, -i)); if (s && s.completed && s.type !== 'rest') n++; } return n; }
+function restReason(){
+  const pr = painRestReason(); if (pr) return pr;
+  const f = fingers[TODAY];
+  if (f && f <= 2) return 'Your fingers feel off today.';
+  const run = trainingStreakBeforeToday();
+  if (run >= 3) return `You've trained ${run} days in a row.`;
+  if (trainedLast7() >= 6) return 'You trained 6 of the last 7 days.';
+  return '';
+}
+function suggestedTypeForToday(){
+  if (restReason()) return 'rest';
+  const last = sessions.filter(s => s.date < TODAY && s.type !== 'rest')[0];
+  const next = last ? (last.type === 'klettern' ? 'ausgleich' : 'klettern') : 'ausgleich';
+  return (next === 'klettern' && upperPain() >= 4) ? 'ausgleich' : next;
+}
+
+function computeDraftForType(type){
+  const d = computeDraftBase(type);
+  if (d.exercises && d.exercises.length) { const r = adaptExercises(d.exercises); d.exercises = r.kept; d.removed = r.removed; }
+  return d;
+}
+function computeDraftBase(type){
+  const before = sessions.filter(s => s.date < TODAY);
+  let template = null, exercises = [], catchUp = false, note = '';
+  if (type === 'ausgleich') {
+    const count = sessions.filter(s => s.type === 'ausgleich' && s.date < TODAY).length;
+    template = (count % 2 === 0) ? 'A' : 'B';
+    const lastA = before.find(s => s.type === 'ausgleich');
+    let ids = [...PLANS[template].ids];
+    if (lastA && lastA.completed === false) {
+      const missed = (lastA.template === 'A' || lastA.template === 'B') ? lastA.template : (template === 'A' ? 'B' : 'A');
+      const add = catchUpFrom(missed).filter(id => !ids.includes(id));
+      if (add.length) {
+        catchUp = true;
+        // drop the lowest-priority exercises (prio 3 first, from the end)
+        const droppable = ids.map((id,i) => ({id,i,p:EX[id].prio})).sort((a,b) => b.p - a.p || b.i - a.i).slice(0, add.length).map(x => x.id);
+        ids = ids.filter(id => !droppable.includes(id));
+        exercises = add.map(id => exItem(id, {catchUp:true})).concat(ids.map(id => exItem(id)));
+        note = `Adjusted: your last cross-training day (Plan ${missed}) was skipped, so its 2 key exercises are added first and ${droppable.length} lower-priority ones are paused today.`;
+      }
+    }
+    if (!catchUp) exercises = ids.map(id => exItem(id));
+  }
+  return {type, template, exercises, catchUp, note};
+}
+
+/* ============ Actions ============ */
+function saveToday(completed){
+  const d = draft || computeDraftForType(suggestedTypeForToday());
+  const body = { date:TODAY, type:d.type, template:d.template || null,
+    exercises:(d.exercises||[]).map(e => ({...e, done: completed ? true : e.done})),
+    completed:!!completed, catchUp:!!d.catchUp, updatedAt:Date.now() };
+  sessions = [body, ...sessions.filter(s => s.date !== TODAY)]; sortSessions(); persist();
+  draft = null; render();
+}
+function setDone(idx, value){
+  const existing = sessionFor(TODAY);
+  if (existing) {
+    const exercises = existing.exercises.map((e,i) => i===idx ? {...e, done: value===undefined ? !e.done : value} : e);
+    sessions = sessions.map(s => s.date === TODAY ? {...s, exercises, updatedAt:Date.now()} : s); persist();
+  } else if (draft) {
+    draft = {...draft, exercises: draft.exercises.map((e,i) => i===idx ? {...e, done: value===undefined ? !e.done : value} : e)};
+  }
+  render();
+}
+function toggleExercise(idx){ setDone(idx); }
+function reedit(){ sessions = sessions.filter(s => s.date !== TODAY); persist(); draft = null; render(); }
+function setType(type){ draft = computeDraftForType(type); render(); }
+function showBanner(msg){ document.getElementById('banner').innerHTML = msg ? '<div class="banner">' + msg + '</div>' : ''; }
+
+/* ============ Rendering ============ */
+function exList(exercises, ctx){
+  if (!exercises || !exercises.length) return '';
+  return '<ul class="exlist">' + exercises.map((e,i) => {
+    const m = exMeta(e);
+    const timerBtn = m && m.timer ? `<button class="tbtn" onclick="event.stopPropagation();runToday(${i})" aria-label="Start timer"><img class="ico" src="/icons/ui/timer.png" alt=""> ${fmtShort(m.timer)}</button>` : '';
+    return `<li class="ex ${e.done?'done':''} ${e.catchUp?'catchup':''}" onclick="toggleExercise(${i})" style="cursor:pointer">
+      <span class="box">${e.done ? '✓' : ''}</span>
+      <span class="tx"><span class="nm">${esc(e.name)}</span>${e.catchUp ? ' <span class="tag"><img src="/icons/ui/catchup.png" alt="">Catch-up</span>' : ''}${e.watch ? ` <span class="tag watch">watch: ${e.watch.map(k => AREA_NAME[k].split(' /')[0].toLowerCase()).join(', ')} · keep ≤ 3/10</span>` : ''}${e.rehab ? ` <span class="tag watch">rehab for ${AREA_NAME[e.rehab].split(' /')[0].toLowerCase()} · light, slow, ≤ 3/10</span>` : ''}<br><span class="sets">${esc(e.sets)}</span>${m && m.cue ? `<span class="cue">${esc(m.cue)}</span>` : ''}</span>
+      ${timerBtn}
+    </li>`; }).join('') + '</ul>';
+}
+function fmtShort(t){ return (t.reps||1) > 1 ? `${t.work}s×${t.reps}` : (t.work >= 60 ? Math.round(t.work/60)+'m' : t.work+'s'); }
+
+function climbQuick(){
+  return `<div class="quick"><button onclick="openRoutine('warmup')">Warm-up first</button><button onclick="openRoutine('cooldown')">Cool-down after</button></div>`;
+}
+
+const TYPE_LABEL = {klettern:'Climbing day', ausgleich:'Cross-training day', rest:'Rest day'};
+function restBlock(reason){
+  return `<div class="note">${reason ? '<b>Rest day suggested.</b> ' + esc(reason) + ' ' : ''}Tendons rebuild collagen for 1–3 days after hard loading — rest is when that happens.</div>
+    <div class="quick"><button onclick="openRoutine('stretch')">Optional: light stretching</button></div>
+    <div class="hint" style="margin-top:8px">Stretching won't speed up recovery, but a rest day is a good time for hip mobility.</div>`;
+}
+function renderToday(){
+  const el = document.getElementById('todayCard');
+  const existing = sessionFor(TODAY);
+  if (existing) {
+    const typeLabel = TYPE_LABEL[existing.type] || 'Day';
+    const status = existing.completed ? '<span class="badge good">done</span>' : '<span class="badge warn">skipped</span>';
+    el.innerHTML = `<div class="spine ${existing.type}"></div><div class="card-body">
+      <span class="badge ${existing.type}">${typeLabel}</span> ${status}
+      ${fingerRow()}
+    ${painRow()}
+      ${existing.template ? `<div class="note">${esc(PLANS[existing.template] ? PLANS[existing.template].title : 'Plan '+existing.template)}${existing.catchUp ? ' · with catch-up exercises' : ''}</div>` : ''}
+      ${exList(existing.exercises)}
+      ${existing.type === 'klettern' ? climbQuick() : ''}
+      ${existing.type === 'rest' ? restBlock('') : ''}
+      <button class="edit-link" onclick="reedit()">Edit entry</button></div>`;
+    return;
+  }
+  if (!draft) { draft = computeDraftForType(suggestedTypeForToday()); draft.auto = true; }
+  const d = draft;
+  const typeLabel = TYPE_LABEL[d.type];
+  el.innerHTML = `<div class="spine ${d.type}"></div><div class="card-body">
+    <span class="badge ${d.type}">${typeLabel} · today</span>
+    ${fingerRow()}
+    ${painRow()}
+    <div class="toggle">
+      <button class="${d.type==='klettern'?'active klettern':''}" onclick="setType('klettern')">Climbing day</button>
+      <button class="${d.type==='ausgleich'?'active ausgleich':''}" onclick="setType('ausgleich')">Cross-training</button>
+      <button class="${d.type==='rest'?'active rest':''}" onclick="setType('rest')">Rest</button>
+    </div>
+    ${d.type==='rest' ? restBlock(d.auto ? restReason() : '') : ''}
+    ${d.type==='ausgleich' && d.template ? `<div class="note">${esc(PLANS[d.template].title)}${d.note ? ' — ' + esc(d.note) : ''}</div>` : ''}
+    ${d.removed && d.removed.length ? `<div class="note"><b>Adjusted for pain:</b> paused ${d.removed.map(x => esc(x.name) + ' (' + x.areas.map(k => AREA_NAME[k].split(' /')[0].toLowerCase()).join(', ') + ')').join(', ')}.</div>` : ''}
+    ${d.type==='klettern' ? climbAdvice() : ''}
+    ${d.type==='klettern' ? `<div class="note">Climbing day: start with the warm-up, finish with the cool-down.</div>${climbQuick()}` : ''}
+    ${exList(d.exercises)}
+    ${d.type==='ausgleich' ? `<button class="guided" onclick="runToday()">▶ Start guided session</button>` : ''}
+    <div class="actions">
+      <button class="yes" onclick="saveToday(true)">${d.type==='klettern' ? '✓ Climbed' : d.type==='rest' ? '✓ Rest day' : '✓ Done'}</button>
+      ${d.type==='rest' ? '' : `<button class="no" onclick="saveToday(false)"><img src="/icons/ui/skip.png" alt="">Skipped</button>`}
+    </div></div>`;
+}
+
+function renderStats(){
+  let streak = 0; for (const s of sessions) { if (s.completed) streak++; else break; }
+  const last14 = sessions.slice(0,14);
+  const rate = last14.length ? Math.round(100 * last14.filter(s=>s.completed).length / last14.length) : 0;
+  document.getElementById('statrow').innerHTML = `
+    <div class="stat"><div class="n"><img src="/icons/ui/streak.png" alt="">${streak}</div><div class="l">day streak</div></div>
+    <div class="stat"><div class="n">${rate}%</div><div class="l">completion, last 14 days</div></div>`;
+}
+function renderHistory(){
+  const el = document.getElementById('dots'); const list = sessions.slice(0,14);
+  if (!list.length) { el.innerHTML = '<span style="color:var(--muted);font-size:13px">No entries yet.</span>'; return; }
+  el.innerHTML = list.map(s => s.type === 'rest' ? `<div class="dot rest" title="${dayShort(s.date)} · rest">R</div>` : `<div class="dot ${(s.type==='klettern'?'klettern':'ausgleich')+'-'+(s.completed?'good':'bad')}" title="${dayShort(s.date)}">${s.type==='klettern'?'C':'X'}</div>`).join('');
+}
+function planBlock(title, ids, cls){
+  return `<div class="plan"><h3 class="${cls}">${title}</h3><ul>${ids.map(id => `<li>${esc(EX[id].name)} <span class="sets">— ${esc(EX[id].dose)}</span></li>`).join('')}</ul></div>`;
+}
+function renderReference(){
+  document.getElementById('refBody').innerHTML =
+    planBlock(PLANS.A.title, PLANS.A.ids, 'a') + planBlock(PLANS.B.title, PLANS.B.ids, 'b') +
+    `<div class="plan"><h3 class="a">Catch-up logic</h3><div class="note" style="margin:0">If a cross-training day is skipped, the next one starts with the missed plan's 2 key exercises (A: external rotation, push-up plus · B: finger extensor isometrics, eccentric wrist extension) and drops 2 lower-priority ones.</div></div>
+    <div class="plan"><h3 class="b">Why these exercises</h3><ul>
+      <li><b>Climbing RCT:</b> closed-chain + eccentric strength work 3–4×/week cut shoulder (3.2 → 0.5) and elbow (1.8 → 0.5) injuries per 1,000 exposures in student climbers (Kozina et al.; small, moderate quality).</li>
+      <li><b>Climbing study:</b> climbers' shoulder ER:IR ratio is ~0.8 vs ~1.0 in non-climbers → external rotation & scapular work.</li>
+      <li><b>Climbing study:</b> finger flexors ~6× stronger than extensors; 5 s on / 6 s off extensor isometrics rebalanced this in 4 weeks.</li>
+      <li><b>Climbing RCT:</b> 10 weeks of core training (side & prone bridges, foot-lifts, lock-offs) improved climbing-specific tests in advanced climbers.</li>
+      <li><b>Climbing study:</b> hip abduction correlates with climbing level → straddle & frog stretches.</li>
+      <li><b>Tendon research:</b> after hard loading, tendons break down collagen for ~18–36 h and rebuild it for up to 72 h; without enough rest, net collagen loss can make them vulnerable (Magnusson et al. 2010). Not climbing-specific, but it applies to finger tendons.</li>
+      <li><b>Pain log:</b> based on the pain-monitoring model (RCT, Silbernagel et al. 2007): pain ≤ ~5/10 during loading is acceptable if it settles by the next morning and doesn't worsen week to week. ClimbR uses a stricter 3/10 for climbers. Sharp pain, a pop, swelling or pain > 2 weeks → see a professional.</li>
+      <li><b>Rest-day rules (practice):</b> 3 training days in a row, 6 of 7 days, or fingers at 1–2 → rest suggested.</li>
+      <li><b>Cochrane review:</b> stretching barely reduces muscle soreness (~1 point on a 100-point scale) — stretching on rest days is for mobility, not recovery.</li>
+      <li><b>General sports science (no climbing data):</b> sets/reps, hold times and stretch duration.</li>
+      <li>Not medical advice. Pain in fingers, elbows or shoulders → see a physio.</li></ul></div>`;
+}
+function render(){
+  document.getElementById('dateline').textContent = fmtDate(TODAY);
+  renderStats(); renderToday(); renderHistory();
+  document.getElementById('foot').textContent = IS_NATIVE ? 'Saved on this phone — fully offline.' : 'Saved on this device — works offline too.';
+}
+
+/* ============ Routines (built-in + custom) ============ */
+const CUSTOM_KEY = 'climbr.custom.v1';
+let customs = [];
+function loadCustoms(){ try { return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]'); } catch(e){ return []; } }
+function persistCustoms(){ try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(customs)); } catch(e){ showBanner('Saving failed — is storage full?'); } }
+function getRoutine(key){
+  if (ROUTINES[key]) { const r = ROUTINES[key]; const ad = adaptExercises(r.ids.map(id => ({...EX[id], id})));
+    const extra = ad.removed.length ? 'Adjusted for pain — paused: ' + ad.removed.map(x => x.name).join(', ') + '. ' : '';
+    return {...r, key, intro: extra + r.intro, items: ad.kept, custom:false}; }
+  const c = customs.find(x => x.id === key); if (!c) return null;
+  const mins = Math.max(1, Math.round(c.items.reduce((t,x) => t + (x.timer ? x.timer.work*(x.timer.sets||1)*(x.timer.sides||1)*(x.timer.reps||1) + (x.timer.setRest||0)*((x.timer.sets||1)-1) : 90), 0)/60));
+  return {key, title:c.title, sub:`Custom · ~${mins} min`, intro:'', evidence:'', items:c.items, custom:true};
+}
+const ICONS = {warmup:'warmup', cooldown:'cooldown'};
+function renderRoutines(){
+  const cards = ['warmup','cooldown','stretch'].concat(customs.map(c => c.id)).map(k => {
+    const r = getRoutine(k);
+    return `<button class="rcard" onclick="openRoutine('${k}')">${ICONS[k] ? `<img class="ri" src="/icons/ui/${ICONS[k]}.png" alt="">` : ''}<div class="rt">${esc(r.title)}</div><div class="rm">${esc(r.sub.replace('Before climbing','before').replace('After climbing','after').replace('Any day','any day'))}</div></button>`;
+  });
+  cards.push(`<button class="rcard add" onclick="openBuilder()"><div class="rt">+</div><div class="rm">New routine</div></button>`);
+  document.getElementById('rgrid').innerHTML = cards.join('');
+}
+function openRoutine(key){
+  const r = getRoutine(key); if (!r) return; const sh = document.getElementById('sheet');
+  sh.innerHTML = `<div class="wrap">
+    <button class="close" onclick="closeSheet()">← Back</button>
+    <header><div class="eyebrow">${esc(r.sub)}</div><h1>${esc(r.title)}</h1></header>
+    ${r.intro ? `<div class="intro">${esc(r.intro)}</div>` : ''}
+    <button class="guided" style="margin:0" onclick="runRoutine('${key}')">▶ Start ${esc(r.title)}</button>
+    <ul class="exlist" style="margin:0">${r.items.map((e,i) => `
+      <li class="ex"><span class="tx"><span class="nm">${esc(e.name)}</span><br><span class="sets">${esc(e.dose)}</span>${e.cue ? `<span class="cue">${esc(e.cue)}</span>` : ''}</span>
+      ${e.timer ? `<button class="tbtn" onclick="runRoutine('${key}', ${i}, true)"><img class="ico" src="/icons/ui/timer.png" alt=""> ${fmtShort(e.timer)}</button>` : ''}</li>`).join('')}</ul>
+    ${r.evidence ? `<div class="evidence">${esc(r.evidence)}</div>` : ''}
+    ${r.custom ? `<button class="btn" onclick="openBuilder('${key}')">Edit routine</button>` : ''}
+  </div>`;
+  sh.hidden = false; sh.scrollTop = 0;
+}
+function closeSheet(){ document.getElementById('sheet').hidden = true; }
+
+/* ---- Builder ---- */
+let B = null;
+const LIB = [['Plan A', PLANS.A.ids], ['Plan B', PLANS.B.ids], ['Warm-up', ROUTINES.warmup.ids], ['Cool-down', ROUTINES.cooldown.ids], ['Stretching', ROUTINES.stretch.ids]];
+function openBuilder(id){
+  const c = id ? customs.find(x => x.id === id) : null;
+  B = c ? JSON.parse(JSON.stringify(c)) : {id:'c' + Date.now(), title:'', items:[], isNew:true};
+  drawBuilder(); const sh = document.getElementById('sheet'); sh.hidden = false; sh.scrollTop = 0;
+}
+function drawBuilder(){
+  const seen = new Set();
+  const opts = LIB.map(([g, ids]) => `<optgroup label="${g}">${ids.filter(id => !seen.has(id) && seen.add(id)).map(id => `<option value="${id}">${esc(EX[id].name)} — ${esc(EX[id].dose)}</option>`).join('')}</optgroup>`).join('');
+  document.getElementById('sheet').innerHTML = `<div class="wrap">
+    <button class="close" onclick="${B.isNew ? 'closeSheet()' : `openRoutine('${B.id}')`}">← Back</button>
+    <header><div class="eyebrow">Custom routine</div><h1>${B.isNew ? 'New routine' : 'Edit routine'}</h1></header>
+    <div class="field"><label>Name</label><input id="bTitle" value="${esc(B.title)}" placeholder="e.g. Fingerboard day prep" oninput="B.title=this.value"></div>
+    <div class="box2"><h3>Exercises (${B.items.length})</h3>
+      ${B.items.length ? `<ul class="exlist" style="margin:0">${B.items.map((e,i) => `
+        <li class="ex"><span class="tx"><span class="nm">${esc(e.name)}</span><br><span class="sets">${esc(e.dose)}${e.timer ? ' · timer' : ''}</span></span>
+        <button class="mini" onclick="moveItem(${i},-1)" aria-label="Move up">↑</button><button class="mini" onclick="moveItem(${i},1)" aria-label="Move down">↓</button><button class="mini" onclick="removeItem(${i})" aria-label="Remove">✕</button></li>`).join('')}</ul>` : '<div class="hint">No exercises yet — add some below.</div>'}
+    </div>
+    <div class="box2"><h3>Add from library</h3>
+      <div class="field"><select id="bLib">${opts}</select></div>
+      <button class="btn" onclick="addLib()">+ Add</button>
+    </div>
+    <div class="box2"><h3>Add your own</h3>
+      <div class="field"><label>Exercise</label><input id="oName" placeholder="e.g. Scapular push-ups"></div>
+      <div class="field"><label>Type</label><select id="oMode" onchange="document.getElementById('oTimed').hidden=this.value!=='timed';document.getElementById('oReps').hidden=this.value==='timed'">
+        <option value="reps">Sets × reps (tick off)</option><option value="timed">Timed (with timer)</option></select></div>
+      <div class="field" id="oReps"><label>Dose</label><input id="oDose" placeholder="e.g. 3 × 10"></div>
+      <div id="oTimed" hidden><div class="row">
+        <div class="field"><label>Seconds</label><input id="oWork" type="number" inputmode="numeric" value="30" min="1"></div>
+        <div class="field"><label>Sets</label><input id="oSets" type="number" inputmode="numeric" value="3" min="1"></div>
+        <div class="field"><label>Sides</label><select id="oSides"><option value="1">1</option><option value="2">2 (L/R)</option></select></div>
+        <div class="field"><label>Rest s</label><input id="oRest" type="number" inputmode="numeric" value="30" min="0"></div>
+      </div></div>
+      <div class="field"><label>Note (optional)</label><input id="oCue" placeholder="Technique cue"></div>
+      <button class="btn" onclick="addOwn()">+ Add exercise</button>
+    </div>
+    <button class="btn main" onclick="saveBuilder()">Save routine</button>
+    ${B.isNew ? '' : `<button class="btn danger" onclick="deleteRoutine()">Delete routine</button>`}
+  </div>`;
+}
+function keepTitle(){ const t = document.getElementById('bTitle'); if (t) B.title = t.value; }
+function addLib(){ keepTitle(); const id = document.getElementById('bLib').value; const e = EX[id]; B.items.push({name:e.name, dose:e.dose, cue:e.cue, ...(e.timer ? {timer:{...e.timer}} : {})}); drawBuilder(); }
+function addOwn(){
+  keepTitle();
+  const name = document.getElementById('oName').value.trim(); if (!name) { alert('Give the exercise a name.'); return; }
+  const cue = document.getElementById('oCue').value.trim();
+  if (document.getElementById('oMode').value === 'timed') {
+    const work = Math.max(1, +document.getElementById('oWork').value || 30), sets = Math.max(1, +document.getElementById('oSets').value || 1);
+    const sides = +document.getElementById('oSides').value || 1, rest = Math.max(0, +document.getElementById('oRest').value || 0);
+    B.items.push({name, cue, dose:`${sets} × ${work} s${sides > 1 ? ' / side' : ''}`, timer:{work, sets, sides, setRest:rest, switchRest:5}});
+  } else {
+    B.items.push({name, cue, dose: document.getElementById('oDose').value.trim() || '—'});
+  }
+  drawBuilder();
+}
+function moveItem(i, d){ keepTitle(); const j = i + d; if (j < 0 || j >= B.items.length) return; [B.items[i], B.items[j]] = [B.items[j], B.items[i]]; drawBuilder(); }
+function removeItem(i){ keepTitle(); B.items.splice(i, 1); drawBuilder(); }
+function saveBuilder(){
+  keepTitle(); B.title = (B.title || '').trim();
+  if (!B.title) { alert('Give your routine a name.'); return; }
+  if (!B.items.length) { alert('Add at least one exercise.'); return; }
+  const {isNew, ...c} = B; customs = customs.filter(x => x.id !== c.id).concat([c]); persistCustoms(); renderRoutines(); openRoutine(c.id);
+}
+function deleteRoutine(){ if (!confirm('Delete "' + B.title + '"?')) return; customs = customs.filter(x => x.id !== B.id); persistCustoms(); renderRoutines(); closeSheet(); }
+
+/* ============ Timer / guided runner ============ */
+// Build phases for one exercise
+function phasesFor(t){
+  const ph = [], sides = t.sides || 1, reps = t.reps || 1, sideName = ['Left side','Right side'];
+  for (let s = 1; s <= t.sets; s++) {
+    for (let sd = 0; sd < sides; sd++) {
+      for (let r = 1; r <= reps; r++) {
+        const info = [t.sets > 1 ? `${t.setName || 'Set'} ${s}/${t.sets}` : '', sides > 1 ? sideName[sd] : '', reps > 1 ? `Rep ${r}/${reps}` : ''].filter(Boolean).join(' · ');
+        ph.push({kind:'work', label: t.workLabel || (reps > 1 ? 'Push' : 'Go'), secs:t.work, info, alert:t.alert});
+        if (r < reps && t.rest) ph.push({kind:'rest', label:'Rest', secs:t.rest, info});
+      }
+      if (sd < sides - 1) ph.push({kind:'rest', label:'Switch sides', secs:t.switchRest || 5, info:''});
+    }
+    if (s < t.sets && t.setRest) ph.push({kind:'rest', label:t.restLabel || 'Rest', secs:t.setRest, info:`Next: ${(t.setName || 'set').toLowerCase()} ${s+1}/${t.sets}`, alert:t.alert});
+  }
+  return ph;
+}
+
+const T = { queue:[], qi:0, phases:[], pi:0, left:0, paused:false, tick:null, onDone:null, lock:null, endAt:0 };
+let audioCtx = null;
+function beep(freq, dur){
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.frequency.value = freq; o.connect(g); g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(0.25, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  } catch(e){}
+}
+function buzz(p){ try { navigator.vibrate && navigator.vibrate(p); } catch(e){} }
+async function wakeLock(on){
+  try { if (on && 'wakeLock' in navigator) T.lock = await navigator.wakeLock.request('screen'); else if (!on && T.lock) { await T.lock.release(); T.lock = null; } } catch(e){}
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !document.getElementById('timer').hidden) wakeLock(true); });
+
+// queue items: {id, onComplete}
+function startRunner(items, startIdx){
+  T.queue = items; T.qi = startIdx || 0; document.getElementById('timer').hidden = false;
+  beep(660, .05); // unlock audio on user gesture
+  wakeLock(true); loadItem();
+}
+function exOf(it){ return it.ex || EX[it.id]; }
+function loadItem(){
+  clearInterval(T.tick);
+  if (T.qi >= T.queue.length) return finishRunner();
+  const it = T.queue[T.qi], e = exOf(it);
+  if (e.timer) { T.phases = [{kind:'ready', label:e.timer.readyLabel || 'Get ready', secs:e.timer.ready || 5, info:''}].concat(phasesFor(e.timer)); T.pi = 0; startPhase(); }
+  else { T.phases = []; drawManual(); }
+}
+function startPhase(){
+  const p = T.phases[T.pi]; T.left = p.secs; T.paused = false; T.endAt = Date.now() + p.secs*1000;
+  if (p.kind === 'work') { beep(880, .25); buzz(200); } else if (T.pi > 0) { beep(520, .2); buzz([80,60,80]); }
+  drawTimer(); clearInterval(T.tick); T.tick = setInterval(tickFn, 200);
+}
+function tickFn(){
+  if (T.paused) return;
+  const left = Math.max(0, Math.ceil((T.endAt - Date.now())/1000));
+  if (left !== T.left) {
+    T.left = left; const ph = T.phases[T.pi];
+    if (left > 0 && left <= 3) beep(700, .08);
+    if (ph.alert && (left === 60 || left === 30) && ph.secs > left + 5) { beep(600, .12); buzz(120); } // 1-min and 30-s warnings
+    drawTimer();
+  }
+  if (left <= 0) nextPhase();
+}
+function nextPhase(){
+  clearInterval(T.tick);
+  if (T.pi < T.phases.length - 1) { T.pi++; startPhase(); }
+  else { completeItem(); }
+}
+function completeItem(){
+  const it = T.queue[T.qi]; beep(990, .15); setTimeout(() => beep(1320, .3), 160); buzz([150,80,150]);
+  if (it.onComplete) it.onComplete();
+  T.qi++; loadItem();
+}
+function togglePause(){
+  if (T.paused) { T.paused = false; T.endAt = Date.now() + T.left*1000; }
+  else { T.paused = true; }
+  drawTimer();
+}
+function addTime(s){ if (!T.paused) T.endAt += s*1000; T.left += s; drawTimer(); }
+function closeRunner(){ clearInterval(T.tick); wakeLock(false); document.getElementById('timer').hidden = true; render(); }
+function finishRunner(){
+  clearInterval(T.tick); wakeLock(false);
+  const el = document.getElementById('timer'); el.className = 'timer rest';
+  el.innerHTML = `<div class="tprog">Finished</div>
+    <div><div class="tdose">Nice work ✓</div><div class="tcue">${T.queue.length > 1 ? 'All exercises completed.' : 'Exercise completed.'}</div></div>
+    <div class="tbtns"><button class="main" onclick="closeRunner()">Close</button></div>`;
+}
+function header(){
+  const it = T.queue[T.qi], e = exOf(it);
+  const next = T.queue[T.qi+1] ? exOf(T.queue[T.qi+1]).name : '';
+  return `<div><div class="tprog">${T.queue.length > 1 ? `Exercise ${T.qi+1}/${T.queue.length}` : esc(e.dose)}</div>
+    <div class="tname">${esc(e.name)}</div><div class="tcue">${esc(e.cue)}</div>${next ? `<div class="tsub">Next: ${esc(next)}</div>` : ''}</div>`;
+}
+function drawTimer(){
+  const el = document.getElementById('timer'), p = T.phases[T.pi];
+  const key = T.qi + ':' + T.pi + ':' + T.paused;
+  if (T.drawn === key) { // only refresh the clock so taps on buttons never get lost
+    const c = el.querySelector('.tclock');
+    if (c) { c.textContent = T.left >= 60 ? `${Math.floor(T.left/60)}:${String(T.left%60).padStart(2,'0')}` : String(T.left); return; }
+  }
+  T.drawn = key;
+  el.className = 'timer ' + (p.kind === 'work' ? 'work' : 'rest');
+  const m = Math.floor(T.left/60), s = T.left % 60;
+  const clock = T.left >= 60 ? `${m}:${String(s).padStart(2,'0')}` : String(T.left);
+  const pct = Math.round(100 * (T.pi) / T.phases.length);
+  el.innerHTML = header() + `
+    <div><div class="tphase">${esc(p.label)}${T.paused ? ' · paused' : ''}</div><div class="tclock">${clock}</div><div class="tsub">${esc(p.info || '')}</div>
+      <div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div class="tbtns"><button onclick="addTime(10)">+10 s</button><button class="main" onclick="togglePause()">${T.paused ? 'Resume' : 'Pause'}</button><button onclick="nextPhase()">Skip ›</button></div>
+      <div class="tbtns"><button onclick="closeRunner()">✕ Stop</button>${T.queue.length > 1 ? `<button onclick="T.qi++;loadItem()">Skip exercise »</button>` : ''}</div>
+    </div>`;
+}
+function drawManual(){
+  T.drawn = null;
+  const el = document.getElementById('timer'), e = exOf(T.queue[T.qi]);
+  el.className = 'timer manual';
+  el.innerHTML = header() + `<div><div class="tphase">Your pace</div><div class="tdose">${esc(e.dose)}</div></div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div class="tbtns"><button class="main" onclick="completeItem()">✓ Done — next</button></div>
+      <div class="tbtns"><button onclick="closeRunner()">✕ Stop</button>${T.queue.length > 1 ? `<button onclick="T.qi++;loadItem()">Skip exercise »</button>` : ''}</div>
+    </div>`;
+}
+
+// Today's plan: single exercise (idx) or guided session (all not done)
+function currentExercises(){ const ex = sessionFor(TODAY); return ex ? ex.exercises : (draft ? draft.exercises : []); }
+function runToday(idx){
+  const list = currentExercises();
+  let picks = idx === undefined ? list.map((e,i) => ({e,i})).filter(x => !x.e.done && exMeta(x.e)) : [{e:list[idx], i:idx}];
+  if (!picks.length) picks = list.map((e,i) => ({e,i})).filter(x => exMeta(x.e));
+  if (!picks.length) return;
+  startRunner(picks.map(x => ({id:x.e.id, onComplete:() => setDone(x.i, true)})));
+}
+function runRoutine(key, idx, single){
+  const r = getRoutine(key); if (!r) return;
+  const items = (single ? [r.items[idx]] : r.items).map(ex => ({ex}));
+  startRunner(items, 0);
+}
+
+
+/* ============ Tools ============ */
+const TOOLS = {
+  rest: {title:'Rest timer', sub:'between attempts'},
+  comp: {title:'Olympic boulder', sub:'4 min · comp mode'},
+  maxhang: {title:'Max hangs', sub:'Beastmaker · 10 s'},
+  repeaters: {title:'Repeaters', sub:'Beastmaker · 7/3'},
+  custom: {title:'Custom timer', sub:'any duration'},
+};
+function renderTools(){
+  document.getElementById('tgrid').innerHTML = Object.entries(TOOLS).map(([k,t]) =>
+    `<button class="rcard" onclick="openTool('${k}')">${k==='rest'||k==='custom'||k==='comp' ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(t.sub)}</div></button>`).join('');
+}
+function runTimer(ex){ startRunner([{ex}], 0); }
+function restEx(min){ return {name:`Rest · ${min} min`, dose:`${min}:00`, cue:'Stay active: shake out, walk around, or do easy climbing — in climbers, active rest restored performance better than sitting still.',
+  timer:{work:min*60, sets:1, workLabel:'Rest', ready:3, readyLabel:'Starting', alert:true}}; }
+function compEx(climb, rest, n){ return {name:'Olympic boulder', dose:`${n} × ${climb} min climb / ${rest} min rest`, cue:`Like the Olympic boulder rounds: ${climb} min per boulder, unlimited attempts. 15 s to read the problem first.`,
+  timer:{work:climb*60, sets:n, setRest:rest*60, setName:'Boulder', workLabel:'Climb', restLabel:'Rest', ready:15, readyLabel:'Observation', alert:true}}; }
+const HANGS = {
+  maxhang: {name:'Max hangs', dose:'5 × 10 s hang, 3 min rest', cue:'Half crimp on a Beastmaker edge you can just hold for ~13 s (add weight or use a smaller edge as you get stronger). Stop if anything tweaks.',
+    timer:{work:10, sets:5, setRest:180, setName:'Hang', workLabel:'Hang', alert:true}},
+  repeaters: {name:'Repeaters', dose:'3 sets × 6 × (7 s on / 3 s off), 3 min between sets', cue:'Medium edge, open hand or half crimp, ~60–80 % effort. Builds strength-endurance for long routes.',
+    timer:{work:7, rest:3, reps:6, sets:3, setRest:180, setName:'Set', workLabel:'Hang', alert:true}},
+};
+function openTool(k){
+  const sh = document.getElementById('sheet'); let body = '';
+  if (k === 'rest') body = `
+    <header><div class="eyebrow">Between attempts & routes</div><h1>Rest timer</h1></header>
+    <div class="preset">
+      <button onclick="runTimer(restEx(3))">3<small>MIN · BOULDER</small></button>
+      <button onclick="runTimer(restEx(10))">10<small>MIN · ROUTE</small></button>
+      <button onclick="runTimer(restEx(20))">20<small>MIN · MAX EFFORT</small></button>
+    </div>
+    <div class="intro">Beeps at 1 min and 30 s left, then counts down the last 3 seconds.</div>
+    <div class="evidence"><b>Climbing studies:</b> after 20 min of <i>active</i> rest (light movement), climbers repeated a maximal climb as well as the first time — after 20 min of sitting still they didn't (Heyman 2009). Even in 2-min breaks, easy climbing beat walking (Valenzuela 2015).<br><b>Practice:</b> the 3- and 10-min presets are common coaching rules of thumb, not tested in studies.</div>`;
+  else if (k === 'comp') body = `
+    <header><div class="eyebrow">Comp mode</div><h1>Olympic boulder</h1></header>
+    <div class="intro">15 s observation, then the boulder clock. Unused time doesn't carry over — just like in competition.</div>
+    <div class="box2"><h3>Final format</h3><div class="hint">4 boulders · 4 min climb · 4 min rest</div><button class="btn main" onclick="runTimer(compEx(4,4,4))">▶ Start final</button></div>
+    <div class="box2"><h3>Semi-final format</h3><div class="hint">4 boulders · 5 min climb · 5 min rest</div><button class="btn" onclick="runTimer(compEx(5,5,4))">▶ Start semi-final</button></div>
+    <div class="box2"><h3>Single boulder</h3><div class="hint">One 4-min window</div><button class="btn" onclick="runTimer(compEx(4,0,1))">▶ 4:00</button></div>
+    <div class="evidence">Format from the IFSC Olympic rules (Paris 2024): 5 min per boulder alternating with 5 min rest in the semi-final, 4 min per boulder in the final.</div>`;
+  else if (HANGS[k]) { const x = HANGS[k]; body = `
+    <header><div class="eyebrow">Beastmaker</div><h1>${esc(x.name)}</h1></header>
+    <div class="intro">${esc(x.dose)}</div>
+    <div class="intro">${esc(x.cue)}</div>
+    ${(blocked('hangs').length || watched('hangs').length) ? `<div class="fnote">You logged pain in your ${[...blocked('hangs'), ...watched('hangs')].map(x => AREA_NAME[x].split(' /')[0].toLowerCase()).join(' and ')} — skip hangboarding until it's pain-free.</div>` : ''}
+    <button class="guided" style="margin:0" onclick="runTimer(HANGS['${k}'])">▶ Start</button>
+    <div class="evidence">Hangboard training raised max finger strength more than climbing alone in an RCT (Hermans et al.); 80 % effort was the only intensity that improved strength and endurance (Devise et al.). Do max hangs on fresh fingers, max 2×/week, and skip them when your finger check-in is 1–2. Exact hang/rest times and the 2×/week limit are coaching practice.</div>`; }
+  else if (k === 'custom') body = `
+    <header><div class="eyebrow">Any duration</div><h1>Custom timer</h1></header>
+    <div class="row" style="grid-template-columns:1fr 1fr">
+      <div class="field"><label>Minutes</label><input id="cMin" type="number" inputmode="numeric" value="5" min="0"></div>
+      <div class="field"><label>Seconds</label><input id="cSec" type="number" inputmode="numeric" value="0" min="0" max="59"></div>
+    </div>
+    <div class="row" style="grid-template-columns:1fr 1fr">
+      <div class="field"><label>Rounds</label><input id="cRounds" type="number" inputmode="numeric" value="1" min="1"></div>
+      <div class="field"><label>Rest between (s)</label><input id="cRest" type="number" inputmode="numeric" value="0" min="0"></div>
+    </div>
+    <button class="btn main" onclick="startCustomTimer()">▶ Start</button>`;
+  sh.innerHTML = `<div class="wrap"><button class="close" onclick="closeSheet()">← Back</button>${body}</div>`;
+  sh.hidden = false; sh.scrollTop = 0;
+}
+function startCustomTimer(){
+  const secs = Math.max(1, (+document.getElementById('cMin').value || 0) * 60 + (+document.getElementById('cSec').value || 0));
+  const rounds = Math.max(1, +document.getElementById('cRounds').value || 1), rest = Math.max(0, +document.getElementById('cRest').value || 0);
+  const mm = Math.floor(secs/60), ss = String(secs%60).padStart(2,'0');
+  runTimer({name:'Custom timer', dose:`${rounds > 1 ? rounds + ' × ' : ''}${mm}:${ss}`, cue:'', timer:{work:secs, sets:rounds, setRest:rest, setName:'Round', alert:secs >= 90}});
+}
+
+/* ---- Finger check-in (previous injury & overload are the main risk factors) ---- */
+var FING_KEY = 'climbr.fingers.v1';
+var fingers = {};
+try { fingers = JSON.parse(localStorage.getItem(FING_KEY) || '{}'); } catch(e){ fingers = {}; }
+function setFinger(n){ fingers[TODAY] = fingers[TODAY] === n ? undefined : n; try { localStorage.setItem(FING_KEY, JSON.stringify(fingers)); } catch(e){} if (draft && draft.auto && !sessionFor(TODAY)) draft = null; render(); }
+function fingerRow(){
+  const v = fingers[TODAY];
+  const recent = Object.entries(fingers).filter(([d,n]) => n && d <= TODAY).sort().slice(-3).map(x => x[1]);
+  const lowStreak = recent.length === 3 && recent.every(n => n <= 2);
+  return `<div class="fing"><span class="fl">Fingers today</span>${[1,2,3,4,5].map(n => `<button class="${v===n?'on':''}" onclick="setFinger(${n})" aria-label="Finger feel ${n} of 5">${n}</button>`).join('')}</div>
+    ${v && v <= 2 ? `<div class="fnote">${lowStreak ? 'Fingers have felt off 3 days in a row — consider a few days off crimping and see a physio if pain persists.' : 'Fingers feel off: skip max hangs and hard crimps. Rest, or light antagonist work if you feel like moving.'}</div>` : ''}`;
+}
+
+
+/* ============ Pain log & adaptive programs ============
+   Pain-monitoring model (Silbernagel et al. 2007, RCT in tendinopathy):
+   pain up to ~5/10 during loading is acceptable if it settles by next morning
+   and doesn't increase week to week. Thresholds below are a conservative
+   adaptation for climbers (practice), not a climbing-specific study. */
+var PAIN_KEY = 'climbr.pain.v1';
+var painLog = {};
+try { painLog = JSON.parse(localStorage.getItem(PAIN_KEY) || '{}'); } catch(e){ painLog = {}; }
+const AREAS = [
+  {k:'fingers', name:'Fingers / pulleys'},
+  {k:'wrist',   name:'Wrist / forearm'},
+  {k:'elbow',   name:'Elbow'},
+  {k:'shoulder',name:'Shoulder'},
+  {k:'back',    name:'Back / neck'},
+  {k:'knee',    name:'Knee / hip'},
+];
+const AREA_NAME = Object.fromEntries(AREAS.map(a => [a.k, a.name]));
+// which areas each exercise loads (dropped when that area is at >= 4/10 or flagged sharp)
+const LOADS = {
+  pushup:['wrist','shoulder'], pushplus:['wrist','shoulder'], ytw:['shoulder'], ohp:['shoulder','back','wrist'],
+  plank:['back','shoulder'], sideplank:['shoulder','back'], fingext:['fingers'], wristext:['wrist'], pronsup:['wrist','elbow'],
+  squat:['knee','back'], lunge:['knee'], sldl:['knee','back'], hollow:['fingers','elbow','shoulder','back'], hip9090:['knee'],
+  scappull:['fingers','elbow','shoulder'], hangs:['fingers','elbow'], easyclimb:['fingers','elbow','shoulder','wrist'],
+  armcirc:['shoulder'], pullapart:['shoulder'], latstr:['shoulder'], thread:['shoulder','back'], sleeper:['shoulder'],
+  frog:['knee'], pigeon:['knee'], hipflex:['knee'], plank40:['back','shoulder'],
+};
+// rehab-friendly: kept at low load even with pain in that area (general tendinopathy practice)
+const REHAB = { extrot:'shoulder', wristext:'elbow', fingext:'wrist' };
+const CLIMB_TIPS = {
+  fingers:'No crimps, pockets or hangboard. Open-hand on big holds only, and stop if it hurts.',
+  wrist:'Avoid slopers, underclings and compression.',
+  elbow:'Avoid steep terrain, small crimps and campusing. Go slow and controlled.',
+  shoulder:'Avoid big moves, dynos, gastons and steep overhangs.',
+  back:'Avoid big high steps and heel hooks that twist the spine.',
+  knee:'Avoid heel hooks, drop-knees and big high steps.',
+};
+function savePain(){ try { localStorage.setItem(PAIN_KEY, JSON.stringify(painLog)); } catch(e){} }
+// current status per area: latest entry within the last 3 days
+function activePain(){
+  const out = {};
+  for (let i = 0; i <= 2; i++) {
+    const day = painLog[isoAdd(TODAY, -i)]; if (!day) continue;
+    for (const [k, v] of Object.entries(day)) if (!(k in out)) out[k] = v;
+  }
+  for (const k of Object.keys(out)) if (!out[k] || (!out[k].level && !out[k].sharp)) delete out[k];
+  return out;
+}
+function painDays(k){ return Object.keys(painLog).filter(d => d <= TODAY && d >= isoAdd(TODAY, -28) && painLog[d][k] && painLog[d][k].level > 0).sort(); }
+function painFlags(){
+  const a = activePain(), flags = [];
+  for (const [k, v] of Object.entries(a)) {
+    const days = painDays(k);
+    const weekAgo = (painLog[isoAdd(TODAY, -7)] || {})[k];
+    if (v.sharp) flags.push(`${AREA_NAME[k]}: sharp pain, a pop, swelling or numbness → stop loading it and get it checked by a physio or doctor.${k==='fingers' ? ' A pulley tear can only be ruled out with ultrasound or MRI.' : ''}`);
+    else if (v.level >= 7) flags.push(`${AREA_NAME[k]}: ${v.level}/10 is a lot → rest it, and see a physio if it doesn't settle within a few days.`);
+    if (days.length && days[0] <= isoAdd(TODAY, -14) && v.level > 0) flags.push(`${AREA_NAME[k]} has bothered you for 2+ weeks → time to see a physio.`);
+    if (weekAgo && weekAgo.level && v.level >= weekAgo.level + 2) flags.push(`${AREA_NAME[k]} is worse than a week ago → reduce load further.`);
+  }
+  return flags;
+}
+function blocked(id){
+  const a = activePain(), loads = LOADS[id] || [];
+  const reasons = [];
+  for (const k of loads) { const v = a[k]; if (v && (v.sharp || v.level >= 4)) reasons.push(k); }
+  const r = REHAB[id]; if (r && a[r] && (a[r].sharp || a[r].level >= 7)) reasons.push(r);
+  return reasons;
+}
+function watched(id){ const a = activePain(); return (LOADS[id] || []).filter(k => a[k] && a[k].level > 0 && a[k].level < 4 && !a[k].sharp); }
+function rehabFor(id){ const a = activePain(), r = REHAB[id]; return (r && a[r] && a[r].level > 0 && a[r].level < 7 && !a[r].sharp) ? r : null; }
+function maxPain(){ return Object.values(activePain()).reduce((m, v) => Math.max(m, v.sharp ? 10 : v.level), 0); }
+function upperPain(){ const a = activePain(); return ['fingers','wrist','elbow','shoulder'].reduce((m, k) => a[k] ? Math.max(m, a[k].sharp ? 10 : a[k].level) : m, 0); }
+function painRestReason(){
+  const a = activePain();
+  if (Object.values(a).some(v => v.sharp)) return 'You logged sharp pain.';
+  const mp = maxPain(); if (mp >= 7) return `You logged pain at ${mp}/10.`;
+  return '';
+}
+function adaptExercises(list){
+  const removed = [];
+  const kept = list.filter(e => { if (!e.id) return true; const b = blocked(e.id); if (b.length) { removed.push({name:e.name, areas:b}); return false; } return true; })
+    .map(e => { if (!e.id) return e; const w = watched(e.id), r = rehabFor(e.id); return (w.length || r) ? {...e, ...(w.length ? {watch:w} : {}), ...(r ? {rehab:r} : {})} : e; });
+  return {kept, removed};
+}
+function painSummary(){
+  const a = activePain(); const keys = Object.keys(a);
+  if (!keys.length) return '';
+  return keys.map(k => `${AREA_NAME[k].split(' /')[0]} ${a[k].sharp ? 'sharp' : a[k].level + '/10'}`).join(' · ');
+}
+function painRow(){
+  const s = painSummary(), flags = painFlags();
+  return `<div class="painrow"><button class="painbtn${s ? ' on' : ''}" onclick="openPain()">${s ? 'Pain: ' + esc(s) : '+ Log pain or soreness'}</button></div>
+    ${flags.map(f => `<div class="fnote">${esc(f)}</div>`).join('')}`;
+}
+function openPain(){
+  const today = painLog[TODAY] || {}, a = activePain();
+  const sh = document.getElementById('sheet');
+  sh.innerHTML = `<div class="wrap">
+    <button class="close" onclick="closeSheet()">← Back</button>
+    <header><div class="eyebrow">Today</div><h1>Pain & soreness</h1></header>
+    <div class="intro">Rate each area 0–10 for how it feels when you use it. The app removes exercises that load a painful area (4/10 or more), keeps gentle rehab-style ones, and suggests rest when needed.</div>
+    ${AREAS.map(ar => { const v = today[ar.k] || a[ar.k] || {level:0, sharp:false}; return `
+      <div class="box2 parea">
+        <div class="ph"><h3>${ar.name}</h3><span class="pv" id="pv_${ar.k}">${v.level}/10</span></div>
+        <input type="range" min="0" max="10" step="1" value="${v.level}" id="pl_${ar.k}" oninput="document.getElementById('pv_${ar.k}').textContent=this.value+'/10'">
+        <label class="chk"><input type="checkbox" id="ps_${ar.k}" ${v.sharp ? 'checked' : ''}> Sharp pain, a pop, swelling or numbness</label>
+      </div>`; }).join('')}
+    <button class="btn main" onclick="savePainForm()">Save</button>
+    <button class="btn danger" onclick="clearPainToday()">All good today — clear</button>
+    <div class="evidence"><b>How the app decides</b> (adapted from the pain-monitoring model, an RCT in tendinopathy — Silbernagel et al. 2007): pain up to about 3–5/10 during exercise is usually OK if it's back to normal by the next morning and isn't getting worse week to week.<br>
+      • 1–3: exercises stay, marked “watch”.<br>• 4–6: exercises loading that area are removed; climbing that stresses it is discouraged.<br>• 7+ or sharp: rest day suggested and a check-up recommended.<br>
+      <b>This is not a diagnosis.</b> Sharp pain, a pop, swelling, numbness, or pain lasting more than 2 weeks → see a physio or doctor.</div>
+  </div>`;
+  sh.hidden = false; sh.scrollTop = 0;
+}
+function savePainForm(){
+  const entry = {};
+  for (const ar of AREAS) {
+    const level = +document.getElementById('pl_' + ar.k).value || 0, sharp = document.getElementById('ps_' + ar.k).checked;
+    if (level || sharp) entry[ar.k] = {level, sharp};
+    else entry[ar.k] = {level:0, sharp:false}; // explicit "fine" overrides older entries
+  }
+  painLog[TODAY] = entry; savePain();
+  if (draft && draft.auto && !sessionFor(TODAY)) draft = null;
+  closeSheet(); render(); renderRoutines();
+}
+function clearPainToday(){
+  painLog[TODAY] = Object.fromEntries(AREAS.map(a => [a.k, {level:0, sharp:false}])); savePain();
+  if (draft && draft.auto && !sessionFor(TODAY)) draft = null;
+  closeSheet(); render();
+}
+function climbAdvice(){
+  const a = activePain(); const tips = Object.keys(a).filter(k => a[k].sharp || a[k].level >= 1).map(k => CLIMB_TIPS[k]).filter(Boolean);
+  if (!tips.length) return '';
+  const up = upperPain();
+  const sharpUp = ['fingers','wrist','elbow','shoulder'].some(k => a[k] && a[k].sharp);
+  return `<div class="note">${up >= 4 ? '<b>Climbing isn’t ideal today.</b> ' + (sharpUp ? 'You logged sharp pain in your arms or hands' : 'Your arms or hands hurt at ' + up + '/10') + ' — cross-training for the rest of the body or a rest day is the safer choice.<br>' : '<b>Climbing with a niggle:</b> keep it easy and pain ≤ 3/10.<br>'}${tips.map(esc).join('<br>')}</div>`;
+}
+
+/* ============ Plan reference toggle ============ */
+const refToggle = document.getElementById('refToggle');
+refToggle.addEventListener('click', () => {
+  const open = refToggle.getAttribute('aria-expanded') === 'true';
+  refToggle.setAttribute('aria-expanded', String(!open));
+  document.getElementById('refBody').hidden = open;
+});
+
+/* ============ Backup ============ */
+document.getElementById('exportBtn').addEventListener('click', async () => {
+  if (IS_NATIVE) {
+    try {
+      const { Filesystem, Share } = window.Capacitor.Plugins;
+      const name = 'climbr-backup-' + TODAY + '.json';
+      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:4, sessions, customs, pain:painLog, fingers}, null, 2), directory: 'CACHE', encoding: 'utf8' });
+      await Share.share({ title: 'ClimbR backup', files: [res.uri], dialogTitle: 'Save or send your backup' });
+    } catch(e) { if (!String(e && e.message || e).toLowerCase().includes('cancel')) alert('Backup failed: ' + (e && e.message || e)); }
+    return;
+  }
+  const blob = new Blob([JSON.stringify({app:'climbr', version:4, sessions, customs, pain:painLog, fingers}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'climbr-backup-' + TODAY + '.json';
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', async (ev) => {
+  const f = ev.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    const incoming = Array.isArray(data) ? data : (data.sessions || []);
+    const byDate = new Map(sessions.map(s => [s.date, s]));
+    for (const s of incoming) { if (!s || !s.date) continue; const cur = byDate.get(s.date); if (!cur || (s.updatedAt||0) >= (cur.updatedAt||0)) byDate.set(s.date, s); }
+    sessions = [...byDate.values()]; sortSessions(); persist(); draft = null;
+    if (data.pain && typeof data.pain === 'object') { painLog = {...data.pain, ...painLog}; savePain(); }
+    if (Array.isArray(data.customs)) { const ids = new Set(customs.map(c => c.id)); customs = customs.concat(data.customs.filter(c => c && c.id && !ids.has(c.id))); persistCustoms(); renderRoutines(); }
+    render();
+    alert(incoming.length + ' entries imported.');
+  } catch(e){ alert('Could not read that file.'); }
+  ev.target.value = '';
+});
+
+
+const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+/* ============ Install button ============ */
+(function(){
+  const bar = document.getElementById('installBar'), btn = document.getElementById('installBtn'), hint = document.getElementById('installHint');
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let dismissed = false; try { dismissed = localStorage.getItem('climbr.installDismissed') === '1'; } catch(e){}
+  let deferred = null;
+  const show = () => { if (!IS_NATIVE && !standalone && !dismissed) bar.hidden = false; };
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; show(); });
+  window.addEventListener('appinstalled', () => { deferred = null; bar.hidden = true; });
+  if (isIOS) show();
+  btn.addEventListener('click', async () => {
+    if (deferred) { deferred.prompt(); try { await deferred.userChoice; } catch(e){} deferred = null; bar.hidden = true; }
+    else if (isIOS) { hint.innerHTML = 'In Safari: tap <b>Share</b> <span aria-hidden="true">⬆︎</span> → <b>Add to Home Screen</b>.'; btn.hidden = true; }
+    else { hint.textContent = 'Use your browser menu → "Install app" / "Add to Home screen".'; btn.hidden = true; }
+  });
+  document.getElementById('installClose').addEventListener('click', () => { bar.hidden = true; try { localStorage.setItem('climbr.installDismissed','1'); } catch(e){} });
+})();
+
+/* ============ Boot ============ */
+sessions = loadSessions(); sortSessions(); customs = loadCustoms();
+renderReference(); renderRoutines(); renderTools(); render();
+if (!IS_NATIVE && 'serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+</script>
+</body></html>

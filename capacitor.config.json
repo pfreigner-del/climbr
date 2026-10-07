@@ -1,0 +1,10 @@
+{
+  "appId": "at.freigner.climbr",
+  "appName": "ClimbЯ",
+  "webDir": "www",
+  "android": { "backgroundColor": "#000000" },
+  "server": { "androidScheme": "https" },
+  "plugins": {
+    "SystemBars": { "insetsHandling": "css", "style": "DARK", "initialViewportFitValueHint": "cover" }
+  }
+}
