@@ -226,6 +226,39 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .painbtn .ico{margin-right:4px;opacity:.8}
 .btn.main .ico{filter:invert(1)}
 .btn.main .ico.inv{filter:invert(1)}
+
+/* ---- v10: robust layout (large Android font sizes) + week plan ---- */
+.rgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.rcard{padding:14px 12px;display:flex;flex-direction:column;justify-content:flex-start;min-height:0;overflow:hidden}
+.rcard .rt{font-size:clamp(17px,5.2vw,21px)!important;line-height:1.1;overflow-wrap:anywhere;hyphens:auto}
+.rcard .rm{overflow-wrap:anywhere;line-height:1.35}
+.rcard.add{align-items:flex-start}
+.fing{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.fing .fl{grid-column:1/-1;display:flex;align-items:center}
+.fing button{width:auto!important;height:38px!important}
+.toggle button{overflow-wrap:normal;word-break:normal;hyphens:none;line-height:1.2;font-size:13.5px!important}
+.badge{max-width:100%;white-space:normal}
+.stat{overflow:hidden}.stat .l{overflow-wrap:anywhere}
+.card-body,.box2,.note,.intro,.ex .tx{overflow-wrap:anywhere}
+.week{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.week .wh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.week .wh .wt{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.week .wh button{background:none;border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:6px 10px;font-family:var(--font-body);font-size:13px;font-weight:600}
+.wdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.wd{border:1px solid var(--line);border-radius:10px;padding:6px 0 7px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.wd .dn{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+.wd img{width:20px;height:20px}
+.wd .dx{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+.wd.today{border-color:#fff;background:var(--surface-2)}.wd.today .dn{color:#fff}
+@media (max-width:400px){.wd .dx{display:none}.wd{padding:7px 0}}
+.wpick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.wpick button{padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-body);font-size:12.5px;font-weight:600;overflow-wrap:anywhere}
+.wpick button.on{background:#fff;color:#000;border-color:#fff}
+.wrow{display:flex;flex-direction:column;gap:6px}
+.wrow .wl{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.presets{display:flex;flex-direction:column;gap:8px}
+.presets button{text-align:left;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-family:var(--font-body)}
+.presets button b{display:block;font-size:14px}.presets button span{font-size:12.5px;color:var(--muted)}
 /* ---- v2: routines, cues, timer ---- */
 .ex .cue{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.35}
 .ex .tbtn{flex:none;border:1px solid var(--ausgleich);background:transparent;color:var(--ausgleich-fg);border-radius:10px;padding:7px 9px;font-family:var(--font-mono);font-size:12px;font-weight:600}
@@ -281,6 +314,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   <div id="banner"></div>
 
   <div class="statrow" id="statrow"></div>
+
+  <section class="week" id="weekStrip"></section>
 
   <section class="card" id="todayCard"></section>
 
@@ -439,6 +474,8 @@ function restReason(){
   const pr = painRestReason(); if (pr) return pr;
   const f = fingers[TODAY];
   if (f && f <= 2) return 'Your fingers feel off today.';
+  const planned = plannedType(TODAY);
+  if (planned) return planned === 'rest' ? 'Planned rest day in your week plan.' : '';
   const run = trainingStreakBeforeToday();
   if (run >= 3) return `You've trained ${run} days in a row.`;
   if (trainedLast7() >= 6) return 'You trained 6 of the last 7 days.';
@@ -446,6 +483,8 @@ function restReason(){
 }
 function suggestedTypeForToday(){
   if (restReason()) return 'rest';
+  const planned = plannedType(TODAY);
+  if (planned) return (planned === 'klettern' && upperPain() >= 4) ? 'ausgleich' : planned;
   const last = sessions.filter(s => s.date < TODAY && s.type !== 'rest')[0];
   const next = last ? (last.type === 'klettern' ? 'ausgleich' : 'klettern') : 'ausgleich';
   return (next === 'klettern' && upperPain() >= 4) ? 'ausgleich' : next;
@@ -554,8 +593,8 @@ function renderToday(){
     ${fingerRow()}
     ${painRow()}
     <div class="toggle">
-      <button class="${d.type==='klettern'?'active klettern':''}" onclick="setType('klettern')"><img class="ico tg" src="/icons/ui/climb.png" alt="">Climbing day</button>
-      <button class="${d.type==='ausgleich'?'active ausgleich':''}" onclick="setType('ausgleich')">Cross-training</button>
+      <button class="${d.type==='klettern'?'active klettern':''}" onclick="setType('klettern')"><img class="ico tg" src="/icons/ui/climb.png" alt="">Climb</button>
+      <button class="${d.type==='ausgleich'?'active ausgleich':''}" onclick="setType('ausgleich')"><img class="ico tg" src="/icons/ui/train.png" alt="">Cross</button>
       <button class="${d.type==='rest'?'active rest':''}" onclick="setType('rest')"><img class="ico tg" src="/icons/ui/rest.png" alt="">Rest</button>
     </div>
     ${d.type==='rest' ? restBlock(d.auto ? restReason() : '') : ''}
@@ -606,7 +645,7 @@ function renderReference(){
 }
 function render(){
   document.getElementById('dateline').textContent = fmtDate(TODAY);
-  renderStats(); renderToday(); renderHistory();
+  renderStats(); renderWeek(); renderToday(); renderHistory();
   document.getElementById('foot').textContent = IS_NATIVE ? 'Saved on this phone — fully offline.' + (window.APP_VERSION ? ' · v' + window.APP_VERSION : '') : 'Saved on this device — works offline too.';
 }
 
@@ -1289,6 +1328,61 @@ async function outdoorRestore(data){
   saveOutdoor(); renderOutdoor(); return n;
 }
 
+
+/* ============ Week plan ============ */
+const WEEK_KEY = 'climbr.week.v1';
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const WTYPES = {klettern:{label:'Climb', icon:'climb'}, ausgleich:{label:'Cross', icon:'train'}, rest:{label:'Rest', icon:'rest'}};
+const PRESETS = [
+  {name:'Auto (every other day)', desc:'Alternates climbing and cross-training; suggests rest when needed.', days:null},
+  {name:'3× climbing', desc:'Mon · Wed · Fri climbing, Tue · Sat cross-training, Thu · Sun rest.', days:['klettern','ausgleich','klettern','rest','klettern','ausgleich','rest']},
+  {name:'Weekend at the crag', desc:'Sat · Sun climbing, Tue · Thu cross-training, rest in between.', days:['rest','ausgleich','rest','ausgleich','rest','klettern','klettern']},
+  {name:'2× climbing, 2× cross', desc:'Tue · Fri climbing, Mon · Thu cross-training, rest Wed · Sat · Sun.', days:['ausgleich','klettern','rest','ausgleich','klettern','rest','rest']},
+];
+let week = {days:null};
+try { week = JSON.parse(localStorage.getItem(WEEK_KEY) || '{"days":null}'); } catch(e){ week = {days:null}; }
+function dowIndex(iso){ const [y,m,d] = iso.split('-').map(Number); return (new Date(y, m-1, d).getDay() + 6) % 7; } // Mon=0
+function plannedType(iso){ return week && Array.isArray(week.days) ? week.days[dowIndex(iso)] : null; }
+function longestRun(days){ let best = 0, cur = 0; for (const d of days.concat(days)) { if (d !== 'rest') { cur++; best = Math.max(best, cur); } else cur = 0; } return Math.min(best, 7); }
+function renderWeek(){
+  const el = document.getElementById('weekStrip'); if (!el) return;
+  const ti = dowIndex(TODAY);
+  if (!week.days) {
+    el.innerHTML = `<div class="wh"><span class="wt">Week plan · Auto</span><button onclick="openWeek()">Set week plan</button></div>
+      <div class="hint">Alternating climbing and cross-training. Set fixed days if your week has a pattern.</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="wh"><span class="wt">Your week</span><button onclick="openWeek()">Edit</button></div>
+    <div class="wdays">${week.days.map((t,i) => `<div class="wd ${i===ti?'today':''}"><span class="dn">${DAYS[i]}</span><img src="/icons/ui/${WTYPES[t].icon}.png" alt=""><span class="dx">${WTYPES[t].label}</span></div>`).join('')}</div>`;
+}
+let WK = null;
+function openWeek(){
+  WK = week.days ? [...week.days] : [...PRESETS[1].days];
+  drawWeek(); const sh = document.getElementById('sheet'); sh.hidden = false; sh.scrollTop = 0;
+}
+function drawWeek(){
+  const run = longestRun(WK);
+  document.getElementById('sheet').innerHTML = `<div class="wrap">
+    <button class="close" onclick="closeSheet()">← Back</button>
+    <header><div class="eyebrow">Training</div><h1>Week plan</h1></header>
+    <div class="intro">Pick a pattern or set each day. The app follows it, but still suggests rest when you log pain or your fingers feel off.</div>
+    <div class="presets">${PRESETS.map((p,i) => `<button onclick="applyPreset(${i})"><b>${esc(p.name)}</b><span>${esc(p.desc)}</span></button>`).join('')}</div>
+    <div class="box2"><h3>Custom days</h3>
+      ${DAYS.map((d,i) => `<div class="wrow"><span class="wl">${d}</span><div class="wpick">${Object.entries(WTYPES).map(([k,v]) => `<button class="${WK[i]===k?'on':''}" onclick="setWeekDay(${i},'${k}')">${v.label}</button>`).join('')}</div></div>`).join('')}
+    </div>
+    ${run >= 3 ? `<div class="fnote">${run} training days in a row. Finger tendons rebuild for 1–3 days after hard loading — consider a rest day in between.</div>` : ''}
+    ${WK.filter(x => x === 'klettern').length >= 5 ? `<div class="fnote">5+ climbing days a week is a lot for fingers and elbows — keep most of them easy.</div>` : ''}
+    <button class="btn main" onclick="saveWeek()">Save week plan</button>
+  </div>`;
+}
+function setWeekDay(i, k){ WK[i] = k; const y = document.getElementById('sheet').scrollTop; drawWeek(); document.getElementById('sheet').scrollTop = y; }
+function applyPreset(i){
+  if (!PRESETS[i].days) { week = {days:null}; persistWeek(); closeSheet(); return; }
+  WK = [...PRESETS[i].days]; drawWeek();
+}
+function saveWeek(){ week = {days:[...WK]}; persistWeek(); closeSheet(); }
+function persistWeek(){ try { localStorage.setItem(WEEK_KEY, JSON.stringify(week)); } catch(e){} if (draft && draft.auto && !sessionFor(TODAY)) draft = null; render(); }
+
 /* ============ Plan reference toggle ============ */
 const refToggle = document.getElementById('refToggle');
 refToggle.addEventListener('click', () => {
@@ -1303,12 +1397,12 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     try {
       const { Filesystem, Share } = window.Capacitor.Plugins;
       const name = 'climbr-backup-' + TODAY + '.json';
-      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:5, sessions, customs, pain:painLog, fingers, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
+      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:6, sessions, customs, pain:painLog, fingers, week, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
       await Share.share({ title: 'ClimbR backup', files: [res.uri], dialogTitle: 'Save or send your backup' });
     } catch(e) { if (!String(e && e.message || e).toLowerCase().includes('cancel')) alert('Backup failed: ' + (e && e.message || e)); }
     return;
   }
-  const blob = new Blob([JSON.stringify({app:'climbr', version:5, sessions, customs, pain:painLog, fingers, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({app:'climbr', version:6, sessions, customs, pain:painLog, fingers, week, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'climbr-backup-' + TODAY + '.json';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
@@ -1322,6 +1416,7 @@ document.getElementById('importFile').addEventListener('change', async (ev) => {
     for (const s of incoming) { if (!s || !s.date) continue; const cur = byDate.get(s.date); if (!cur || (s.updatedAt||0) >= (cur.updatedAt||0)) byDate.set(s.date, s); }
     sessions = [...byDate.values()]; sortSessions(); persist(); draft = null;
     const nOut = await outdoorRestore(data.outdoor);
+    if (data.week && (data.week.days === null || Array.isArray(data.week.days))) { week = data.week; try { localStorage.setItem(WEEK_KEY, JSON.stringify(week)); } catch(e){} }
     if (data.pain && typeof data.pain === 'object') { painLog = {...data.pain, ...painLog}; savePain(); }
     if (Array.isArray(data.customs)) { const ids = new Set(customs.map(c => c.id)); customs = customs.concat(data.customs.filter(c => c && c.id && !ids.has(c.id))); persistCustoms(); renderRoutines(); }
     render();
