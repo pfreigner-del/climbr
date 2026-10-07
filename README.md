@@ -12,5 +12,5 @@ Edit files in `web/` and push. A new release appears within a few minutes; insta
 ## Structure
 - `web/`: the app (HTML/CSS/JS, icons). This is what you edit.
 - `android/`: native Android project (icon, name, permissions, signing).
-- `android/keystore/`: signing key. **Keep this repo private and never delete the key**, or updates can't install over the old app.
+- Signing key: stored only as GitHub secrets `KEYSTORE_BASE64` + `KEYSTORE_PASSWORD` (backup copy in your ClimbR\App\signing-key folder). Never commit it.
 - `.github/workflows/build-apk.yml`: the automatic build.

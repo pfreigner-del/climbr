@@ -1,9 +1,8 @@
 apply plugin: 'com.android.application'
 
-// Fixed signing key so every new build installs over the previous one (keeps your data).
-def signingProps = new Properties()
-def signingFile = rootProject.file('keystore/signing.properties')
-if (signingFile.exists()) { signingFile.withInputStream { signingProps.load(it) } }
+// Signing key comes from GitHub secrets (KEYSTORE_BASE64 / KEYSTORE_PASSWORD), never from the repo.
+def ksFile = System.getenv('KEYSTORE_FILE')
+def ksPass = System.getenv('KEYSTORE_PASSWORD')
 // Version code increases with every GitHub build so Android accepts updates.
 def buildNumber = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
 
@@ -25,10 +24,10 @@ android {
     }
     signingConfigs {
         climbr {
-            storeFile file(signingProps['storeFile'] ?: 'missing.jks')
-            storePassword signingProps['storePassword']
-            keyAlias signingProps['keyAlias']
-            keyPassword signingProps['keyPassword']
+            storeFile ksFile ? file(ksFile) : null
+            storePassword ksPass
+            keyAlias 'climbr'
+            keyPassword ksPass
         }
     }
     buildTypes {
