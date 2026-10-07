@@ -322,7 +322,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 </div>
 
 <nav class="tabbar" id="tabbar">
-  <button class="on" data-tab="train" onclick="showTab('train')"><img src="/icons/ui/climb.png" alt=""><span>Training</span></button>
+  <button class="on" data-tab="train" onclick="showTab('train')"><img src="/icons/ui/train.png" alt=""><span>Training</span></button>
   <button data-tab="out" onclick="showTab('out')"><img src="/icons/ui/outdoor.png" alt=""><span>Outdoor</span></button>
 </nav>
 
@@ -865,7 +865,7 @@ const TOOLS = {
 };
 function renderTools(){
   document.getElementById('tgrid').innerHTML = Object.entries(TOOLS).map(([k,t]) =>
-    `<button class="rcard" onclick="openTool('${k}')">${k==='comp' ? '<img class="ri" src="/icons/ui/comp.png" alt="">' : (k==='rest'||k==='custom') ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(t.sub)}</div></button>`).join('');
+    `<button class="rcard" onclick="openTool('${k}')">${k==='comp' ? '<img class="ri" src="/icons/ui/comp.png" alt="">' : (k==='maxhang'||k==='repeaters') ? '<img class="ri" src="/icons/ui/hangboard.png" alt="">' : (k==='rest'||k==='custom') ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(t.sub)}</div></button>`).join('');
 }
 function runTimer(ex){ startRunner([{ex}], 0); }
 function restEx(min){ return {name:`Rest · ${min} min`, dose:`${min}:00`, cue:'Stay active: shake out, walk around, or do easy climbing — in climbers, active rest restored performance better than sitting still.',
@@ -1197,7 +1197,7 @@ async function openRouteForm(id){
     <header><div class="eyebrow">Outdoor</div><h1>${RF.isNew ? 'New route' : 'Edit route'}</h1></header>
     <div class="box2"><h3>Photo</h3>
       <img class="photo-prev" id="rfImg" alt="" ${RF.photo ? '' : 'hidden'}>
-      <div class="row2"><button class="btn" onclick="pickPhoto('camera')">Take photo</button><button class="btn" onclick="pickPhoto('gallery')"><img class="ico" src="/icons/ui/gallery.png" alt=""> From gallery</button></div>
+      <div class="row2"><button class="btn" onclick="pickPhoto('camera')"><img class="ico" src="/icons/ui/camera.png" alt=""> Take photo</button><button class="btn" onclick="pickPhoto('gallery')"><img class="ico" src="/icons/ui/gallery.png" alt=""> From gallery</button></div>
       <button class="btn danger" id="rfImgDel" onclick="dropPhoto()" ${RF.photo ? '' : 'hidden'}>Remove photo</button>
       <input type="file" id="rfFile" accept="image/*" hidden onchange="photoFromInput(this)">
     </div>
