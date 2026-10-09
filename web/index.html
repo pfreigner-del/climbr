@@ -172,6 +172,15 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .install img{width:34px;height:34px;flex:none}
 .install .it{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;color:var(--muted);line-height:1.35}
 .install .it b{color:var(--fg);font-size:14px}
+.uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
+.uppop[hidden]{display:none}
+.upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
+.upbox img{width:56px;height:56px;margin:0 auto}
+.upbox h2{margin:0;font-size:24px}
+.upbox .upv{margin:0;font-family:var(--font-mono);font-size:14px;color:var(--muted)}
+.upbox .upv b{color:var(--fg)}
+.upbox .ups{margin:0 0 4px;font-size:13.5px;color:var(--muted);line-height:1.45}
+.upbox a.btn{text-decoration:none;display:block}
 .install .ib{flex:none;background:#fff;color:#000;border:none;border-radius:10px;padding:9px 14px;font-family:var(--font-body);font-weight:700;font-size:14px}
 .install a.ib{text-decoration:none;display:inline-block}
 .install .ix{flex:none;background:none;border:none;color:var(--muted);font-size:16px;padding:6px}
@@ -317,7 +326,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
     <button class="ix" id="installClose" aria-label="Dismiss">✕</button>
   </div>
 
-  <div class="install" id="updateBar" hidden></div>
+  <div class="uppop" id="updatePop" hidden></div>
 
   <div id="banner"></div>
 
@@ -1503,14 +1512,14 @@ const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && wi
 })();
 
 
-/* ============ Update check (public download repo) ============ */
-const UPDATE_API = 'https://api.github.com/repos/pfreigner-del/climbr-download/releases/latest';
+/* ============ Update check (GitHub releases) ============ */
+const UPDATE_API = 'https://api.github.com/repos/pfreigner-del/climbr/releases/latest';
 function verParts(v){ return String(v || '').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0); }
 function newerThan(a, b){ const x = verParts(a), y = verParts(b); for (let i = 0; i < Math.max(x.length, y.length); i++) { if ((x[i]||0) !== (y[i]||0)) return (x[i]||0) > (y[i]||0); } return false; }
 async function checkForUpdate(force){
   if (!IS_NATIVE) return;                       // the web version updates itself
   let last = 0; try { last = +localStorage.getItem('climbr.updateChecked') || 0; } catch(e){}
-  if (!force && Date.now() - last < 6 * 3600 * 1000) return;   // at most every 6 h
+  if (!force && Date.now() - last < 30 * 60 * 1000) return;   // at most every 30 min (GitHub allows 60 checks/h)
   try {
     const mine = await (await fetch('/version.json', {cache:'no-store'})).json();
     const r = await fetch(UPDATE_API, {headers:{Accept:'application/vnd.github+json'}});
@@ -1521,13 +1530,40 @@ async function checkForUpdate(force){
     if (!apk || !newerThan(rel.tag_name, mine.version)) return;
     let skipped = ''; try { skipped = localStorage.getItem('climbr.updateSkipped') || ''; } catch(e){}
     if (!force && skipped === rel.tag_name) return;
-    const bar = document.getElementById('updateBar');
-    bar.innerHTML = `<img src="/icons/ui/logo.png" alt=""><div class="it"><b>Update available: ${esc(rel.tag_name.replace(/^v/,''))}</b><span>You have ${esc(mine.version)}. Install it over the old one — your data stays.</span></div>
-      <a class="ib" href="${apk.browser_download_url}" target="_blank" rel="noopener">Download</a><button class="ix" aria-label="Later" onclick="skipUpdate('${esc(rel.tag_name)}')">✕</button>`;
-    bar.hidden = false;
+    const pop = document.getElementById('updatePop'), gh = rel.html_url || 'https://github.com/pfreigner-del/climbr/releases/latest';
+    pop.innerHTML = `<div class="upbox" role="dialog" aria-modal="true" aria-labelledby="upT">
+      <img src="/icons/ui/logo.png" alt="">
+      <h2 id="upT">New version available</h2>
+      <p class="upv">${esc(mine.version)} → <b>${esc(rel.tag_name.replace(/^v/,''))}</b></p>
+      <p class="ups">Tap Update, then confirm “Update” in Android's installer. Your training data stays.</p>
+      <button class="btn main" id="updBtn" onclick="installUpdate('${esc(apk.browser_download_url)}')">Update now</button>
+      <a class="btn" href="${esc(gh)}" target="_blank" rel="noopener">Open on GitHub</a>
+      <button class="btn danger" onclick="skipUpdate('${esc(rel.tag_name)}')">Later</button></div>`;
+    pop.hidden = false;
   } catch(e) { /* offline: try again next launch */ }
 }
-function skipUpdate(tag){ try { localStorage.setItem('climbr.updateSkipped', tag); } catch(e){} document.getElementById('updateBar').hidden = true; }
+let updating = false;
+async function installUpdate(url){
+  if (updating) return;
+  const btn = document.getElementById('updBtn'), P = window.Capacitor && window.Capacitor.Plugins || {};
+  const fallback = () => { const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); };
+  if (!P.Filesystem || !P.FileOpener) { fallback(); return; }
+  updating = true; let h = null;
+  try {
+    btn.textContent = '0 %'; btn.disabled = true;
+    h = await P.Filesystem.addListener('progress', e => { if (e.contentLength) btn.textContent = Math.round(e.bytes / e.contentLength * 100) + ' %'; });
+    try { await P.Filesystem.deleteFile({path:'ClimbR-update.apk', directory:'CACHE'}); } catch(e){}
+    const res = await P.Filesystem.downloadFile({url, path:'ClimbR-update.apk', directory:'CACHE', progress:true});
+    const uri = res.path || (await P.Filesystem.getUri({path:'ClimbR-update.apk', directory:'CACHE'})).uri;
+    btn.textContent = 'Install';
+    await P.FileOpener.open({filePath: uri, contentType:'application/vnd.android.package-archive'});
+  } catch(e) {
+    console.warn('in-app update failed', e); btn.textContent = 'Update'; fallback();
+  } finally {
+    updating = false; btn.disabled = false; if (h) try { h.remove(); } catch(e){}
+  }
+}
+function skipUpdate(tag){ try { localStorage.setItem('climbr.updateSkipped', tag); } catch(e){} document.getElementById('updatePop').hidden = true; }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
 
 /* ============ Boot ============ */
