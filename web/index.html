@@ -259,6 +259,14 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .presets{display:flex;flex-direction:column;gap:8px}
 .presets button{text-align:left;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-family:var(--font-body)}
 .presets button b{display:block;font-size:14px}.presets button span{font-size:12.5px;color:var(--muted)}
+
+/* ---- v11: history editing ---- */
+.hhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.hhead h2{margin:0!important}
+.mini2{background:none;border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:7px 10px;font-family:var(--font-body);font-size:13px;font-weight:600;flex:none}
+.hday{background:none;border:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted)}
+.hday .hd{font-family:var(--font-mono);font-size:9.5px}
+.dots{gap:8px!important}
 /* ---- v2: routines, cues, timer ---- */
 .ex .cue{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.35}
 .ex .tbtn{flex:none;border:1px solid var(--ausgleich);background:transparent;color:var(--ausgleich-fg);border-radius:10px;padding:7px 9px;font-family:var(--font-mono);font-size:12px;font-weight:600}
@@ -330,7 +338,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   </section>
 
   <section class="history">
-    <h2>Recent days</h2>
+    <div class="hhead"><h2>Recent days</h2><button class="mini2" onclick="openPastDay()">+ Add past day</button></div>
     <div class="dots" id="dots"></div>
   </section>
 
@@ -620,8 +628,56 @@ function renderStats(){
 }
 function renderHistory(){
   const el = document.getElementById('dots'); const list = sessions.slice(0,14);
-  if (!list.length) { el.innerHTML = '<span style="color:var(--muted);font-size:13px">No entries yet.</span>'; return; }
-  el.innerHTML = list.map(s => s.type === 'rest' ? `<div class="dot rest" title="${dayShort(s.date)} · rest">R</div>` : `<div class="dot ${(s.type==='klettern'?'klettern':'ausgleich')+'-'+(s.completed?'good':'bad')}" title="${dayShort(s.date)}">${s.type==='klettern'?'C':'X'}</div>`).join('');
+  if (!list.length) { el.innerHTML = '<span style="color:var(--muted);font-size:13px">No entries yet. Forgot a day? Use “+ Add past day”.</span>'; return; }
+  el.innerHTML = list.map(s => {
+    const cls = s.type === 'rest' ? 'rest' : (s.type==='klettern'?'klettern':'ausgleich') + '-' + (s.completed?'good':'bad');
+    const mark = s.type === 'rest' ? 'R' : s.type === 'klettern' ? 'C' : 'X';
+    return `<button class="hday" onclick="openPastDay('${s.date}')" aria-label="${dayShort(s.date)} — edit"><span class="dot ${cls}">${mark}</span><span class="hd">${dayShort(s.date).slice(0,5)}</span></button>`;
+  }).join('');
+}
+/* ---- add / edit a past day ---- */
+let PD = null;
+function openPastDay(date){
+  const ex = date ? sessionFor(date) : null;
+  PD = ex ? {date:ex.date, type:ex.type, completed:ex.completed, template:ex.template || 'A', isNew:false}
+          : {date:isoAdd(TODAY, -1), type:'klettern', completed:true, template:'A', isNew:true};
+  drawPastDay(); const sh = document.getElementById('sheet'); sh.hidden = false; sh.scrollTop = 0;
+}
+function drawPastDay(){
+  const min = isoAdd(TODAY, -90), exists = !PD.isNew || sessionFor(PD.date);
+  document.getElementById('sheet').innerHTML = `<div class="wrap">
+    <button class="close" onclick="closeSheet()">← Back</button>
+    <header><div class="eyebrow">History</div><h1>${PD.isNew ? 'Add past day' : 'Edit day'}</h1></header>
+    <div class="field"><label>Date</label><input type="date" id="pdDate" value="${PD.date}" min="${min}" max="${TODAY}" ${PD.isNew ? '' : 'disabled'} onchange="PD.date=this.value;drawPastDay()"></div>
+    ${PD.isNew && sessionFor(PD.date) ? `<div class="fnote">There's already an entry for this day — saving will replace it.</div>` : ''}
+    <div class="wrow"><span class="wl">What did you do?</span><div class="wpick">
+      ${[['klettern','Climb'],['ausgleich','Cross'],['rest','Rest']].map(([k,l]) => `<button class="${PD.type===k?'on':''}" onclick="PD.type='${k}';drawPastDay()">${l}</button>`).join('')}</div></div>
+    ${PD.type === 'ausgleich' ? `<div class="wrow"><span class="wl">Which plan?</span><div class="wpick" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      ${['A','B'].map(t => `<button class="${PD.template===t?'on':''}" onclick="PD.template='${t}';drawPastDay()">Plan ${t}</button>`).join('')}</div></div>` : ''}
+    ${PD.type !== 'rest' ? `<div class="wrow"><span class="wl">Status</span><div class="wpick" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      <button class="${PD.completed?'on':''}" onclick="PD.completed=true;drawPastDay()">Done</button>
+      <button class="${!PD.completed?'on':''}" onclick="PD.completed=false;drawPastDay()">Skipped</button></div></div>` : ''}
+    <button class="btn main" onclick="savePastDay()">Save</button>
+    ${PD.isNew ? '' : `<button class="btn danger" onclick="deletePastDay()">Delete this entry</button>`}
+    <div class="hint">Past entries count toward your streak, completion and the A/B rotation. For today, use the card on the main screen.</div>
+  </div>`;
+}
+function savePastDay(){
+  const date = PD.date;
+  if (!date || date > TODAY || date < isoAdd(TODAY, -90)) { alert('Pick a date within the last 90 days.'); return; }
+  const tpl = PD.type === 'ausgleich' ? PD.template : null;
+  const body = { date, type:PD.type, template:tpl,
+    exercises: tpl ? PLANS[tpl].ids.map(id => ({...exItem(id), done:!!PD.completed})) : [],
+    completed: PD.type === 'rest' ? true : !!PD.completed, catchUp:false, updatedAt:Date.now(), addedLater:true };
+  sessions = [body, ...sessions.filter(s => s.date !== date)]; sortSessions(); persist();
+  if (date === TODAY) draft = null;
+  closeSheet(); render();
+}
+function deletePastDay(){
+  if (!confirm('Delete the entry for ' + dayShort(PD.date) + '?')) return;
+  sessions = sessions.filter(s => s.date !== PD.date); persist();
+  if (PD.date === TODAY) draft = null;
+  closeSheet(); render();
 }
 function planBlock(title, ids, cls){
   return `<div class="plan"><h3 class="${cls}">${title}</h3><ul>${ids.map(id => `<li>${esc(EX[id].name)} <span class="sets">— ${esc(EX[id].dose)}</span></li>`).join('')}</ul></div>`;
