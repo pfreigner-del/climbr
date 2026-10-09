@@ -233,6 +233,47 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .andays .ad{font-weight:700;font-size:14px}
 .andays .am{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
 .andays .ag{font-family:var(--font-mono);font-weight:700;font-size:15px}
+.anview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.anview button{padding:10px 2px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-body);font-size:13px;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.anview button.on{background:#fff;color:#000;border-color:#fff}
+.k-os{background:#fff}.k-fl{background:#cfcfcf}.k-rp{background:#8a8a8a}.k-tr{background:#4d4d4d}
+.k-nt{background:repeating-linear-gradient(135deg,#4a4a4a 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px #5a5a5a}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-mono);font-size:13px;font-weight:600}
+.chips button.on{background:#fff;color:#000;border-color:#fff}
+.chips input{width:70px;padding:9px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-family:var(--font-mono);font-size:13px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.row3 .field label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcalc{font-size:14px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface)}
+.rpegrid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+.rpegrid button{padding:9px 0;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-mono);font-size:12.5px;font-weight:600;min-width:0}
+.rpegrid button.on{background:#fff;color:#000;border-color:#fff}
+.rpew{display:block;font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:5px}
+.rpecard{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.rpecard .fl{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rperow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rperow .rpew{margin:0}
+.rperow .mins{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.rperow .mins input{width:64px;padding:7px 8px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-family:var(--font-mono);font-size:13px}
+.bwrow{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.bwrow span{font-weight:700;font-size:14px}.bwrow span.u{color:var(--muted);font-weight:400}
+.bwrow input{margin-left:auto;width:90px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-family:var(--font-mono);font-size:15px;text-align:right}
+.bgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.bcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 10px 6px;min-width:0}
+.bcard .bt{font-size:12px;color:var(--muted)}
+.bcard .bv{font-family:var(--font-display);font-size:26px;line-height:1.1}.bcard .bv small{font-size:12px;color:var(--muted);font-family:var(--font-mono)}
+.bcard .bc{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);margin-bottom:4px}
+.lchart{width:100%;height:auto;display:block}
+.lchart .g{stroke:#2b2b2b;stroke-width:1}
+.lchart text{fill:#9b9b9b;font-family:var(--font-mono);font-size:10px}
+.lchart .ln{fill:none;stroke:#fff;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.lchart circle{fill:#fff;stroke:var(--surface);stroke-width:2}
+.bcard .lchart text{font-size:9px}
+.lstate{display:flex;gap:10px;align-items:baseline;border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--surface);font-size:13.5px;line-height:1.45}
+.lstate b{font-family:var(--font-display);font-size:26px}
+.lstate.hi{border-color:#fff;border-style:dashed}
+.rcard.due{border-color:#fff;border-style:dashed}
+.anbody .ansec .guided{margin:0 0 10px}
 .uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
 .uppop[hidden]{display:none}
 .upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
@@ -340,6 +381,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .hday .hd{font-family:var(--font-mono);font-size:9.5px}
 .dots{gap:8px!important}
 /* ---- v2: routines, cues, timer ---- */
+.ex .load{display:block;font-family:var(--font-mono);font-size:12px;color:var(--fg);margin-top:3px}
+.timer .tload{font-family:var(--font-mono);font-size:14px;margin-top:8px}
 .ex .cue{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.35}
 .ex .tbtn{flex:none;border:1px solid var(--ausgleich);background:transparent;color:var(--ausgleich-fg);border-radius:10px;padding:7px 9px;font-family:var(--font-mono);font-size:12px;font-weight:600}
 .guided{width:100%;margin-top:14px;padding:12px;border-radius:12px;border:1px solid var(--ausgleich);background:color-mix(in srgb,var(--ausgleich) 12%,transparent);color:var(--ausgleich-fg);font-family:var(--font-body);font-weight:700;font-size:14px}
@@ -444,6 +487,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
     <h1 class="brand antitle">Analytics</h1>
     <div class="dateline" id="anSub"></div>
   </header>
+  <div class="anview" id="anView"></div>
   <div class="anseg" id="anPeriod"></div>
   <div class="annav" id="anNav"></div>
   <div class="osort ansys" id="anSys"></div>
@@ -467,18 +511,18 @@ const EX = {
   // Plan A
   pushup: {name:"Push-ups (or dips between two chairs)", dose:"3 × 8–12, 3 s down", prio:2, cue:"Body in one line, lower for 3 seconds. Feet elevated or dips once push-ups get easy."},
   pushplus: {name:"Push-up plus", dose:"2 × 12", prio:1, cue:"Arms straight in plank: let shoulder blades sink together, then push the floor away and round the upper back."},
-  extrot: {name:"Side-lying external rotation (dumbbell)", dose:"3 × 12 / side, 3 s return", prio:1, cue:"Lie on your side, top elbow pinned to your ribs at 90°, light dumbbell. Rotate the forearm up, lower for 3 s."},
-  ytw: {name:"Prone Y-T-W raises", dose:"2 × 8 each", prio:2, cue:"Lying face down, thumbs up. Squeeze shoulder blades down and back before lifting. No weight or very light dumbbells."},
-  ohp: {name:"Dumbbell overhead press", dose:"3 × 8", prio:3, cue:"Ribs down, glutes tight. Press straight up, biceps by your ears. Pike push-ups work as a no-weight alternative."},
+  extrot: {load:"1–3 kg · start with 1 kg", name:"Side-lying external rotation (dumbbell)", dose:"3 × 12 / side, 3 s return", prio:1, cue:"Lie on your side, top elbow pinned to your ribs at 90°, light dumbbell. Rotate the forearm up, lower for 3 s."},
+  ytw: {load:"0–1 kg · bodyweight first", name:"Prone Y-T-W raises", dose:"2 × 8 each", prio:2, cue:"Lying face down, thumbs up. Squeeze shoulder blades down and back before lifting. No weight or very light dumbbells."},
+  ohp: {load:"4–12 kg per hand", name:"Dumbbell overhead press", dose:"3 × 8", prio:3, cue:"Ribs down, glutes tight. Press straight up, biceps by your ears. Pike push-ups work as a no-weight alternative."},
   plank:    {name:"Plank", dose:"3 × 45 s", prio:2, cue:"Elbows under shoulders, squeeze glutes, tuck pelvis slightly. Breathe.", timer:{work:45, sets:3, setRest:30}},
   sideplank:{name:"Side plank", dose:"2 × 30 s / side", prio:3, cue:"Elbow under shoulder, hips high and stacked. Drop to knees to regress.", timer:{work:30, sets:2, sides:2, setRest:20, switchRest:8}},
   // Plan B
   fingext: {name:"Finger extensor isometrics", dose:"4 × 8 reps · 5 s open / 6 s rest", prio:1, cue:"Extension band around your fingertips: open hard (~80 %) and hold 5 s. No band? Push fingertips up under a table edge.", timer:{work:5, rest:6, reps:8, sets:4, setRest:60}},
-  wristext: {name:"Eccentric wrist extension", dose:"3 × 15, 3 s down", prio:1, cue:"Forearm on your thigh, palm down, light dumbbell. Help it up with the other hand, lower for 3 s."},
-  pronsup: {name:"Pronation / supination (dumbbell)", dose:"2 × 12 / side", prio:3, cue:"Hold a dumbbell at one end like a hammer, elbow at 90°. Rotate slowly palm-up ↔ palm-down."},
-  squat: {name:"Goblet squat", dose:"3 × 10", prio:2, cue:"Dumbbell at your chest, knees track over toes, sit between your heels, 3 s down."},
-  lunge: {name:"Bulgarian split squat", dose:"3 × 8 / leg", prio:3, cue:"Rear foot on a chair or bed, front knee over the foot, lower straight down. Add dumbbells when bodyweight gets easy."},
-  sldl: {name:"Single-leg Romanian deadlift", dose:"2 × 8 / leg", prio:3, cue:"Dumbbell in the opposite hand, hinge at the hip, back leg long, hips square."},
+  wristext: {load:"1–3 kg · start with 1 kg", name:"Eccentric wrist extension", dose:"3 × 15, 3 s down", prio:1, cue:"Forearm on your thigh, palm down, light dumbbell. Help it up with the other hand, lower for 3 s."},
+  pronsup: {load:"1–3 kg, held at one end", name:"Pronation / supination (dumbbell)", dose:"2 × 12 / side", prio:3, cue:"Hold a dumbbell at one end like a hammer, elbow at 90°. Rotate slowly palm-up ↔ palm-down."},
+  squat: {load:"8–20 kg", name:"Goblet squat", dose:"3 × 10", prio:2, cue:"Dumbbell at your chest, knees track over toes, sit between your heels, 3 s down."},
+  lunge: {load:"bodyweight → 4–10 kg per hand", name:"Bulgarian split squat", dose:"3 × 8 / leg", prio:3, cue:"Rear foot on a chair or bed, front knee over the foot, lower straight down. Add dumbbells when bodyweight gets easy."},
+  sldl: {load:"6–16 kg", name:"Single-leg Romanian deadlift", dose:"2 × 8 / leg", prio:3, cue:"Dumbbell in the opposite hand, hinge at the hip, back leg long, hips square."},
   hollow: {name:"Hanging leg raises", dose:"3 × 6–10", prio:2, cue:"Hang from the pull-up bar, shoulders engaged, raise straight or bent legs to hip height with control. Mimics lifting your feet to high holds."},
   hip9090:  {name:"Hip mobility 90/90", dose:"2 × 40 s / side", prio:3, cue:"Both knees at 90°, sit tall, lean gently over the front shin.", timer:{work:40, sets:2, sides:2, setRest:10, switchRest:8}},
   // Catch-up / legacy
@@ -644,7 +688,7 @@ function exList(exercises, ctx){
     const timerBtn = m && m.timer ? `<button class="tbtn" onclick="event.stopPropagation();runToday(${i})" aria-label="Start timer"><img class="ico" src="/icons/ui/timer.png" alt=""> ${fmtShort(m.timer)}</button>` : '';
     return `<li class="ex ${e.done?'done':''} ${e.catchUp?'catchup':''}" onclick="toggleExercise(${i})" style="cursor:pointer">
       <span class="box">${e.done ? '✓' : ''}</span>
-      <span class="tx"><span class="nm">${esc(e.name)}</span>${e.catchUp ? ' <span class="tag"><img src="/icons/ui/catchup.png" alt="">Catch-up</span>' : ''}${e.watch ? ` <span class="tag watch">watch: ${e.watch.map(k => AREA_NAME[k].split(' /')[0].toLowerCase()).join(', ')} · keep ≤ 3/10</span>` : ''}${e.rehab ? ` <span class="tag watch">rehab for ${AREA_NAME[e.rehab].split(' /')[0].toLowerCase()} · light, slow, ≤ 3/10</span>` : ''}<br><span class="sets">${esc(e.sets)}</span>${m && m.cue ? `<span class="cue">${esc(m.cue)}</span>` : ''}</span>
+      <span class="tx"><span class="nm">${esc(e.name)}</span>${e.catchUp ? ' <span class="tag"><img src="/icons/ui/catchup.png" alt="">Catch-up</span>' : ''}${e.watch ? ` <span class="tag watch">watch: ${e.watch.map(k => AREA_NAME[k].split(' /')[0].toLowerCase()).join(', ')} · keep ≤ 3/10</span>` : ''}${e.rehab ? ` <span class="tag watch">rehab for ${AREA_NAME[e.rehab].split(' /')[0].toLowerCase()} · light, slow, ≤ 3/10</span>` : ''}<br><span class="sets">${esc(e.sets)}</span>${m && m.load ? `<span class="load">Weight: ${esc(m.load)}</span>` : ''}${m && m.cue ? `<span class="cue">${esc(m.cue)}</span>` : ''}</span>
       ${timerBtn}
     </li>`; }).join('') + '</ul>';
 }
@@ -672,6 +716,7 @@ function renderToday(){
     ${painRow()}
       ${existing.template ? `<div class="note">${esc(PLANS[existing.template] ? PLANS[existing.template].title : 'Plan '+existing.template)}${existing.catchUp ? ' · with catch-up exercises' : ''}</div>` : ''}
       ${exList(existing.exercises)}
+      ${sessionRpeRow(existing)}
       ${existing.type === 'klettern' && existing.completed ? boulderButton(TODAY) : ''}
       ${existing.type === 'klettern' ? climbQuick() : ''}
       ${existing.type === 'rest' ? restBlock('') : ''}
@@ -691,6 +736,7 @@ function renderToday(){
       <button class="${d.type==='rest'?'active rest':''}" onclick="setType('rest')"><img class="ico tg" src="/icons/ui/rest.png" alt="">Rest</button>
     </div>
     ${d.type==='rest' ? restBlock(d.auto ? restReason() : '') : ''}
+    ${d.type!=='rest' ? loadWarning() : ''}
     ${d.type==='ausgleich' && d.template ? `<div class="note">${esc(PLANS[d.template].title)}${d.note ? ' — ' + esc(d.note) : ''}</div>` : ''}
     ${d.removed && d.removed.length ? `<div class="note"><b>Adjusted for pain:</b> paused ${d.removed.map(x => esc(x.name) + ' (' + x.areas.map(k => AREA_NAME[k].split(' /')[0].toLowerCase()).join(', ') + ')').join(', ')}.</div>` : ''}
     ${d.type==='klettern' ? climbAdvice() : ''}
@@ -724,7 +770,7 @@ function renderHistory(){
 let PD = null;
 function openPastDay(date){
   const ex = date ? sessionFor(date) : null;
-  PD = ex ? {date:ex.date, type:ex.type, completed:ex.completed, template:ex.template || 'A', isNew:false}
+  PD = ex ? {date:ex.date, type:ex.type, completed:ex.completed, template:ex.template || 'A', rpe:ex.rpe || null, mins:ex.mins || null, isNew:false}
           : {date:isoAdd(TODAY, -1), type:'klettern', completed:true, template:'A', isNew:true};
   drawPastDay(); const sh = document.getElementById('sheet'); sh.hidden = false; sh.scrollTop = 0;
 }
@@ -742,6 +788,7 @@ function drawPastDay(){
     ${PD.type !== 'rest' ? `<div class="wrow"><span class="wl">Status</span><div class="wpick" style="grid-template-columns:repeat(2,minmax(0,1fr))">
       <button class="${PD.completed?'on':''}" onclick="PD.completed=true;drawPastDay()">Done</button>
       <button class="${!PD.completed?'on':''}" onclick="PD.completed=false;drawPastDay()">Skipped</button></div></div>` : ''}
+    ${PD.type !== 'rest' && PD.completed ? rpeFields('PD') : ''}
     ${PD.type === 'klettern' && !PD.isNew ? boulderButton(PD.date) : ''}
     <button class="btn main" onclick="savePastDay()">Save</button>
     ${PD.isNew ? '' : `<button class="btn danger" onclick="deletePastDay()">Delete this entry</button>`}
@@ -754,7 +801,8 @@ function savePastDay(){
   const tpl = PD.type === 'ausgleich' ? PD.template : null;
   const body = { date, type:PD.type, template:tpl,
     exercises: tpl ? PLANS[tpl].ids.map(id => ({...exItem(id), done:!!PD.completed})) : [],
-    completed: PD.type === 'rest' ? true : !!PD.completed, catchUp:false, updatedAt:Date.now(), addedLater:true };
+    completed: PD.type === 'rest' ? true : !!PD.completed, catchUp:false, updatedAt:Date.now(), addedLater:true,
+    ...(PD.type !== 'rest' && PD.completed && PD.rpe ? {rpe:PD.rpe, mins:num(PD.mins)} : {}) };
   sessions = [body, ...sessions.filter(s => s.date !== date)]; sortSessions(); persist();
   if (date === TODAY) draft = null;
   closeSheet(); render();
@@ -766,12 +814,13 @@ function deletePastDay(){
   closeSheet(); render();
 }
 function planBlock(title, ids, cls){
-  return `<div class="plan"><h3 class="${cls}">${title}</h3><ul>${ids.map(id => `<li>${esc(EX[id].name)} <span class="sets">— ${esc(EX[id].dose)}</span></li>`).join('')}</ul></div>`;
+  return `<div class="plan"><h3 class="${cls}">${title}</h3><ul>${ids.map(id => `<li>${esc(EX[id].name)} <span class="sets">— ${esc(EX[id].dose)}${EX[id].load ? ' · ' + esc(EX[id].load) : ''}</span></li>`).join('')}</ul></div>`;
 }
 function renderReference(){
   document.getElementById('refBody').innerHTML =
     planBlock(PLANS.A.title, PLANS.A.ids, 'a') + planBlock(PLANS.B.title, PLANS.B.ids, 'b') +
     `<div class="plan"><h3 class="a">Catch-up logic</h3><div class="note" style="margin:0">If a cross-training day is skipped, the next one starts with the missed plan's 2 key exercises (A: external rotation, push-up plus · B: finger extensor isometrics, eccentric wrist extension) and drops 2 lower-priority ones.</div></div>
+    <div class="plan"><h3 class="a">How heavy?</h3><div class="note" style="margin:0"><b>Rule:</b> pick the weight where the last 2 reps of a set feel hard but your form stays clean (about 2 reps left in the tank). When all sets feel easy, go up by the smallest step (0.5–2 kg).<br><b>Kilogram ranges</b> next to each exercise are typical starting points for adults — lighter or newer to lifting → lower end. Shoulder and wrist exercises (external rotation, Y-T-W, wrist extension, pronation) stay light on purpose: these small muscles are trained for control and tendon health, not max strength. With pain, stay at the lowest weight and ≤ 3/10.<br><i>Practice guidance — exact kilograms aren't tested in climbing studies.</i></div></div>
     <div class="plan"><h3 class="b">Why these exercises</h3><ul>
       <li><b>Climbing RCT:</b> closed-chain + eccentric strength work 3–4×/week cut shoulder (3.2 → 0.5) and elbow (1.8 → 0.5) injuries per 1,000 exposures in student climbers (Kozina et al.; small, moderate quality).</li>
       <li><b>Climbing study:</b> climbers' shoulder ER:IR ratio is ~0.8 vs ~1.0 in non-climbers → external rotation & scapular work.</li>
@@ -990,7 +1039,7 @@ function header(){
   const it = T.queue[T.qi], e = exOf(it);
   const next = T.queue[T.qi+1] ? exOf(T.queue[T.qi+1]).name : '';
   return `<div><div class="tprog">${T.queue.length > 1 ? `Exercise ${T.qi+1}/${T.queue.length}` : esc(e.dose)}</div>
-    <div class="tname">${esc(e.name)}</div><div class="tcue">${esc(e.cue)}</div>${next ? `<div class="tsub">Next: ${esc(next)}</div>` : ''}</div>`;
+    <div class="tname">${esc(e.name)}</div>${e.load ? `<div class="tload">Weight: ${esc(e.load)}</div>` : ''}<div class="tcue">${esc(e.cue)}</div>${next ? `<div class="tsub">Next: ${esc(next)}</div>` : ''}</div>`;
 }
 function drawTimer(){
   const el = document.getElementById('timer'), p = T.phases[T.pi];
@@ -1046,10 +1095,12 @@ const TOOLS = {
   maxhang: {title:'Max hangs', sub:'Beastmaker · 10 s'},
   repeaters: {title:'Repeaters', sub:'Beastmaker · 7/3'},
   custom: {title:'Custom timer', sub:'any duration'},
+  hanglog: {title:'Hangboard log', sub:'track finger strength'},
+  bench: {title:'Benchmarks', sub:'every 4–6 weeks'},
 };
 function renderTools(){
   document.getElementById('tgrid').innerHTML = Object.entries(TOOLS).map(([k,t]) =>
-    `<button class="rcard" onclick="openTool('${k}')">${k==='comp' ? '<img class="ri" src="/icons/ui/comp.png" alt="">' : (k==='maxhang'||k==='repeaters') ? '<img class="ri" src="/icons/ui/hangboard.png" alt="">' : (k==='rest'||k==='custom') ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(t.sub)}</div></button>`).join('');
+    `<button class="rcard${k==='bench' && benchDue().due ? ' due' : ''}" onclick="openTool('${k}')">${k==='comp' ? '<img class="ri" src="/icons/ui/comp.png" alt="">' : k==='bench' ? '<img class="ri" src="/icons/ui/analytics.png" alt="">' : (k==='maxhang'||k==='repeaters'||k==='hanglog') ? '<img class="ri" src="/icons/ui/hangboard.png" alt="">' : (k==='rest'||k==='custom') ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(k==='bench' ? benchDue().txt : t.sub)}</div></button>`).join('');
 }
 function runTimer(ex){ startRunner([{ex}], 0); }
 function restEx(min){ return {name:`Rest · ${min} min`, dose:`${min}:00`, cue:'Stay active: shake out, walk around, or do easy climbing — in climbers, active rest restored performance better than sitting still.',
@@ -1063,6 +1114,8 @@ const HANGS = {
     timer:{work:7, rest:3, reps:6, sets:3, setRest:180, setName:'Set', workLabel:'Hang', alert:true}},
 };
 function openTool(k){
+  if (k === 'hanglog') return openHangForm();
+  if (k === 'bench') return openBench();
   const sh = document.getElementById('sheet'); let body = '';
   if (k === 'rest') body = `
     <header><div class="eyebrow">Between attempts & routes</div><h1>Rest timer</h1></header>
@@ -1086,6 +1139,7 @@ function openTool(k){
     <div class="intro">${esc(x.cue)}</div>
     ${(blocked('hangs').length || watched('hangs').length) ? `<div class="fnote">You logged pain in your ${[...blocked('hangs'), ...watched('hangs')].map(x => AREA_NAME[x].split(' /')[0].toLowerCase()).join(' and ')} — skip hangboarding until it's pain-free.</div>` : ''}
     <button class="guided" style="margin:0" onclick="runTimer(HANGS['${k}'])">▶ Start</button>
+    <button class="btn" onclick="openHangForm({type:'${k==='maxhang'?'max':'rep'}'})">Log this session</button>
     <div class="evidence">Hangboard training raised max finger strength more than climbing alone in an RCT (Hermans et al.); 80 % effort was the only intensity that improved strength and endurance (Devise et al.). Do max hangs on fresh fingers, max 2×/week, and skip them when your finger check-in is 1–2. Exact hang/rest times and the 2×/week limit are coaching practice.</div>`; }
   else if (k === 'custom') body = `
     <header><div class="eyebrow">Any duration</div><h1>Custom timer</h1></header>
@@ -1542,12 +1596,12 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     try {
       const { Filesystem, Share } = window.Capacitor.Plugins;
       const name = 'climbr-backup-' + TODAY + '.json';
-      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:7, sessions, customs, pain:painLog, fingers, week, boulders, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
+      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:8, sessions, customs, pain:painLog, fingers, week, boulders, bw:bwLog, hangs, benches, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
       await Share.share({ title: 'ClimbR backup', files: [res.uri], dialogTitle: 'Save or send your backup' });
     } catch(e) { if (!String(e && e.message || e).toLowerCase().includes('cancel')) alert('Backup failed: ' + (e && e.message || e)); }
     return;
   }
-  const blob = new Blob([JSON.stringify({app:'climbr', version:7, sessions, customs, pain:painLog, fingers, week, boulders, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({app:'climbr', version:8, sessions, customs, pain:painLog, fingers, week, boulders, bw:bwLog, hangs, benches, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'climbr-backup-' + TODAY + '.json';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
@@ -1563,6 +1617,9 @@ document.getElementById('importFile').addEventListener('change', async (ev) => {
     const nOut = await outdoorRestore(data.outdoor);
     let nB = 0;
     if (data.boulders && typeof data.boulders === 'object') { for (const [d, l] of Object.entries(data.boulders)) { if (!Array.isArray(l)) continue; const have = new Set(bFor(d).map(b => b.at)); const add = l.filter(b => b && BSYS[b.sys] && RES[b.r] && !have.has(b.at)); if (add.length) { boulders[d] = bFor(d).concat(add); nB += add.length; } } saveBoulders(); }
+    if (data.bw && typeof data.bw === 'object') { bwLog = {...data.bw, ...bwLog}; saveJSON(BW_KEY, bwLog); }
+    const mergeById = (cur, inc) => { const ids = new Set(cur.map(x => x.id)); return cur.concat((Array.isArray(inc) ? inc : []).filter(x => x && x.id && x.date && !ids.has(x.id))).sort((a,b) => a.date < b.date ? -1 : 1); };
+    hangs = mergeById(hangs, data.hangs); saveJSON(HB_KEY, hangs); benches = mergeById(benches, data.benches); saveJSON(BM_KEY, benches); renderTools();
     if (data.week && (data.week.days === null || Array.isArray(data.week.days))) { week = data.week; try { localStorage.setItem(WEEK_KEY, JSON.stringify(week)); } catch(e){} }
     if (data.pain && typeof data.pain === 'object') { painLog = {...data.pain, ...painLog}; savePain(); }
     if (Array.isArray(data.customs)) { const ids = new Set(customs.map(c => c.id)); customs = customs.concat(data.customs.filter(c => c && c.id && !ids.has(c.id))); persistCustoms(); renderRoutines(); }
@@ -1700,16 +1757,38 @@ function bouldersIn(s, e){ const out = []; for (const d of Object.keys(boulders)
 function topGrade(list, sys, pred){ let best = -1, g = null; for (const b of list) if (b.sys === sys && pred(b)) { const i = gIdx(sys, b.g); if (i > best) { best = i; g = b.g; } } return g; }
 function pct(a, b){ return b ? Math.round(100 * a / b) + '%' : '–'; }
 function renderAnalytics(){
-  const [s, e] = anRange(), all = bouldersIn(s, e);
-  const sysCount = {}; all.forEach(b => sysCount[b.sys] = (sysCount[b.sys] || 0) + 1);
-  if (!AN.sys || (!sysCount[AN.sys] && all.length)) AN.sys = Object.keys(sysCount).sort((x,y) => sysCount[y] - sysCount[x])[0] || bSysPref();
-  const sys = AN.sys, list = all.filter(b => b.sys === sys), c = bCount(list);
+  if (!AN.view) AN.view = 'boulders';
+  document.getElementById('anView').innerHTML = VIEWS.map(([k,l]) => `<button class="${AN.view===k?'on':''}" onclick="AN.view='${k}';renderAnalytics()">${l}</button>`).join('');
+  const timed = AN.view === 'boulders' || AN.view === 'routes';
+  ['anPeriod','anNav','anSys'].forEach(id => document.getElementById(id).hidden = !timed);
+  if (!timed) {
+    document.getElementById('anBody').innerHTML = AN.view === 'strength' ? strengthBody() : loadBody();
+    document.getElementById('anSub').textContent = AN.view === 'strength' ? 'Finger strength & benchmarks' : 'Training load · last 12 weeks';
+    return;
+  }
+  if (AN.view === 'routes') {
+    const [s, e] = anRange();
+    anControls(s, e);
+    document.getElementById('anBody').innerHTML = routesBody(s, e) + trainingSummary(s, e);
+    document.getElementById('anSub').textContent = AN.period === 'all' ? 'All time' : anLabel([s, e]);
+    return;
+  }
+  renderBoulderAnalytics();
+}
+function anControls(s, e){
   const canNext = AN.period !== 'all' && e < TODAY;
   document.getElementById('anPeriod').innerHTML = PERIODS.map(([k,l]) => `<button class="${AN.period===k?'on':''}" onclick="anSetPeriod('${k}')">${l}</button>`).join('');
   document.getElementById('anNav').innerHTML = AN.period === 'all' ? `<span class="anl">All time</span>` :
     `<button aria-label="Previous" onclick="anShift(-1)">‹</button>
      ${AN.period === 'day' ? `<input type="date" value="${AN.anchor}" max="${TODAY}" onchange="if(this.value){AN.anchor=this.value;renderAnalytics()}">` : `<span class="anl">${esc(anLabel([s,e]))}</span>`}
      <button aria-label="Next" onclick="anShift(1)" ${canNext ? '' : 'disabled'}>›</button>`;
+}
+function renderBoulderAnalytics(){
+  const [s, e] = anRange(), all = bouldersIn(s, e);
+  const sysCount = {}; all.forEach(b => sysCount[b.sys] = (sysCount[b.sys] || 0) + 1);
+  if (!AN.sys || (!sysCount[AN.sys] && all.length)) AN.sys = Object.keys(sysCount).sort((x,y) => sysCount[y] - sysCount[x])[0] || bSysPref();
+  const sys = AN.sys, list = all.filter(b => b.sys === sys), c = bCount(list);
+  anControls(s, e);
   const shown = Object.keys(BSYS).filter(k => sysCount[k]);
   document.getElementById('anSys').innerHTML = shown.length < 2 ? '' : shown.map(k => `<button class="${sys===k?'on':''}" onclick="AN.sys='${k}';renderAnalytics()">${BSYS_LABEL[k]}${sysCount[k] ? ' · ' + sysCount[k] : ''}</button>`).join('');
 
@@ -1727,7 +1806,7 @@ function renderAnalytics(){
       <div class="stat"><div class="n"><img src="/icons/ui/project.png" alt="">${c.try}</div><div class="l">not sent</div></div>
       <div class="stat"><div class="n">${topSend ? esc(topSend) : '–'}</div><div class="l">hardest send</div></div>
       <div class="stat"><div class="n">${topFlash ? esc(topFlash) : '–'}</div><div class="l">hardest flash</div></div></div>`;
-    h += pyramid(list, sys);
+    { const rows = {}; list.forEach(b => { (rows[b.g] = rows[b.g] || {})[b.r] = (rows[b.g][b.r] || 0) + 1; }); h += pyramidOf(rows, g => gIdx(sys, g), BCAT, ['flash','send']); }
     if (AN.period !== 'day') h += volumeChart(list, s, e);
     if (AN.period !== 'day') h += `<section class="ansec"><h2>Climbing days</h2><ul class="andays">${days.map(d => { const dl = list.filter(b => b.date === d), dc = bCount(dl), tg = topGrade(dl, sys, b => b.r !== 'try');
       return `<li><button onclick="anOpenDay('${d}')"><span class="ad">${esc(parseISO(d).toLocaleDateString('en-GB', {weekday:'short', day:'2-digit', month:'2-digit'}))}</span><span class="am">${dc.n} · ${dc.flash} flash · ${dc.sent} sent</span><span class="ag">${tg ? esc(tg) : '–'}</span></button></li>`; }).join('')}</ul></section>`;
@@ -1736,17 +1815,6 @@ function renderAnalytics(){
   h += trainingSummary(s, e);
   document.getElementById('anBody').innerHTML = h;
   document.getElementById('anSub').textContent = AN.period === 'all' ? 'All time' : anLabel([s, e]);
-}
-function pyramid(list, sys){
-  const rows = {}; list.forEach(b => { const r = rows[b.g] = rows[b.g] || {flash:0, send:0, try:0}; r[b.r]++; });
-  const gs = Object.keys(rows).sort((a,b) => gIdx(sys, b) - gIdx(sys, a));
-  const max = Math.max(...gs.map(g => rows[g].flash + rows[g].send + rows[g].try));
-  return `<section class="ansec"><h2>Grade pyramid</h2>
-    <div class="alegend"><span><i class="k-flash"></i>Flash</span><span><i class="k-send"></i>Sent</span><span><i class="k-try"></i>Not sent</span></div>
-    <div class="pyr">${gs.map(g => { const r = rows[g], t = r.flash + r.send + r.try;
-      const seg = k => r[k] ? `<i class="k-${k}" style="width:${100 * r[k] / max}%" title="${RES[k].l}: ${r[k]}"></i>` : '';
-      return `<div class="prow" aria-label="${esc(g)}: ${r.flash} flash, ${r.send} sent, ${r.try} not sent"><span class="pg">${esc(g)}</span><span class="pb">${seg('flash')}${seg('send')}${seg('try')}</span><span class="pn">${r.flash + r.send}/${t}</span></div>`; }).join('')}</div>
-    <div class="hint">Right: sent / tried per grade.</div></section>`;
 }
 function volumeChart(list, s, e){
   // buckets: week → days, month → weeks, longer → months
@@ -1775,6 +1843,244 @@ function trainingSummary(s, e){
     <div class="stat"><div class="n">${rest}</div><div class="l">rest days</div></div>
     <div class="stat"><div class="n">${skipped}</div><div class="l">skipped</div></div></div>
     ${outs.length ? `<div class="hint" style="margin-top:8px">Outdoor log: ${outs.length} route${outs.length === 1 ? '' : 's'} in this period.</div>` : ''}</section>`;
+}
+
+/* ============ Strength: bodyweight, hangboard log, benchmarks ============ */
+const BW_KEY = 'climbr.bw.v1', HB_KEY = 'climbr.hang.v1', BM_KEY = 'climbr.bench.v1';
+function loadJSON(k, d){ try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch(e){ return d; } }
+function saveJSON(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){ alert('Saving failed — storage full?'); } }
+let bwLog = loadJSON(BW_KEY, {}), hangs = loadJSON(HB_KEY, []), benches = loadJSON(BM_KEY, []);
+function bwOn(date){ const ks = Object.keys(bwLog).sort(); let v = null; for (const d of ks) if (d <= date) v = bwLog[d]; return v != null ? v : (ks.length ? bwLog[ks[0]] : null); }
+function setBW(date, kg){ kg = +kg; if (kg >= 25 && kg <= 250) { bwLog[date] = Math.round(kg * 10) / 10; saveJSON(BW_KEY, bwLog); return true; } return false; }
+function num(v){ if (v === '' || v == null) return null; const n = +String(v).replace(',', '.'); return isFinite(n) ? n : null; }
+function r1(n){ return Math.round(n * 10) / 10; }
+const HTYPE = {max:'Max hang', rep:'Repeaters', lift:'Fingerweight lift'};
+const GRIP = {half:'Half crimp', open:'Open hand', drag:'3-finger drag'};
+function hangPct(h){ const bw = h.bw || bwOn(h.date); if (!bw) return null; return h.type === 'lift' ? 100 * (h.added || 0) / bw : 100 * (bw + (h.added || 0)) / bw; }
+function hangKey(h){ return h.type + '|' + h.edge + '|' + h.grip; }
+function hangKeyLabel(k){ const [t, e, g] = k.split('|'); return `${HTYPE[t]} · ${e} mm · ${GRIP[g] || g}`; }
+
+let HF = null;
+function openHangForm(pre){
+  const last = hangs.filter(h => !pre || !pre.type || h.type === pre.type).slice(-1)[0];
+  HF = pre && pre.id ? {...pre} : {id:'h' + Date.now(), date:TODAY, type:'max', edge:20, grip:'half', secs:10, added:0, sets:5, rpe:null, mins:null,
+    ...(last ? {edge:last.edge, grip:last.grip, secs:last.secs, added:last.added, sets:last.sets} : {}), ...(pre || {}), isNew:true};
+  if (HF.bw == null) HF.bw = bwOn(HF.date);
+  drawHangForm(); const sh = document.getElementById('sheet'); sh.hidden = false; sh.scrollTop = 0;
+}
+function hfSet(k, v){ HF[k] = v; if (k === 'type') { if (v === 'rep') { HF.secs = 7; HF.sets = 3; } else if (v === 'max') { HF.secs = 10; HF.sets = 5; } else { HF.secs = 10; HF.sets = 3; HF.added = Math.max(HF.added || 0, 10); } } drawHangForm(); }
+function hfCalc(){
+  const bw = num(HF.bw), add = num(HF.added) || 0;
+  if (!bw) return 'Enter your body weight to see % of bodyweight.';
+  if (HF.type === 'lift') return `Lifted ${r1(add)} kg per hand = <b>${Math.round(100 * add / bw)} %</b> of bodyweight`;
+  return `Total load ${r1(bw + add)} kg = <b>${Math.round(100 * (bw + add) / bw)} %</b> of bodyweight`;
+}
+function drawHangForm(){
+  const f = HF, lift = f.type === 'lift';
+  document.getElementById('sheet').innerHTML = `<div class="wrap">
+    <button class="close" onclick="closeSheet()">← Back</button>
+    <header><div class="eyebrow">Hangboard log</div><h1>${f.isNew ? 'Log hangs' : 'Edit hangs'}</h1></header>
+    <div class="field"><label>Date</label><input type="date" value="${f.date}" max="${TODAY}" onchange="HF.date=this.value||TODAY"></div>
+    <div class="wrow"><span class="wl">Type</span><div class="wpick">${Object.entries(HTYPE).map(([k,l]) => `<button class="${f.type===k?'on':''}" onclick="hfSet('type','${k}')">${l}</button>`).join('')}</div></div>
+    <div class="wrow"><span class="wl">Edge depth (mm)</span><div class="chips">${[10,15,18,20,25,30].map(m => `<button class="${+f.edge===m?'on':''}" onclick="hfSet('edge',${m})">${m}</button>`).join('')}<input type="number" inputmode="numeric" value="${f.edge}" aria-label="Edge depth in mm" onchange="hfSet('edge', +this.value || 20)"></div></div>
+    <div class="wrow"><span class="wl">Grip</span><div class="wpick">${Object.entries(GRIP).map(([k,l]) => `<button class="${f.grip===k?'on':''}" onclick="hfSet('grip','${k}')">${l}</button>`).join('')}</div></div>
+    <div class="row3">
+      <div class="field"><label>${lift ? 'Hold (s)' : 'Hang (s)'}</label><input type="number" inputmode="numeric" value="${f.secs ?? ''}" onchange="HF.secs=num(this.value)"></div>
+      <div class="field"><label>Sets</label><input type="number" inputmode="numeric" value="${f.sets ?? ''}" onchange="HF.sets=num(this.value)"></div>
+      <div class="field"><label>Body weight (kg)</label><input type="number" inputmode="decimal" step="0.1" value="${f.bw ?? ''}" oninput="HF.bw=num(this.value);document.getElementById('hfc').innerHTML=hfCalc()"></div>
+    </div>
+    <div class="field"><label>${lift ? 'Weight lifted per hand (kg)' : 'Added weight (kg) — negative = assisted'}</label><input type="number" inputmode="decimal" step="0.5" value="${f.added ?? 0}" oninput="HF.added=num(this.value);document.getElementById('hfc').innerHTML=hfCalc()"></div>
+    <div class="hint">${lift ? 'Fingerweight: one hand, block on the edge, lift the weight just off the floor and hold.' : 'Use the heaviest load you held for the full time in your best set. Fingerweight on a belt or held between your feet = positive. Feet on a chair or a pulley = negative.'}</div>
+    <div class="fcalc" id="hfc">${hfCalc()}</div>
+    ${rpeFields('HF')}
+    <button class="btn main" onclick="saveHang()">Save</button>
+    ${f.isNew ? '' : `<button class="btn danger" onclick="deleteHang()">Delete this entry</button>`}
+  </div>`;
+}
+function saveHang(){
+  const f = HF; if (!f.date || !f.edge) { alert('Add a date and an edge depth.'); return; }
+  const bw = num(f.bw); if (bw) setBW(f.date, bw);
+  const rec = {id:f.id, date:f.date, type:f.type, edge:+f.edge, grip:f.grip, secs:num(f.secs), sets:num(f.sets), added:num(f.added) || 0, bw:bw || null, rpe:num(f.rpe), mins:num(f.mins)};
+  hangs = hangs.filter(h => h.id !== rec.id).concat(rec).sort((a,b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  saveJSON(HB_KEY, hangs); closeSheet(); afterStrengthChange();
+}
+function deleteHang(){ if (!confirm('Delete this hang entry?')) return; hangs = hangs.filter(h => h.id !== HF.id); saveJSON(HB_KEY, hangs); closeSheet(); afterStrengthChange(); }
+function afterStrengthChange(){ renderTools(); render(); if (!document.getElementById('tabStats').hidden) renderAnalytics(); }
+
+// ---- Benchmarks ----
+const BENCH = [
+  {k:'mh', short:'Hang', name:'Max hang', unit:'% BW', how:'20 mm edge, half crimp, both hands, 7 s. Warm up well, then add weight in small steps (Fingerweight on a belt or between your feet) until you can\'t hold 7 s. Enter the most added weight you held — negative if you needed assistance.', input:'Added weight (kg)'},
+  {k:'pu', short:'Pull-ups', name:'Max pull-ups', unit:'reps', how:'Pull-up bar, palms away, shoulder width. Full hang at the bottom, chin over the bar. Stop when form breaks.', input:'Reps'},
+  {k:'lo', short:'Lock-off', name:'Lock-off 90°', unit:'s', how:'Pull up until your elbows are at 90° and hold as long as you can (both arms). Stop when the angle opens.', input:'Seconds'},
+  {k:'lr', short:'Leg raises', name:'Hanging leg raises', unit:'reps', how:'Hang from the bar, legs straight, raise them to at least 90° (hips level) and lower with control. No swinging.', input:'Reps'},
+];
+function benchVal(b, k){ if (k === 'mh') { if (b.mh == null) return null; const bw = b.bw || bwOn(b.date); return bw ? r1(100 * (bw + b.mh) / bw) : null; } return b[k] ?? null; }
+function benchDue(){ const last = benches.slice(-1)[0]; if (!last) return {due:true, txt:'not done yet'}; const days = Math.round((parseISO(TODAY) - parseISO(last.date)) / 864e5); return days >= 42 ? {due:true, txt:'due now'} : {due:false, txt:'next in ' + (42 - days) + ' days'}; }
+let BF = null;
+function openBench(b){
+  BF = b ? {...b} : {id:'b' + Date.now(), date:TODAY, bw:bwOn(TODAY), mh:null, pu:null, lo:null, lr:null, isNew:true};
+  const sh = document.getElementById('sheet');
+  sh.innerHTML = `<div class="wrap">
+    <button class="close" onclick="closeSheet()">← Back</button>
+    <header><div class="eyebrow">Every 4–6 weeks</div><h1>Benchmark test</h1></header>
+    <div class="intro">Do all tests on a rested day (finger check-in 4–5), after the full warm-up, in this order with 3–5 min rest between. Skip any test that hurts — leave it empty.</div>
+    <div class="row3" style="grid-template-columns:1fr 1fr">
+      <div class="field"><label>Date</label><input type="date" value="${BF.date}" max="${TODAY}" onchange="BF.date=this.value||TODAY"></div>
+      <div class="field"><label>Body weight (kg)</label><input type="number" inputmode="decimal" step="0.1" value="${BF.bw ?? ''}" onchange="BF.bw=num(this.value)"></div></div>
+    ${BENCH.map((t,i) => `<div class="box2"><h3>${i+1}. ${t.name}</h3><div class="hint">${esc(t.how)}</div>
+      <div class="field"><label>${t.input}</label><input type="number" inputmode="decimal" step="${t.k==='mh'?'0.5':'1'}" value="${BF[t.k] ?? ''}" onchange="BF['${t.k}']=num(this.value)"></div></div>`).join('')}
+    <button class="btn main" onclick="saveBench()">Save results</button>
+    ${BF.isNew ? '' : `<button class="btn danger" onclick="deleteBench()">Delete this test</button>`}
+    <div class="evidence"><b>Climbing studies:</b> in 436 sport climbers, a 7-s max hang on a ~20 mm edge (as % of bodyweight) was related to route grade (R = 0.66, explains ~44 % of the differences in grade) — Lattice Training data, not peer-reviewed. In 28 advanced climbers, max pull-ups were related to grade about as strongly as finger endurance (r = 0.61 vs 0.54–0.57; Draga et al. 2024). These are correlations, not proof that the test causes the grade.<br><b>Practice:</b> the lock-off and leg-raise tests, and the 4–6 week interval.</div>
+  </div>`;
+  sh.hidden = false; sh.scrollTop = 0;
+}
+function saveBench(){
+  if (BENCH.every(t => BF[t.k] == null)) { alert('Enter at least one result.'); return; }
+  if (BF.mh != null && !num(BF.bw)) { alert('Add your body weight — the max hang is scored as % of bodyweight.'); return; }
+  if (num(BF.bw)) setBW(BF.date, BF.bw);
+  const rec = {id:BF.id, date:BF.date, bw:num(BF.bw), mh:BF.mh, pu:BF.pu, lo:BF.lo, lr:BF.lr};
+  benches = benches.filter(b => b.id !== rec.id).concat(rec).sort((a,b) => a.date < b.date ? -1 : 1);
+  saveJSON(BM_KEY, benches); closeSheet(); AN.view = 'strength'; showTab('stats');
+}
+function deleteBench(){ if (!confirm('Delete this benchmark test?')) return; benches = benches.filter(b => b.id !== BF.id); saveJSON(BM_KEY, benches); closeSheet(); afterStrengthChange(); }
+
+/* ============ Effort (session RPE) & weekly load ============ */
+const RPE_WORD = {1:'very easy', 2:'easy', 3:'moderate', 4:'somewhat hard', 5:'hard', 6:'hard+', 7:'very hard', 8:'very hard+', 9:'near max', 10:'maximal'};
+function rpeFields(obj){
+  const o = (obj === 'PD' ? PD : obj === 'HF' ? HF : null) || {};
+  return `<div class="wrow rpe"><span class="wl">How hard was it overall? (optional)</span>
+    <div class="rpegrid">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="${o.rpe===n?'on':''}" onclick="${obj}.rpe=(${obj}.rpe===${n}?null:${n});this.parentNode.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',${obj}.rpe===i+1));this.closest('.rpe').querySelector('.rpew').textContent=${obj}.rpe?${obj}.rpe+' · '+RPE_WORD[${obj}.rpe]:'1 = very easy · 10 = maximal'">${n}</button>`).join('')}</div>
+    <span class="rpew">${o.rpe ? o.rpe + ' · ' + RPE_WORD[o.rpe] : '1 = very easy · 10 = maximal'}</span>
+    <div class="field" style="margin-top:6px"><label>Duration (minutes)</label><input type="number" inputmode="numeric" value="${o.mins ?? ''}" onchange="${obj}.mins=num(this.value)"></div></div>`;
+}
+// effort row on today's finished card
+function sessionRpeRow(s){
+  if (!s || s.type === 'rest' || !s.completed) return '';
+  return `<div class="rpecard"><span class="fl">Effort · rate ~30 min after</span>
+    <div class="rpegrid">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="${s.rpe===n?'on':''}" onclick="setSessionEffort('${s.date}','rpe',${n})">${n}</button>`).join('')}</div>
+    <div class="rperow"><span class="rpew">${s.rpe ? s.rpe + ' · ' + RPE_WORD[s.rpe] : '1 = very easy · 10 = maximal'}</span>
+    <label class="mins"><input type="number" inputmode="numeric" placeholder="min" value="${s.mins ?? ''}" onchange="setSessionEffort('${s.date}','mins',num(this.value))"> min</label></div></div>`;
+}
+function setSessionEffort(date, k, v){ const s = sessionFor(date); if (!s) return; s[k] = (k === 'rpe' && s.rpe === v) ? null : v; s.updatedAt = Date.now(); persist(); render(); }
+function dailyLoads(){
+  const m = {};
+  for (const s of sessions) if (s.rpe && s.mins) m[s.date] = (m[s.date] || 0) + s.rpe * s.mins;
+  for (const h of hangs) if (h.rpe && h.mins) m[h.date] = (m[h.date] || 0) + h.rpe * h.mins;
+  return m;
+}
+function loadSum(m, s, e){ let t = 0; for (const d in m) if (d >= s && d <= e) t += m[d]; return t; }
+function loadStatus(){
+  const m = dailyLoads(), acute = loadSum(m, isoAdd(TODAY, -6), TODAY), chronic = loadSum(m, isoAdd(TODAY, -27), TODAY) / 4;
+  const days = Object.keys(m).filter(d => d >= isoAdd(TODAY, -27)).length;
+  return {acute, chronic, ratio: chronic > 0 ? acute / chronic : null, enough: days >= 6 && Object.keys(m).some(d => d <= isoAdd(TODAY, -21))};
+}
+function loadWarning(){
+  const st = loadStatus();
+  return st.enough && st.ratio > 1.5 ? `<div class="fnote">Training load this week is ${st.ratio.toFixed(1)}× your 4-week average — a big jump. Consider an easier day.</div>` : '';
+}
+
+/* ============ Analytics views: routes, strength, load ============ */
+const VIEWS = [['boulders','Boulders'],['routes','Routes'],['strength','Strength'],['load','Load']];
+const RSTY = {Onsight:'os', Flash:'fl', Redpoint:'rp', 'Top-rope':'tr', Project:'nt', Attempt:'nt'};
+const RCAT = [['os','Onsight'],['fl','Flash'],['rp','Redpoint'],['tr','Top-rope'],['nt','Not sent']];
+const BCAT = [['flash','Flash'],['send','Sent'],['try','Not sent']];
+function pyramidOf(rows, order, cats, sentKeys, title){
+  const gs = Object.keys(rows).sort((a,b) => order(b) - order(a));
+  const tot = g => cats.reduce((t,[k]) => t + (rows[g][k] || 0), 0);
+  const max = Math.max(...gs.map(tot));
+  return `<section class="ansec"><h2>${title || 'Grade pyramid'}</h2>
+    <div class="alegend">${cats.map(([k,l]) => `<span><i class="k-${k}"></i>${l}</span>`).join('')}</div>
+    <div class="pyr">${gs.map(g => { const r = rows[g], t = tot(g), sent = sentKeys.reduce((a,k) => a + (r[k] || 0), 0);
+      return `<div class="prow" aria-label="${esc(g)}: ${cats.map(([k,l]) => (r[k]||0) + ' ' + l).join(', ')}"><span class="pg">${esc(g)}</span><span class="pb">${cats.map(([k,l]) => r[k] ? `<i class="k-${k}" style="width:${100 * r[k] / max}%" title="${l}: ${r[k]}"></i>` : '').join('')}</span><span class="pn">${sent}/${t}</span></div>`; }).join('')}</div>
+    <div class="hint">Right: sent / tried per grade.</div></section>`;
+}
+function routesBody(s, e){
+  const all = outdoor.filter(r => r.date >= s && r.date <= e && r.grade && GRADES[r.system]);
+  const cnt = {}; all.forEach(r => cnt[r.system] = (cnt[r.system] || 0) + 1);
+  if (!AN.rsys || !cnt[AN.rsys]) AN.rsys = Object.keys(cnt).sort((a,b) => cnt[b] - cnt[a])[0] || null;
+  const shown = Object.keys(cnt);
+  document.getElementById('anSys').innerHTML = shown.length < 2 ? '' : shown.map(k => `<button class="${AN.rsys===k?'on':''}" onclick="AN.rsys='${k}';renderAnalytics()">${k} · ${cnt[k]}</button>`).join('');
+  if (!AN.rsys) return `<div class="anempty">No outdoor routes logged ${AN.period === 'day' ? 'on this day' : 'in this period'}. Add them in the Outdoor tab.</div>`;
+  const sys = AN.rsys, list = all.filter(r => r.system === sys), gi = g => GRADES[sys].indexOf(g);
+  const c = {}; list.forEach(r => { const k = RSTY[r.style] || 'nt'; c[k] = (c[k] || 0) + 1; });
+  const lead = list.filter(r => ['os','fl','rp'].includes(RSTY[r.style]));
+  const top = arr => arr.reduce((b, r) => gi(r.grade) > gi(b || '') ? r.grade : b, null);
+  const rows = {}; list.forEach(r => { const k = RSTY[r.style] || 'nt'; (rows[r.grade] = rows[r.grade] || {})[k] = (rows[r.grade][k] || 0) + 1; });
+  const crags = new Set(list.map(r => (r.crag || '').trim().toLowerCase()).filter(Boolean)).size;
+  return `<div class="antiles">
+      <div class="stat"><div class="n">${list.length}</div><div class="l">routes${crags ? ' · ' + crags + ' crag' + (crags === 1 ? '' : 's') : ''}</div></div>
+      <div class="stat"><div class="n"><img src="/icons/ui/sent.png" alt="">${lead.length}</div><div class="l">sent (onsight, flash, redpoint) · ${pct(lead.length, list.length)}</div></div>
+      <div class="stat"><div class="n">${c.os || 0}</div><div class="l">onsight</div></div>
+      <div class="stat"><div class="n">${c.rp || 0}</div><div class="l">redpoint</div></div>
+      <div class="stat"><div class="n">${esc(top(lead) || '–')}</div><div class="l">hardest send</div></div>
+      <div class="stat"><div class="n">${esc(top(list.filter(r => RSTY[r.style] === 'os')) || '–')}</div><div class="l">hardest onsight</div></div></div>
+    ${pyramidOf(rows, gi, RCAT, ['os','fl','rp'])}
+    <section class="ansec"><h2>Routes</h2><ul class="blist">${list.slice().sort((a,b) => a.date < b.date ? 1 : -1).map(r => `<li><b>${esc(r.grade)}</b><span class="br">${esc(r.title || 'Untitled')}${r.crag ? ' · ' + esc(r.crag) : ''}</span><span class="bs">${esc(r.style)} · ${esc(dayShort(r.date))}</span></li>`).join('')}</ul></section>`;
+}
+function lineChart(pts, opt){
+  opt = opt || {}; const fmt = opt.fmt || (v => String(v));
+  if (!pts.length) return '';
+  if (pts.length < 2) return `<div class="hint">One result so far (${esc(fmt(pts[0].v))}) — the trend line appears after the next one.</div>`;
+  const mini = !!opt.mini, W = mini ? 160 : 320, H = mini ? 70 : 140, L = mini ? 6 : 40, R = 6, T = 8, B = mini ? 14 : 22;
+  const xs = pts.map(p => parseISO(p.d).getTime()), ys = pts.map(p => p.v);
+  let x0 = Math.min(...xs), x1 = Math.max(...xs); if (x1 === x0) x1 = x0 + 864e5;
+  let y0 = Math.min(...ys), y1 = Math.max(...ys); const pad = (y1 - y0) * 0.15 || Math.max(1, Math.abs(y1) * 0.1); y0 -= pad; y1 += pad;
+  const X = t => L + (W - L - R) * (t - x0) / (x1 - x0), Y = v => T + (H - T - B) * (1 - (v - y0) / (y1 - y0));
+  const path = pts.map((p,i) => (i ? 'L' : 'M') + X(xs[i]).toFixed(1) + ' ' + Y(p.v).toFixed(1)).join(' ');
+  return `<svg class="lchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opt.label || 'Trend')}">
+    <line x1="${L}" x2="${W-R}" y1="${Y(y1-pad)}" y2="${Y(y1-pad)}" class="g"/><line x1="${L}" x2="${W-R}" y1="${Y(y0+pad)}" y2="${Y(y0+pad)}" class="g"/>
+    ${mini ? '' : `<text x="${L-6}" y="${Y(y1-pad)+4}" text-anchor="end">${esc(fmt(r1(y1-pad)))}</text><text x="${L-6}" y="${Y(y0+pad)+4}" text-anchor="end">${esc(fmt(r1(y0+pad)))}</text>`}
+    <text x="${L}" y="${H-5}">${esc(dayShort(pts[0].d))}</text><text x="${W-R}" y="${H-5}" text-anchor="end">${esc(dayShort(pts[pts.length-1].d))}</text>
+    <path d="${path}" class="ln"/>${pts.map((p,i) => `<circle cx="${X(xs[i]).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="${mini ? 3 : 4}"><title>${esc(dayShort(p.d))}: ${esc(fmt(p.v))}</title></circle>`).join('')}</svg>`;
+}
+function strengthBody(){
+  const bw = bwOn(TODAY), due = benchDue();
+  let h = `<div class="bwrow"><span>Body weight</span><input type="number" inputmode="decimal" step="0.1" value="${bw ?? ''}" placeholder="kg" aria-label="Body weight in kg" onchange="if(setBW(TODAY,num(this.value)))renderAnalytics()"><span class="u">kg</span></div>`;
+  // benchmarks
+  h += `<section class="ansec"><h2>Benchmarks</h2>
+    <button class="guided" onclick="openBench()"><img class="ico inv" src="/icons/ui/analytics.png" alt=""> ${due.due ? 'Do benchmark test · ' + due.txt : 'New benchmark test · ' + due.txt}</button>`;
+  if (benches.length) {
+    h += `<div class="bgrid">${BENCH.map(t => { const pts = benches.map(b => ({d:b.date, v:benchVal(b, t.k)})).filter(p => p.v != null);
+      if (!pts.length) return `<div class="bcard"><div class="bt">${t.name}</div><div class="hint">No result yet.</div></div>`;
+      const a = pts[0].v, z = pts[pts.length-1].v, ch = pts.length > 1 && a ? Math.round(100 * (z - a) / Math.abs(a)) : null;
+      return `<div class="bcard"><div class="bt">${t.name}</div><div class="bv">${r1(z)}<small> ${t.unit}</small></div><div class="bc">${ch == null ? 'first result' : (ch >= 0 ? '+' : '') + ch + ' % since ' + dayShort(pts[0].d)}</div>${lineChart(pts, {fmt:v => r1(v) + (t.unit === '% BW' ? '%' : ''), label:t.name, mini:true})}</div>`; }).join('')}</div>
+      <ul class="andays">${benches.slice().reverse().map(b => `<li><button onclick="openBench(benches.find(x=>x.id==='${b.id}'))"><span class="ad">${esc(dayShort(b.date))}</span><span class="am">${BENCH.map(t => benchVal(b, t.k) != null ? t.short + ' ' + r1(benchVal(b, t.k)) + (t.unit === '% BW' ? '%' : '') : '').filter(Boolean).join(' · ')}</span><span class="ag">edit</span></button></li>`).join('')}</ul>`;
+  } else h += `<div class="anempty">No benchmark yet. Do the first one on a rested day — it becomes your baseline.</div>`;
+  h += `</section>`;
+  // hangboard progress
+  h += `<section class="ansec"><h2>Hangboard</h2><button class="guided" onclick="openHangForm()"><img class="ico inv" src="/icons/ui/hangboard.png" alt=""> Log hangs</button>`;
+  if (hangs.length) {
+    const keys = {}; hangs.forEach(x => keys[hangKey(x)] = (keys[hangKey(x)] || 0) + 1);
+    if (!AN.hkey || !keys[AN.hkey]) AN.hkey = hangKey(hangs[hangs.length - 1]);
+    const sel = hangs.filter(x => hangKey(x) === AN.hkey), byDay = {};
+    sel.forEach(x => { const p = hangPct(x); if (p != null && (byDay[x.date] == null || p > byDay[x.date])) byDay[x.date] = p; });
+    const pts = Object.keys(byDay).sort().map(d => ({d, v:r1(byDay[d])}));
+    const best = pts.length ? Math.max(...pts.map(p => p.v)) : null;
+    h += `${Object.keys(keys).length > 1 ? `<div class="osort">${Object.keys(keys).map(k => `<button class="${AN.hkey===k?'on':''}" onclick="AN.hkey='${k}';renderAnalytics()">${esc(hangKeyLabel(k))}</button>`).join('')}</div>` : `<div class="hint">${esc(hangKeyLabel(AN.hkey))}</div>`}
+      ${best != null ? `<div class="antiles"><div class="stat"><div class="n">${Math.round(best)}%</div><div class="l">best ${AN.hkey.startsWith('lift') ? 'lift' : 'hang'} · % bodyweight</div></div><div class="stat"><div class="n">${sel.length}</div><div class="l">sessions logged</div></div></div>` : '<div class="hint">Add your body weight to see % of bodyweight.</div>'}
+      ${lineChart(pts, {fmt:v => Math.round(v) + '%', label:'Hangboard progress'})}
+      <ul class="andays">${sel.slice().reverse().slice(0, 12).map(x => `<li><button onclick="openHangForm(hangs.find(y=>y.id==='${x.id}'))"><span class="ad">${esc(dayShort(x.date))}</span><span class="am">${x.sets || '?'} × ${x.secs || '?'} s · ${x.added >= 0 ? '+' : ''}${r1(x.added || 0)} kg${x.rpe ? ' · RPE ' + x.rpe : ''}</span><span class="ag">${hangPct(x) != null ? Math.round(hangPct(x)) + '%' : '–'}</span></button></li>`).join('')}</ul>`;
+  } else h += `<div class="anempty">No hangs logged yet. Log your max hangs or repeaters after each session to see your finger strength grow.</div>`;
+  h += `<div class="evidence"><b>Why % of bodyweight:</b> what matters on the wall is finger strength relative to the weight you have to hold. Only compare entries with the same edge, grip and hang time — that's why progress is shown per setup. Hangboard training raised max finger strength more than climbing alone (Hermans et al., RCT).</div></section>`;
+  return h;
+}
+function loadBody(){
+  const m = dailyLoads(), st = loadStatus();
+  const mon = isoAdd(TODAY, -((parseISO(TODAY).getDay() + 6) % 7));
+  const weeks = []; for (let i = 11; i >= 0; i--) { const s = isoAdd(mon, -7 * i), e = isoAdd(s, 6); weeks.push({s, e, v:loadSum(m, s, e)}); }
+  const max = Math.max(1, ...weeks.map(w => w.v));
+  const since = isoAdd(TODAY, -27), noRpe = sessions.filter(s => s.date >= since && s.type !== 'rest' && s.completed && !(s.rpe && s.mins)).length;
+  let h = `<div class="antiles">
+    <div class="stat"><div class="n">${Math.round(st.acute)}</div><div class="l">load, last 7 days</div></div>
+    <div class="stat"><div class="n">${Math.round(st.chronic)}</div><div class="l">weekly average, last 4 weeks</div></div></div>`;
+  if (!st.enough) h += `<div class="anempty">Rate your effort after each climbing or cross-training session (RPE 1–10 + minutes). After about 3–4 weeks the app can tell you when your load jumps.</div>`;
+  else { const r = st.ratio; h += `<div class="lstate ${r > 1.5 ? 'hi' : ''}"><b>${r.toFixed(2)}×</b> <span>${r > 1.5 ? 'Big jump: this week is far above your recent average. Plan an easier day or a rest day.' : r < 0.8 ? 'Lighter than usual — fine for a deload or rest week.' : 'Steady: this week is in line with your recent training.'}</span></div>`; }
+  h += `<section class="ansec"><h2>Weekly load</h2><div class="vol">${weeks.map(w => `<div class="vcol" title="${dayShort(w.s)}: ${Math.round(w.v)}"><span class="vn">${w.v ? Math.round(w.v) : ''}</span><span class="vb"><i class="k-send" style="height:${100 * w.v / max}%"></i></span><span class="vl">${esc(String(parseISO(w.s).getDate()))}</span></div>`).join('')}</div>
+    <div class="hint">Last 12 weeks, labelled by the Monday. Load = effort (1–10) × minutes.</div></section>`;
+  if (noRpe) h += `<div class="hint">${noRpe} session${noRpe === 1 ? '' : 's'} in the last 4 weeks ${noRpe === 1 ? 'has' : 'have'} no effort rating — tap the day in “Recent days” to add it.</div>`;
+  h += `<div class="evidence"><b>General sports science (not climbing-specific):</b> session-RPE (effort 1–10 rated ~30 min after training × minutes) is a valid, simple way to track training load (Foster 2001; review: Haddad et al. 2017). Comparing this week to your 4-week average (acute:chronic ratio) is widely used, but whether it predicts injury is debated (editorial 2021). Treat “big jump” as a nudge, not a rule.</div>`;
+  return h;
 }
 
 /* ============ Update check (GitHub releases) ============ */
