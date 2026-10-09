@@ -172,6 +172,67 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .install img{width:34px;height:34px;flex:none}
 .install .it{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;color:var(--muted);line-height:1.35}
 .install .it b{color:var(--fg);font-size:14px}
+.bsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.bsum div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center;min-width:0}
+.bsum b{display:block;font-family:var(--font-display);font-size:24px;line-height:1}
+.bsum span{font-size:11px;color:var(--muted)}
+.ggrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.ggrid.Gym{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ggrid button{padding:10px 0;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-mono);font-size:13px;font-weight:600;min-width:0}
+.ggrid.Gym button{font-size:18px;padding:12px 0}
+.ggrid button.on{background:#fff;color:#000;border-color:#fff}
+.rbtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rbtns button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 4px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-family:var(--font-body);font-size:14px;font-weight:700;min-width:0}
+.rbtns button .ico{width:30px;height:30px;margin:0}
+.rbtns button:active{background:#fff;color:#000}.rbtns button:active .ico{filter:invert(1)}
+.blist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.blist li{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-width:0}
+.blist .ico{width:22px;height:22px;flex:none;margin:0}
+.blist b{font-family:var(--font-mono);font-size:15px;min-width:2.6em}
+.blist .br{flex:1;font-size:14px;min-width:0}
+.blist .bs{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.blist button{background:none;border:none;color:var(--muted);font-size:16px;padding:2px 4px}
+.brand.antitle{font-family:var(--font-display);font-size:clamp(40px,12vw,56px)!important}
+.anseg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.anseg button{padding:8px 0;border:none;border-radius:9px;background:transparent;color:var(--muted);font-family:var(--font-body);font-size:13px;font-weight:700;min-width:0}
+.anseg button.on{background:#fff;color:#000}
+.annav{display:flex;align-items:center;gap:8px}
+.annav button{flex:none;width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:22px;line-height:1}
+.annav button:disabled{opacity:.3}
+.annav .anl,.annav input{flex:1;min-width:0;text-align:center;font-family:var(--font-body);font-weight:700;font-size:15px}
+.annav input{background:var(--surface);border:1px solid var(--line);border-radius:12px;color:var(--fg);padding:10px;color-scheme:dark}
+.anbody{display:flex;flex-direction:column;gap:14px}
+.anbody .guided{margin-top:0}
+.ansys:empty{display:none}
+.anempty{color:var(--muted);font-size:14px;line-height:1.5;border:1px dashed var(--line);border-radius:14px;padding:16px;text-align:center}
+.antiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.antiles.four .n{font-size:26px}
+.antiles .stat .n img{width:22px;height:22px}
+.ansec h2{margin:0 0 10px}
+.alegend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:10px}
+.alegend span{display:flex;align-items:center;gap:6px}
+.alegend i{display:inline-block;width:12px;height:12px;border-radius:3px}
+.k-flash{background:#fff}
+.k-send{background:#8a8a8a}
+.k-try{background:repeating-linear-gradient(135deg,#4a4a4a 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px #5a5a5a}
+.pyr{display:flex;flex-direction:column;gap:6px}
+.prow{display:grid;grid-template-columns:3.2em minmax(0,1fr) 3.4em;align-items:center;gap:8px}
+.prow .pg{font-family:var(--font-mono);font-size:13px;font-weight:600;text-align:right}
+.prow .pb{display:flex;gap:2px;height:18px}
+.prow .pb i{display:block;height:100%;border-radius:4px;min-width:4px}
+.prow .pn{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.vol{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:4px}
+.vcol{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+.vcol .vn{font-family:var(--font-mono);font-size:10px;color:var(--muted);height:12px}
+.vcol .vb{flex:1;width:100%;max-width:28px;display:flex;flex-direction:column-reverse;gap:2px;justify-content:flex-start}
+.vcol .vb i{display:block;width:100%;border-radius:4px}
+.vcol .vb i[style="height:0%"]{display:none}
+.vcol .vl{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+.andays{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.andays button{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--fg);font-family:var(--font-body)}
+.andays .ad{font-weight:700;font-size:14px}
+.andays .am{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.andays .ag{font-family:var(--font-mono);font-weight:700;font-size:15px}
 .uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
 .uppop[hidden]{display:none}
 .upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
@@ -376,8 +437,20 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   <div id="outList" class="olist"></div>
 </div>
 
+<div class="wrap" id="tabStats" hidden>
+  <header class="top">
+    <h1 class="brand antitle">Analytics</h1>
+    <div class="dateline" id="anSub"></div>
+  </header>
+  <div class="anseg" id="anPeriod"></div>
+  <div class="annav" id="anNav"></div>
+  <div class="osort ansys" id="anSys"></div>
+  <div id="anBody" class="anbody"></div>
+</div>
+
 <nav class="tabbar" id="tabbar">
   <button class="on" data-tab="train" onclick="showTab('train')"><img src="/icons/ui/train.png" alt=""><span>Training</span></button>
+  <button data-tab="stats" onclick="showTab('stats')"><img src="/icons/ui/analytics.png" alt=""><span>Analytics</span></button>
   <button data-tab="out" onclick="showTab('out')"><img src="/icons/ui/outdoor.png" alt=""><span>Outdoor</span></button>
 </nav>
 
@@ -597,6 +670,7 @@ function renderToday(){
     ${painRow()}
       ${existing.template ? `<div class="note">${esc(PLANS[existing.template] ? PLANS[existing.template].title : 'Plan '+existing.template)}${existing.catchUp ? ' · with catch-up exercises' : ''}</div>` : ''}
       ${exList(existing.exercises)}
+      ${existing.type === 'klettern' && existing.completed ? boulderButton(TODAY) : ''}
       ${existing.type === 'klettern' ? climbQuick() : ''}
       ${existing.type === 'rest' ? restBlock('') : ''}
       <button class="edit-link" onclick="reedit()">Edit entry</button></div>`;
@@ -618,7 +692,7 @@ function renderToday(){
     ${d.type==='ausgleich' && d.template ? `<div class="note">${esc(PLANS[d.template].title)}${d.note ? ' — ' + esc(d.note) : ''}</div>` : ''}
     ${d.removed && d.removed.length ? `<div class="note"><b>Adjusted for pain:</b> paused ${d.removed.map(x => esc(x.name) + ' (' + x.areas.map(k => AREA_NAME[k].split(' /')[0].toLowerCase()).join(', ') + ')').join(', ')}.</div>` : ''}
     ${d.type==='klettern' ? climbAdvice() : ''}
-    ${d.type==='klettern' ? `<div class="note">Climbing day: start with the warm-up, finish with the cool-down.</div>${climbQuick()}` : ''}
+    ${d.type==='klettern' ? `<div class="note">Climbing day: start with the warm-up, finish with the cool-down.</div>${climbQuick()}${boulderButton(TODAY)}` : ''}
     ${exList(d.exercises)}
     ${d.type==='ausgleich' ? `<button class="guided" onclick="runToday()">▶ Start guided session</button>` : ''}
     <div class="actions">
@@ -666,6 +740,7 @@ function drawPastDay(){
     ${PD.type !== 'rest' ? `<div class="wrow"><span class="wl">Status</span><div class="wpick" style="grid-template-columns:repeat(2,minmax(0,1fr))">
       <button class="${PD.completed?'on':''}" onclick="PD.completed=true;drawPastDay()">Done</button>
       <button class="${!PD.completed?'on':''}" onclick="PD.completed=false;drawPastDay()">Skipped</button></div></div>` : ''}
+    ${PD.type === 'klettern' && !PD.isNew ? boulderButton(PD.date) : ''}
     <button class="btn main" onclick="savePastDay()">Save</button>
     ${PD.isNew ? '' : `<button class="btn danger" onclick="deletePastDay()">Delete this entry</button>`}
     <div class="hint">Past entries count toward your streak, completion and the A/B rotation. For today, use the card on the main screen.</div>
@@ -1188,9 +1263,11 @@ function climbAdvice(){
 function showTab(t){
   document.getElementById('tabTrain').hidden = t !== 'train';
   document.getElementById('tabOut').hidden = t !== 'out';
+  document.getElementById('tabStats').hidden = t !== 'stats';
   document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   try { localStorage.setItem('climbr.tab', t); } catch(e){}
   if (t === 'out') renderOutdoor();
+  if (t === 'stats') renderAnalytics();
   window.scrollTo(0, 0);
 }
 
@@ -1462,12 +1539,12 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     try {
       const { Filesystem, Share } = window.Capacitor.Plugins;
       const name = 'climbr-backup-' + TODAY + '.json';
-      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:6, sessions, customs, pain:painLog, fingers, week, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
+      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:7, sessions, customs, pain:painLog, fingers, week, boulders, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
       await Share.share({ title: 'ClimbR backup', files: [res.uri], dialogTitle: 'Save or send your backup' });
     } catch(e) { if (!String(e && e.message || e).toLowerCase().includes('cancel')) alert('Backup failed: ' + (e && e.message || e)); }
     return;
   }
-  const blob = new Blob([JSON.stringify({app:'climbr', version:6, sessions, customs, pain:painLog, fingers, week, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({app:'climbr', version:7, sessions, customs, pain:painLog, fingers, week, boulders, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'climbr-backup-' + TODAY + '.json';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
@@ -1481,11 +1558,13 @@ document.getElementById('importFile').addEventListener('change', async (ev) => {
     for (const s of incoming) { if (!s || !s.date) continue; const cur = byDate.get(s.date); if (!cur || (s.updatedAt||0) >= (cur.updatedAt||0)) byDate.set(s.date, s); }
     sessions = [...byDate.values()]; sortSessions(); persist(); draft = null;
     const nOut = await outdoorRestore(data.outdoor);
+    let nB = 0;
+    if (data.boulders && typeof data.boulders === 'object') { for (const [d, l] of Object.entries(data.boulders)) { if (!Array.isArray(l)) continue; const have = new Set(bFor(d).map(b => b.at)); const add = l.filter(b => b && BSYS[b.sys] && RES[b.r] && !have.has(b.at)); if (add.length) { boulders[d] = bFor(d).concat(add); nB += add.length; } } saveBoulders(); }
     if (data.week && (data.week.days === null || Array.isArray(data.week.days))) { week = data.week; try { localStorage.setItem(WEEK_KEY, JSON.stringify(week)); } catch(e){} }
     if (data.pain && typeof data.pain === 'object') { painLog = {...data.pain, ...painLog}; savePain(); }
     if (Array.isArray(data.customs)) { const ids = new Set(customs.map(c => c.id)); customs = customs.concat(data.customs.filter(c => c && c.id && !ids.has(c.id))); persistCustoms(); renderRoutines(); }
     render();
-    alert(incoming.length + ' training entries' + (nOut ? ' and ' + nOut + ' outdoor routes' : '') + ' imported.');
+    alert(incoming.length + ' training entries' + (nOut ? ', ' + nOut + ' outdoor routes' : '') + (nB ? ', ' + nB + ' boulders' : '') + ' imported.');
   } catch(e){ alert('Could not read that file.'); }
   ev.target.value = '';
 });
@@ -1511,6 +1590,189 @@ const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && wi
   document.getElementById('installClose').addEventListener('click', () => { bar.hidden = true; try { localStorage.setItem('climbr.installDismissed','1'); } catch(e){} });
 })();
 
+
+/* ============ Boulder log ============ */
+const BLD_KEY = 'climbr.boulders.v1';
+const BSYS = {Font: GRADES.Font, V: GRADES.V, Gym: ['1','2','3','4','5','6','7','8']};
+const BSYS_LABEL = {Font:'Font', V:'V-scale', Gym:'Gym 1–8'};
+const RES = {flash:{l:'Flash', ico:'flash'}, send:{l:'Sent', ico:'sent'}, try:{l:'Not sent', ico:'project'}};
+let boulders = {};
+try { boulders = JSON.parse(localStorage.getItem(BLD_KEY) || '{}') || {}; } catch(e){ boulders = {}; }
+function saveBoulders(){ try { localStorage.setItem(BLD_KEY, JSON.stringify(boulders)); } catch(e){ alert('Saving failed — storage full?'); } }
+function bFor(date){ return boulders[date] || []; }
+function bCount(list){ const c = {n:list.length, flash:0, send:0, try:0}; list.forEach(b => c[b.r]++); c.sent = c.flash + c.send; return c; }
+function bSysPref(){ try { const s = localStorage.getItem('climbr.boulderSys'); if (BSYS[s]) return s; } catch(e){} return 'Font'; }
+function gIdx(sys, g){ return BSYS[sys] ? BSYS[sys].indexOf(g) : -1; }
+function boulderButton(date){
+  const n = bFor(date).length;
+  return `<button class="guided" onclick="openBoulders('${date}')"><img class="ico inv" src="/icons/ui/boulder.png" alt=""> Log boulders${n ? ' · ' + n + ' logged' : ''}</button>`;
+}
+let BL = null;
+function openBoulders(date){
+  const list = bFor(date), last = list[list.length - 1];
+  const sys = last ? last.sys : bSysPref();
+  BL = {date, sys, g: last && last.sys === sys ? last.g : BSYS[sys][Math.min(5, BSYS[sys].length - 1)]};
+  drawBoulders(); const sh = document.getElementById('sheet'); sh.hidden = false; sh.scrollTop = 0;
+}
+function drawBoulders(){
+  const list = bFor(BL.date), c = bCount(list), grades = BSYS[BL.sys];
+  document.getElementById('sheet').innerHTML = `<div class="wrap">
+    <button class="close" onclick="closeBoulders()">← Back</button>
+    <header><div class="eyebrow">Boulder log</div><h1>${BL.date === TODAY ? 'Today' : esc(fmtDate(BL.date))}</h1></header>
+    <div class="field"><label>Date</label><input type="date" value="${BL.date}" min="${isoAdd(TODAY,-365)}" max="${TODAY}" onchange="if(this.value){BL.date=this.value;drawBoulders()}"></div>
+    <div class="bsum">
+      <div><b>${c.n}</b><span>boulders</span></div>
+      <div><b>${c.flash}</b><span>flashed</span></div>
+      <div><b>${c.sent}</b><span>sent</span></div>
+      <div><b>${c.try}</b><span>not sent</span></div></div>
+    <div class="wrow"><span class="wl">Grade system</span><div class="wpick">
+      ${Object.keys(BSYS).map(s => `<button class="${BL.sys===s?'on':''}" onclick="setBSys('${s}')">${BSYS_LABEL[s]}</button>`).join('')}</div></div>
+    <div class="wrow"><span class="wl">1 · Pick the grade</span>
+      <div class="ggrid ${BL.sys}">${grades.map(g => `<button class="${BL.g===g?'on':''}" onclick="BL.g='${g}';drawBoulders()">${esc(g)}</button>`).join('')}</div></div>
+    <div class="wrow"><span class="wl">2 · Log it as</span><div class="rbtns">
+      ${Object.keys(RES).map(r => `<button class="r-${r}" onclick="addBoulder('${r}')"><img class="ico" src="/icons/ui/${RES[r].ico}.png" alt="">${RES[r].l}</button>`).join('')}</div></div>
+    <div class="hint">Flash = topped on the first try. Sent = topped after more tries. Not sent = tried, didn't top (yet).</div>
+    ${list.length ? `<ul class="blist">${list.map((b,i) => ({b,i})).reverse().map(({b,i}) => `<li><img class="ico" src="/icons/ui/${RES[b.r].ico}.png" alt=""><b>${esc(b.g)}</b><span class="br">${RES[b.r].l}</span><span class="bs">${BSYS_LABEL[b.sys]}</span><button aria-label="Remove" onclick="removeBoulder(${i})">✕</button></li>`).join('')}</ul>` : ''}
+    <button class="btn main" onclick="closeBoulders()">Done</button>
+  </div>`;
+}
+function setBSys(s){ BL.sys = s; if (gIdx(s, BL.g) < 0) BL.g = BSYS[s][Math.min(5, BSYS[s].length - 1)]; try { localStorage.setItem('climbr.boulderSys', s); } catch(e){} drawBoulders(); }
+function addBoulder(r){
+  if (!BL.g) return;
+  (boulders[BL.date] = boulders[BL.date] || []).push({sys:BL.sys, g:BL.g, r, at:Date.now()});
+  saveBoulders(); markClimbed(BL.date);
+  try { navigator.vibrate && navigator.vibrate(15); } catch(e){}
+  drawBoulders();
+}
+function removeBoulder(i){
+  const list = bFor(BL.date); list.splice(i, 1);
+  if (!list.length) delete boulders[BL.date];
+  saveBoulders(); drawBoulders();
+}
+// Logging boulders means you climbed that day: create / complete the climbing entry.
+function markClimbed(date){
+  if (date < isoAdd(TODAY, -365)) return;
+  const s = sessionFor(date);
+  if (!s) {
+    sessions.push({date, type:'klettern', template:null, exercises:[], completed:true, catchUp:false, updatedAt:Date.now(), addedLater: date !== TODAY});
+    sortSessions(); persist(); if (date === TODAY) draft = null;
+  } else if (s.type === 'klettern' && !s.completed) { s.completed = true; s.updatedAt = Date.now(); persist(); }
+}
+function closeBoulders(){ closeSheet(); render(); if (!document.getElementById('tabStats').hidden) renderAnalytics(); }
+
+/* ============ Analytics ============ */
+const AN = {period:'month', anchor:TODAY, sys:null};
+const PERIODS = [['day','Day'],['week','Week'],['month','Month'],['year','Year'],['all','All']];
+function isoDate(t){ return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
+function parseISO(iso){ const [y,m,d] = iso.split('-').map(Number); return new Date(y, m-1, d); }
+function anRange(){
+  const a = parseISO(AN.anchor);
+  if (AN.period === 'day') return [AN.anchor, AN.anchor];
+  if (AN.period === 'week') { const dow = (a.getDay() + 6) % 7; const s = isoAdd(AN.anchor, -dow); return [s, isoAdd(s, 6)]; }
+  if (AN.period === 'month') return [isoDate(new Date(a.getFullYear(), a.getMonth(), 1)), isoDate(new Date(a.getFullYear(), a.getMonth()+1, 0))];
+  if (AN.period === 'year') return [a.getFullYear() + '-01-01', a.getFullYear() + '-12-31'];
+  const dates = Object.keys(boulders).concat(sessions.map(s => s.date)).sort();
+  return [dates[0] || TODAY, TODAY];
+}
+function anLabel([s, e]){
+  const a = parseISO(AN.anchor);
+  if (AN.period === 'day') return fmtDate(AN.anchor);
+  if (AN.period === 'week') { const o = {day:'numeric', month:'short'}; return parseISO(s).toLocaleDateString('en-GB', o) + ' – ' + parseISO(e).toLocaleDateString('en-GB', o); }
+  if (AN.period === 'month') return a.toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+  if (AN.period === 'year') return String(a.getFullYear());
+  return 'All time';
+}
+function anShift(dir){
+  const a = parseISO(AN.anchor);
+  if (AN.period === 'day') AN.anchor = isoAdd(AN.anchor, dir);
+  else if (AN.period === 'week') AN.anchor = isoAdd(AN.anchor, 7 * dir);
+  else if (AN.period === 'month') AN.anchor = isoDate(new Date(a.getFullYear(), a.getMonth() + dir, 1));
+  else if (AN.period === 'year') AN.anchor = isoDate(new Date(a.getFullYear() + dir, 0, 1));
+  if (AN.anchor > TODAY) AN.anchor = TODAY;
+  renderAnalytics();
+}
+function anSetPeriod(p){ AN.period = p; if (p !== 'day') AN.anchor = AN.anchor > TODAY ? TODAY : AN.anchor; renderAnalytics(); }
+function anOpenDay(d){ AN.period = 'day'; AN.anchor = d; renderAnalytics(); window.scrollTo(0, 0); }
+function bouldersIn(s, e){ const out = []; for (const d of Object.keys(boulders)) if (d >= s && d <= e) for (const b of boulders[d]) out.push({...b, date:d}); return out; }
+function topGrade(list, sys, pred){ let best = -1, g = null; for (const b of list) if (b.sys === sys && pred(b)) { const i = gIdx(sys, b.g); if (i > best) { best = i; g = b.g; } } return g; }
+function pct(a, b){ return b ? Math.round(100 * a / b) + '%' : '–'; }
+function renderAnalytics(){
+  const [s, e] = anRange(), all = bouldersIn(s, e);
+  const sysCount = {}; all.forEach(b => sysCount[b.sys] = (sysCount[b.sys] || 0) + 1);
+  if (!AN.sys || (!sysCount[AN.sys] && all.length)) AN.sys = Object.keys(sysCount).sort((x,y) => sysCount[y] - sysCount[x])[0] || bSysPref();
+  const sys = AN.sys, list = all.filter(b => b.sys === sys), c = bCount(list);
+  const canNext = AN.period !== 'all' && e < TODAY;
+  document.getElementById('anPeriod').innerHTML = PERIODS.map(([k,l]) => `<button class="${AN.period===k?'on':''}" onclick="anSetPeriod('${k}')">${l}</button>`).join('');
+  document.getElementById('anNav').innerHTML = AN.period === 'all' ? `<span class="anl">All time</span>` :
+    `<button aria-label="Previous" onclick="anShift(-1)">‹</button>
+     ${AN.period === 'day' ? `<input type="date" value="${AN.anchor}" max="${TODAY}" onchange="if(this.value){AN.anchor=this.value;renderAnalytics()}">` : `<span class="anl">${esc(anLabel([s,e]))}</span>`}
+     <button aria-label="Next" onclick="anShift(1)" ${canNext ? '' : 'disabled'}>›</button>`;
+  const shown = Object.keys(BSYS).filter(k => sysCount[k]);
+  document.getElementById('anSys').innerHTML = shown.length < 2 ? '' : shown.map(k => `<button class="${sys===k?'on':''}" onclick="AN.sys='${k}';renderAnalytics()">${BSYS_LABEL[k]}${sysCount[k] ? ' · ' + sysCount[k] : ''}</button>`).join('');
+
+  let h = '';
+  if (AN.period === 'day') h += boulderButton(AN.anchor);
+  if (!list.length) {
+    h += `<div class="anempty">${all.length ? 'No ' + BSYS_LABEL[sys] + ' boulders here — switch the grade system above.' : 'No boulders logged ' + (AN.period === 'day' ? 'on this day.' : 'in this period.') + (AN.period !== 'day' ? ' Log them on a climbing day via “Log boulders”.' : '')}</div>`;
+  } else {
+    const days = [...new Set(list.map(b => b.date))].sort().reverse();
+    const topSend = topGrade(list, sys, b => b.r !== 'try'), topFlash = topGrade(list, sys, b => b.r === 'flash');
+    h += `<div class="antiles">
+      <div class="stat"><div class="n">${c.n}</div><div class="l">boulders${AN.period !== 'day' ? ' · ' + days.length + ' day' + (days.length === 1 ? '' : 's') : ''}</div></div>
+      <div class="stat"><div class="n"><img src="/icons/ui/flash.png" alt="">${c.flash}</div><div class="l">flashed · ${pct(c.flash, c.n)}</div></div>
+      <div class="stat"><div class="n"><img src="/icons/ui/sent.png" alt="">${c.sent}</div><div class="l">sent · ${pct(c.sent, c.n)}</div></div>
+      <div class="stat"><div class="n"><img src="/icons/ui/project.png" alt="">${c.try}</div><div class="l">not sent</div></div>
+      <div class="stat"><div class="n">${topSend ? esc(topSend) : '–'}</div><div class="l">hardest send</div></div>
+      <div class="stat"><div class="n">${topFlash ? esc(topFlash) : '–'}</div><div class="l">hardest flash</div></div></div>`;
+    h += pyramid(list, sys);
+    if (AN.period !== 'day') h += volumeChart(list, s, e);
+    if (AN.period !== 'day') h += `<section class="ansec"><h2>Climbing days</h2><ul class="andays">${days.map(d => { const dl = list.filter(b => b.date === d), dc = bCount(dl), tg = topGrade(dl, sys, b => b.r !== 'try');
+      return `<li><button onclick="anOpenDay('${d}')"><span class="ad">${esc(parseISO(d).toLocaleDateString('en-GB', {weekday:'short', day:'2-digit', month:'2-digit'}))}</span><span class="am">${dc.n} · ${dc.flash} flash · ${dc.sent} sent</span><span class="ag">${tg ? esc(tg) : '–'}</span></button></li>`; }).join('')}</ul></section>`;
+    else h += `<section class="ansec"><h2>Boulders this day</h2><ul class="blist">${list.map(b => `<li><img class="ico" src="/icons/ui/${RES[b.r].ico}.png" alt=""><b>${esc(b.g)}</b><span class="br">${RES[b.r].l}</span></li>`).join('')}</ul></section>`;
+  }
+  h += trainingSummary(s, e);
+  document.getElementById('anBody').innerHTML = h;
+  document.getElementById('anSub').textContent = AN.period === 'all' ? 'All time' : anLabel([s, e]);
+}
+function pyramid(list, sys){
+  const rows = {}; list.forEach(b => { const r = rows[b.g] = rows[b.g] || {flash:0, send:0, try:0}; r[b.r]++; });
+  const gs = Object.keys(rows).sort((a,b) => gIdx(sys, b) - gIdx(sys, a));
+  const max = Math.max(...gs.map(g => rows[g].flash + rows[g].send + rows[g].try));
+  return `<section class="ansec"><h2>Grade pyramid</h2>
+    <div class="alegend"><span><i class="k-flash"></i>Flash</span><span><i class="k-send"></i>Sent</span><span><i class="k-try"></i>Not sent</span></div>
+    <div class="pyr">${gs.map(g => { const r = rows[g], t = r.flash + r.send + r.try;
+      const seg = k => r[k] ? `<i class="k-${k}" style="width:${100 * r[k] / max}%" title="${RES[k].l}: ${r[k]}"></i>` : '';
+      return `<div class="prow" aria-label="${esc(g)}: ${r.flash} flash, ${r.send} sent, ${r.try} not sent"><span class="pg">${esc(g)}</span><span class="pb">${seg('flash')}${seg('send')}${seg('try')}</span><span class="pn">${r.flash + r.send}/${t}</span></div>`; }).join('')}</div>
+    <div class="hint">Right: sent / tried per grade.</div></section>`;
+}
+function volumeChart(list, s, e){
+  // buckets: week → days, month → weeks, longer → months
+  const days = Math.round((parseISO(e) - parseISO(s)) / 864e5) + 1;
+  let buckets = [];
+  if (days <= 7) { for (let i = 0; i < 7; i++) { const d = isoAdd(s, i); buckets.push({s:d, e:d, l:parseISO(d).toLocaleDateString('en-GB', {weekday:'narrow'})}); } }
+  else if (days <= 31) { let d = s; while (d <= e) { const dow = (parseISO(d).getDay() + 6) % 7, end = isoAdd(d, 6 - dow); buckets.push({s:d, e:end > e ? e : end, l:String(parseISO(d).getDate())}); d = isoAdd(end, 1); } }
+  else { let a = parseISO(s); a = new Date(a.getFullYear(), a.getMonth(), 1); while (isoDate(a) <= e) { const b = new Date(a.getFullYear(), a.getMonth() + 1, 0); buckets.push({s:isoDate(a), e:isoDate(b), l:a.toLocaleDateString('en-GB', {month:'narrow'})}); a = new Date(a.getFullYear(), a.getMonth() + 1, 1); } }
+  if (buckets.length > 24) buckets = buckets.slice(-24);
+  buckets.forEach(b => { const bl = list.filter(x => x.date >= b.s && x.date <= b.e); b.c = bCount(bl); });
+  const max = Math.max(1, ...buckets.map(b => b.c.n));
+  return `<section class="ansec"><h2>Volume</h2>
+    <div class="vol">${buckets.map(b => `<div class="vcol" title="${b.c.n} boulders · ${b.c.flash} flash · ${b.c.sent} sent"><span class="vn">${b.c.n || ''}</span><span class="vb">
+      <i class="k-try" style="height:${100 * b.c.try / max}%"></i><i class="k-send" style="height:${100 * b.c.send / max}%"></i><i class="k-flash" style="height:${100 * b.c.flash / max}%"></i></span><span class="vl">${esc(b.l)}</span></div>`).join('')}</div>
+    <div class="hint">Boulders per ${days <= 7 ? 'day' : days <= 31 ? 'week (labelled by start date)' : 'month'}, same colours as above.</div></section>`;
+}
+function trainingSummary(s, e){
+  const ss = sessions.filter(x => x.date >= s && x.date <= e);
+  const climb = ss.filter(x => x.type === 'klettern' && x.completed).length, cross = ss.filter(x => x.type === 'ausgleich' && x.completed).length;
+  const rest = ss.filter(x => x.type === 'rest').length, skipped = ss.filter(x => x.type !== 'rest' && !x.completed).length;
+  const outs = outdoor.filter(r => r.date >= s && r.date <= e);
+  if (!ss.length && !outs.length) return '';
+  return `<section class="ansec"><h2>Training</h2><div class="antiles four">
+    <div class="stat"><div class="n">${climb}</div><div class="l">climbing days</div></div>
+    <div class="stat"><div class="n">${cross}</div><div class="l">cross-training</div></div>
+    <div class="stat"><div class="n">${rest}</div><div class="l">rest days</div></div>
+    <div class="stat"><div class="n">${skipped}</div><div class="l">skipped</div></div></div>
+    ${outs.length ? `<div class="hint" style="margin-top:8px">Outdoor log: ${outs.length} route${outs.length === 1 ? '' : 's'} in this period.</div>` : ''}</section>`;
+}
 
 /* ============ Update check (GitHub releases) ============ */
 const UPDATE_API = 'https://api.github.com/repos/pfreigner-del/climbr/releases/latest';
@@ -1569,7 +1831,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) chec
 /* ============ Boot ============ */
 sessions = loadSessions(); sortSessions(); customs = loadCustoms();
 renderReference(); renderRoutines(); renderTools(); render();
-try { if (localStorage.getItem('climbr.tab') === 'out') showTab('out'); } catch(e){}
+try { const t = localStorage.getItem('climbr.tab'); if (t === 'out' || t === 'stats') showTab(t); } catch(e){}
 setTimeout(() => checkForUpdate(), 1500);
 fetch('/version.json', {cache:'no-store'}).then(r => r.json()).then(v => { window.APP_VERSION = v.version; render(); }).catch(() => {});
 if (!IS_NATIVE && 'serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
