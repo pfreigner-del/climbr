@@ -252,7 +252,8 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .rpecard{margin-top:12px;display:flex;flex-direction:column;gap:6px}
 .rpecard .fl{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .rperow{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.rperow .rpew{margin:0}
+.rperow .rpew{margin:0;flex:1;min-width:0}
+.rperow .mins{white-space:nowrap;flex:none}
 .rperow .mins{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
 .rperow .mins input{width:64px;padding:7px 8px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-family:var(--font-mono);font-size:13px}
 .bwrow{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
@@ -274,6 +275,19 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .lstate.hi{border-color:#fff;border-style:dashed}
 .rcard.due{border-color:#fff;border-style:dashed}
 .anbody .ansec .guided{margin:0 0 10px}
+.xtra{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.xitem{border:1px solid var(--line);border-radius:14px;padding:10px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}
+.xitem .guided{margin:0}
+.xhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.xtpl{display:flex;gap:4px}
+.xtpl button{padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-mono);font-size:11.5px}
+.xtpl button.on{background:#fff;color:#000;border-color:#fff}
+.xdel{margin-left:auto;background:none;border:none;color:var(--muted);font-size:16px;padding:2px 6px}
+.xadd{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.xadd .fl{grid-column:1/-1;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.xadd button{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 6px;border-radius:12px;border:1px dashed var(--line);background:transparent;color:var(--fg);font-family:var(--font-body);font-size:13.5px;font-weight:700;min-width:0}
+.xadd .ico{width:18px;height:18px;margin:0}
+.dot{min-width:28px;width:auto!important;padding:0 4px}
 .uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
 .uppop[hidden]{display:none}
 .upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
@@ -603,10 +617,10 @@ function isoAdd(iso, days){ const [y,m,d] = iso.split('-').map(Number); const t 
 // training days in a row right before today (completed climbing or cross-training)
 function trainingStreakBeforeToday(){
   let n = 0, day = isoAdd(TODAY, -1);
-  for (;;) { const s = sessionFor(day); if (s && s.completed && s.type !== 'rest') { n++; day = isoAdd(day, -1); } else break; }
+  for (;;) { const s = sessionFor(day); if (trainedOn(s)) { n++; day = isoAdd(day, -1); } else break; }
   return n;
 }
-function trainedLast7(){ let n = 0; for (let i = 1; i <= 7; i++) { const s = sessionFor(isoAdd(TODAY, -i)); if (s && s.completed && s.type !== 'rest') n++; } return n; }
+function trainedLast7(){ let n = 0; for (let i = 1; i <= 7; i++) { if (trainedOn(sessionFor(isoAdd(TODAY, -i)))) n++; } return n; }
 function restReason(){
   const pr = painRestReason(); if (pr) return pr;
   const f = fingers[TODAY];
@@ -622,11 +636,42 @@ function suggestedTypeForToday(){
   if (restReason()) return 'rest';
   const planned = plannedType(TODAY);
   if (planned) return (planned === 'klettern' && upperPain() >= 4) ? 'ausgleich' : planned;
-  const last = sessions.filter(s => s.date < TODAY && s.type !== 'rest')[0];
-  const next = last ? (last.type === 'klettern' ? 'ausgleich' : 'klettern') : 'ausgleich';
+  const last = sessions.filter(s => s.date < TODAY && (s.type !== 'rest' || (s.extras && s.extras.length)))[0];
+  const lastType = last ? lastActivity(last) : null;
+  const next = lastType ? (lastType === 'klettern' ? 'ausgleich' : 'klettern') : 'ausgleich';
   return (next === 'klettern' && upperPain() >= 4) ? 'ausgleich' : next;
 }
 
+/* ---- extra trainings on the same day ---- */
+function extrasOf(s){ return (s && s.extras) || []; }
+function lastActivity(s){ const ex = extrasOf(s); return ex.length ? ex[ex.length - 1].type : s.type; }
+function didType(s, type){ return !!s && ((s.type === type && s.completed) || extrasOf(s).some(x => x.type === type)); }
+function trainedOn(s){ return !!s && ((s.completed && s.type !== 'rest') || extrasOf(s).length > 0); }
+function crossCountBefore(date){ let n = 0; for (const s of sessions) if (s.date < date) { if (s.type === 'ausgleich') n++; n += extrasOf(s).filter(x => x.type === 'ausgleich').length; } return n; }
+function nextTemplate(date){ const s = sessionFor(date); let n = crossCountBefore(date); if (s) { if (s.type === 'ausgleich') n++; n += extrasOf(s).filter(x => x.type === 'ausgleich').length; } return n % 2 === 0 ? 'A' : 'B'; }
+function addExtra(date, type){
+  let s = sessionFor(date); if (!s) return;
+  if (s.type === 'rest') { s.type = type; s.completed = true; s.template = type === 'ausgleich' ? nextTemplate(date) : null; s.exercises = s.template ? PLANS[s.template].ids.map(id => ({...exItem(id), done:true})) : []; }
+  else (s.extras = s.extras || []).push({id:'x' + Date.now(), type, template: type === 'ausgleich' ? nextTemplate(date) : null});
+  s.updatedAt = Date.now(); persist(); render(); refreshPD(date);
+}
+function removeExtra(date, id){ const s = sessionFor(date); if (!s) return; s.extras = extrasOf(s).filter(x => x.id !== id); s.updatedAt = Date.now(); persist(); render(); refreshPD(date); }
+function refreshPD(date){ if (PD && PD.date === date && !document.getElementById('sheet').hidden && document.getElementById('pdDate')) openPastDay(date); }
+function setExtraTpl(date, id, t){ const x = extrasOf(sessionFor(date)).find(x => x.id === id); if (x) { x.template = t; sessionFor(date).updatedAt = Date.now(); persist(); render(); refreshPD(date); } }
+const XLABEL = {klettern:'Climbing', ausgleich:'Cross-training'};
+function extrasBlock(s){
+  if (!s || (s.type !== 'rest' && !s.completed && !extrasOf(s).length)) { /* skipped main: still allow adding */ }
+  const ex = extrasOf(s);
+  return `<div class="xtra">
+    ${ex.map(x => `<div class="xitem"><div class="xhead"><span class="badge ${x.type}">+ ${XLABEL[x.type]}</span>
+      ${x.type === 'ausgleich' ? `<span class="xtpl">${['A','B'].map(t => `<button class="${x.template===t?'on':''}" onclick="setExtraTpl('${s.date}','${x.id}','${t}')">Plan ${t}</button>`).join('')}</span>` : ''}
+      <button class="xdel" aria-label="Remove" onclick="removeExtra('${s.date}','${x.id}')">✕</button></div>
+      ${x.type === 'klettern' && s.type !== 'klettern' ? boulderButton(s.date) : ''}
+      ${s.date === TODAY ? sessionRpeRow(s, x) : ''}</div>`).join('')}
+    <div class="xadd"><span class="fl">${s.type === 'rest' ? 'Trained after all?' : 'Another training today?'}</span>
+      <button onclick="addExtra('${s.date}','klettern')"><img class="ico" src="/icons/ui/climb.png" alt="">+ Climbing</button>
+      <button onclick="addExtra('${s.date}','ausgleich')"><img class="ico" src="/icons/ui/train.png" alt="">+ Cross</button></div></div>`;
+}
 function computeDraftForType(type){
   const d = computeDraftBase(type);
   if (d.exercises && d.exercises.length) { const r = adaptExercises(d.exercises); d.exercises = r.kept; d.removed = r.removed; }
@@ -636,7 +681,7 @@ function computeDraftBase(type){
   const before = sessions.filter(s => s.date < TODAY);
   let template = null, exercises = [], catchUp = false, note = '';
   if (type === 'ausgleich') {
-    const count = sessions.filter(s => s.type === 'ausgleich' && s.date < TODAY).length;
+    const count = crossCountBefore(TODAY);
     template = (count % 2 === 0) ? 'A' : 'B';
     const lastA = before.find(s => s.type === 'ausgleich');
     let ids = [...PLANS[template].ids];
@@ -663,6 +708,7 @@ function saveToday(completed){
   const body = { date:TODAY, type:d.type, template:d.template || null,
     exercises:(d.exercises||[]).map(e => ({...e, done: completed ? true : e.done})),
     completed:!!completed, catchUp:!!d.catchUp, updatedAt:Date.now() };
+  if (keepExtras && d.type !== 'rest') body.extras = keepExtras; keepExtras = null;
   sessions = [body, ...sessions.filter(s => s.date !== TODAY)]; sortSessions(); persist();
   draft = null; render();
 }
@@ -677,7 +723,8 @@ function setDone(idx, value){
   render();
 }
 function toggleExercise(idx){ setDone(idx); }
-function reedit(){ sessions = sessions.filter(s => s.date !== TODAY); persist(); draft = null; render(); }
+let keepExtras = null;
+function reedit(){ const ex = sessionFor(TODAY); keepExtras = ex && ex.extras && ex.extras.length ? ex.extras : null; sessions = sessions.filter(s => s.date !== TODAY); persist(); draft = null; render(); }
 function setType(type){ draft = computeDraftForType(type); render(); }
 function showBanner(msg){ document.getElementById('banner').innerHTML = msg ? '<div class="banner">' + msg + '</div>' : ''; }
 
@@ -718,6 +765,7 @@ function renderToday(){
       ${existing.template ? `<div class="note">${esc(PLANS[existing.template] ? PLANS[existing.template].title : 'Plan '+existing.template)}${existing.catchUp ? ' · with catch-up exercises' : ''}</div>` : ''}
       ${exList(existing.exercises)}
       ${sessionRpeRow(existing)}
+      ${extrasBlock(existing)}
       ${existing.type === 'klettern' && existing.completed ? boulderButton(TODAY) : ''}
       ${existing.type === 'klettern' ? climbQuick() : ''}
       ${existing.type === 'rest' ? restBlock('') : ''}
@@ -751,7 +799,7 @@ function renderToday(){
 }
 
 function renderStats(){
-  let streak = 0; for (const s of sessions) { if (s.completed) streak++; else break; }
+  let streak = 0; for (const s of sessions) { if (s.completed || extrasOf(s).length) streak++; else break; }
   const last14 = sessions.slice(0,14);
   const rate = last14.length ? Math.round(100 * last14.filter(s=>s.completed).length / last14.length) : 0;
   document.getElementById('statrow').innerHTML = `
@@ -763,7 +811,7 @@ function renderHistory(){
   if (!list.length) { el.innerHTML = '<span style="color:var(--muted);font-size:13px">No entries yet. Forgot a day? Use “+ Add past day”.</span>'; return; }
   el.innerHTML = list.map(s => {
     const cls = s.type === 'rest' ? 'rest' : (s.type==='klettern'?'klettern':'ausgleich') + '-' + (s.completed?'good':'bad');
-    const mark = s.type === 'rest' ? 'R' : s.type === 'klettern' ? 'C' : 'X';
+    const mark = (s.type === 'rest' ? 'R' : s.type === 'klettern' ? 'C' : 'X') + extrasOf(s).map(x => x.type === 'klettern' ? 'C' : 'X').join('');
     return `<button class="hday" onclick="openPastDay('${s.date}')" aria-label="${dayShort(s.date)} — edit"><span class="dot ${cls}">${mark}</span><span class="hd">${dayShort(s.date).slice(0,5)}</span></button>`;
   }).join('');
 }
@@ -771,7 +819,7 @@ function renderHistory(){
 let PD = null;
 function openPastDay(date){
   const ex = date ? sessionFor(date) : null;
-  PD = ex ? {date:ex.date, type:ex.type, completed:ex.completed, template:ex.template || 'A', rpe:ex.rpe || null, mins:ex.mins || null, isNew:false}
+  PD = ex ? {date:ex.date, type:ex.type, completed:ex.completed, template:ex.template || 'A', rpe:ex.rpe || null, mins:ex.mins || null, extras:ex.extras || [], isNew:false}
           : {date:isoAdd(TODAY, -1), type:'klettern', completed:true, template:'A', isNew:true};
   drawPastDay(); const sh = document.getElementById('sheet'); sh.hidden = false; sh.scrollTop = 0;
 }
@@ -791,6 +839,7 @@ function drawPastDay(){
       <button class="${!PD.completed?'on':''}" onclick="PD.completed=false;drawPastDay()">Skipped</button></div></div>` : ''}
     ${PD.type !== 'rest' && PD.completed ? rpeFields('PD') : ''}
     ${PD.type === 'klettern' && !PD.isNew ? boulderButton(PD.date) : ''}
+    ${!PD.isNew && sessionFor(PD.date) ? `<div class="wrow"><span class="wl">Extra trainings this day</span>${extrasBlock(sessionFor(PD.date))}</div>` : ''}
     <button class="btn main" onclick="savePastDay()">Save</button>
     ${PD.isNew ? '' : `<button class="btn danger" onclick="deletePastDay()">Delete this entry</button>`}
     <div class="hint">Past entries count toward your streak, completion and the A/B rotation. For today, use the card on the main screen.</div>
@@ -803,7 +852,8 @@ function savePastDay(){
   const body = { date, type:PD.type, template:tpl,
     exercises: tpl ? PLANS[tpl].ids.map(id => ({...exItem(id), done:!!PD.completed})) : [],
     completed: PD.type === 'rest' ? true : !!PD.completed, catchUp:false, updatedAt:Date.now(), addedLater:true,
-    ...(PD.type !== 'rest' && PD.completed && PD.rpe ? {rpe:PD.rpe, mins:num(PD.mins)} : {}) };
+    ...(PD.type !== 'rest' && PD.completed && PD.rpe ? {rpe:PD.rpe, mins:num(PD.mins)} : {}),
+    ...(!PD.isNew && sessionFor(date) && extrasOf(sessionFor(date)).length ? {extras:extrasOf(sessionFor(date))} : {}) };
   sessions = [body, ...sessions.filter(s => s.date !== date)]; sortSessions(); persist();
   if (date === TODAY) draft = null;
   closeSheet(); render();
@@ -1736,6 +1786,7 @@ function markClimbed(date){
     sessions.push({date, type:'klettern', template:null, exercises:[], completed:true, catchUp:false, updatedAt:Date.now(), addedLater: date !== TODAY});
     sortSessions(); persist(); if (date === TODAY) draft = null;
   } else if (s.type === 'klettern' && !s.completed) { s.completed = true; s.updatedAt = Date.now(); persist(); }
+  else if (s.type !== 'klettern' && !extrasOf(s).some(x => x.type === 'klettern')) { addExtra(date, 'klettern'); }
 }
 function closeBoulders(){ closeSheet(); render(); if (!document.getElementById('tabStats').hidden) renderAnalytics(); }
 
@@ -1852,8 +1903,8 @@ function volumeChart(list, s, e){
 }
 function trainingSummary(s, e){
   const ss = sessions.filter(x => x.date >= s && x.date <= e);
-  const climb = ss.filter(x => x.type === 'klettern' && x.completed).length, cross = ss.filter(x => x.type === 'ausgleich' && x.completed).length;
-  const rest = ss.filter(x => x.type === 'rest').length, skipped = ss.filter(x => x.type !== 'rest' && !x.completed).length;
+  const climb = ss.filter(x => didType(x, 'klettern')).length, cross = ss.reduce((n, x) => n + (x.type === 'ausgleich' && x.completed ? 1 : 0) + extrasOf(x).filter(y => y.type === 'ausgleich').length, 0);
+  const rest = ss.filter(x => x.type === 'rest' && !extrasOf(x).length).length, skipped = ss.filter(x => x.type !== 'rest' && !x.completed).length;
   const outs = outdoor.filter(r => r.date >= s && r.date <= e);
   if (!ss.length && !outs.length) return '';
   return `<section class="ansec"><h2>Training</h2><div class="antiles four">
@@ -1974,17 +2025,18 @@ function rpeFields(obj){
     <div class="field" style="margin-top:6px"><label>Duration (minutes)</label><input type="number" inputmode="numeric" value="${o.mins ?? ''}" onchange="${obj}.mins=num(this.value)"></div></div>`;
 }
 // effort row on today's finished card
-function sessionRpeRow(s){
-  if (!s || s.type === 'rest' || !s.completed) return '';
-  return `<div class="rpecard"><span class="fl">Effort · rate ~30 min after</span>
-    <div class="rpegrid">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="${s.rpe===n?'on':''}" onclick="setSessionEffort('${s.date}','rpe',${n})">${n}</button>`).join('')}</div>
-    <div class="rperow"><span class="rpew">${s.rpe ? s.rpe + ' · ' + RPE_WORD[s.rpe] : '1 = very easy · 10 = maximal'}</span>
-    <label class="mins"><input type="number" inputmode="numeric" placeholder="min" value="${s.mins ?? ''}" onchange="setSessionEffort('${s.date}','mins',num(this.value))"> min</label></div></div>`;
+function sessionRpeRow(s, x){
+  const o = x || s, xid = x ? `,'${x.id}'` : '';
+  if (!s || (!x && (s.type === 'rest' || !s.completed))) return '';
+  return `<div class="rpecard"><span class="fl">${x ? 'Effort · ' + XLABEL[x.type].toLowerCase() : 'Effort · rate ~30 min after'}</span>
+    <div class="rpegrid">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="${o.rpe===n?'on':''}" onclick="setSessionEffort('${s.date}','rpe',${n}${xid})">${n}</button>`).join('')}</div>
+    <div class="rperow"><span class="rpew">${o.rpe ? o.rpe + ' · ' + RPE_WORD[o.rpe] : '1 = very easy · 10 = maximal'}</span>
+    <label class="mins"><input type="number" inputmode="numeric" placeholder="min" value="${o.mins ?? ''}" onchange="setSessionEffort('${s.date}','mins',num(this.value)${xid})"> min</label></div></div>`;
 }
-function setSessionEffort(date, k, v){ const s = sessionFor(date); if (!s) return; s[k] = (k === 'rpe' && s.rpe === v) ? null : v; s.updatedAt = Date.now(); persist(); render(); }
+function setSessionEffort(date, k, v, xid){ const s = sessionFor(date); if (!s) return; const o = xid ? extrasOf(s).find(x => x.id === xid) : s; if (!o) return; o[k] = (k === 'rpe' && o.rpe === v) ? null : v; s.updatedAt = Date.now(); persist(); render(); }
 function dailyLoads(){
   const m = {};
-  for (const s of sessions) if (s.rpe && s.mins) m[s.date] = (m[s.date] || 0) + s.rpe * s.mins;
+  for (const s of sessions) { if (s.rpe && s.mins) m[s.date] = (m[s.date] || 0) + s.rpe * s.mins; for (const x of extrasOf(s)) if (x.rpe && x.mins) m[s.date] = (m[s.date] || 0) + x.rpe * x.mins; }
   for (const h of hangs) if (h.rpe && h.mins) m[h.date] = (m[h.date] || 0) + h.rpe * h.mins;
   return m;
 }
@@ -2089,7 +2141,7 @@ function loadBody(){
   const mon = isoAdd(TODAY, -((parseISO(TODAY).getDay() + 6) % 7));
   const weeks = []; for (let i = 11; i >= 0; i--) { const s = isoAdd(mon, -7 * i), e = isoAdd(s, 6); weeks.push({s, e, v:loadSum(m, s, e)}); }
   const max = Math.max(1, ...weeks.map(w => w.v));
-  const since = isoAdd(TODAY, -27), noRpe = sessions.filter(s => s.date >= since && s.type !== 'rest' && s.completed && !(s.rpe && s.mins)).length;
+  const since = isoAdd(TODAY, -27), noRpe = sessions.filter(s => s.date >= since && s.type !== 'rest' && s.completed && !(s.rpe && s.mins)).length + sessions.filter(s => s.date >= since).reduce((n, s) => n + extrasOf(s).filter(x => !(x.rpe && x.mins)).length, 0);
   let h = `<div class="antiles">
     <div class="stat"><div class="n">${Math.round(st.acute)}</div><div class="l">load, last 7 days</div></div>
     <div class="stat"><div class="n">${Math.round(st.chronic)}</div><div class="l">weekly average, last 4 weeks</div></div></div>`;
