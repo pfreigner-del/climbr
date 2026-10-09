@@ -290,6 +290,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .ico.inv{filter:invert(1)}
 .toggle button .ico.tg{display:block;margin:0 auto 4px;width:20px;height:20px}
 .toggle button.active .ico.tg{filter:invert(1)}
+.fing .fends{grid-column:1/-1;display:flex;justify-content:space-between;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:-1px}
+.fing .fends b{color:var(--fg);font-weight:600}
 .fing .fl .ico.fi{width:16px;height:16px;margin-right:6px;vertical-align:-3px}
 .stat .n img{width:26px;height:26px}
 .btn .ico,.guided .ico{margin-right:4px}
@@ -1111,11 +1113,12 @@ var FING_KEY = 'climbr.fingers.v1';
 var fingers = {};
 try { fingers = JSON.parse(localStorage.getItem(FING_KEY) || '{}'); } catch(e){ fingers = {}; }
 function setFinger(n){ fingers[TODAY] = fingers[TODAY] === n ? undefined : n; try { localStorage.setItem(FING_KEY, JSON.stringify(fingers)); } catch(e){} if (draft && draft.auto && !sessionFor(TODAY)) draft = null; render(); }
+const FEEL = {1:'sore', 2:'a bit sore', 3:'okay', 4:'good', 5:'fresh'};
 function fingerRow(){
   const v = fingers[TODAY];
   const recent = Object.entries(fingers).filter(([d,n]) => n && d <= TODAY).sort().slice(-3).map(x => x[1]);
   const lowStreak = recent.length === 3 && recent.every(n => n <= 2);
-  return `<div class="fing"><span class="fl"><img class="ico fi" src="/icons/ui/fingers.png" alt="">Fingers today</span>${[1,2,3,4,5].map(n => `<button class="${v===n?'on':''}" onclick="setFinger(${n})" aria-label="Finger feel ${n} of 5">${n}</button>`).join('')}</div>
+  return `<div class="fing"><span class="fl"><img class="ico fi" src="/icons/ui/fingers.png" alt="">How do your fingers feel?</span>${[1,2,3,4,5].map(n => `<button class="${v===n?'on':''}" onclick="setFinger(${n})" aria-label="Fingers ${n} of 5: ${FEEL[n]}">${n}</button>`).join('')}<span class="fends"><span>1 = sore</span><span>${v ? '<b>' + v + ' · ' + FEEL[v] + '</b>' : ''}</span><span>5 = fresh</span></span></div>
     ${v && v <= 2 ? `<div class="fnote">${lowStreak ? 'Fingers have felt off 3 days in a row — consider a few days off crimping and see a physio if pain persists.' : 'Fingers feel off: skip max hangs and hard crimps. Rest, or light antagonist work if you feel like moving.'}</div>` : ''}`;
 }
 
