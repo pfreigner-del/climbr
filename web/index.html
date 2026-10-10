@@ -312,6 +312,42 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .tdw button.on{background:#fff}.tdw button.on i{background:#000}
 .tdact button{flex:1;max-width:120px;padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-family:var(--font-body);font-weight:700;font-size:13.5px}
 .tdhint{text-align:center;font-family:var(--font-mono);font-size:10.5px;color:var(--muted)}
+.runscr{position:fixed;inset:0;z-index:45;background:#000;display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));gap:12px}
+.rtop{display:flex;align-items:center;gap:10px}
+.rtop button{background:none;border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:7px 12px;font-family:var(--font-body);font-weight:700}
+.rtop b{font-size:16px}
+.gpsb{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--muted);text-align:right}
+.gpsb.ok{color:#fff}.gpsb.bad{color:#ffb4a8}
+.rtop #rGps{margin-left:auto}
+.rmain{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:0}
+.rdist{font-family:var(--font-display);font-size:clamp(84px,30vw,140px);line-height:.9;font-variant-numeric:tabular-nums}
+.rdist small{font-size:22px;color:var(--muted);margin-left:6px}
+.rtime{font-family:var(--font-mono);font-size:30px;font-variant-numeric:tabular-nums}
+.rstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;margin-top:6px}
+.rstats div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;min-width:0}
+.rstats b{display:block;font-family:var(--font-display);font-size:24px}
+.rstats span{font-size:11px;color:var(--muted)}
+.rtrace{width:100%;flex:1;min-height:80px;max-height:32vh;display:flex;align-items:center;justify-content:center}
+.trace{width:100%;height:100%;max-height:32vh}
+.trace.big{max-height:42vh;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px;box-sizing:border-box}
+.rbtns{display:flex;gap:10px}
+.rbtns button{flex:1;padding:16px 8px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-family:var(--font-body);font-size:16px;font-weight:700}
+.rbtns button.main{background:#fff;color:#000;border-color:#fff}
+.rbtns button.big{padding:20px 8px;font-size:18px}
+.rhint{font-size:12px;color:var(--muted);text-align:center;line-height:1.45}
+.splits{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.splits li{display:grid;grid-template-columns:3.4em minmax(0,1fr) 3.4em;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px}
+.splits i{display:block;height:14px;border-radius:4px;background:#8a8a8a}
+.splits b{text-align:right}
+.runline{width:100%;display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-family:var(--font-body);text-align:left}
+.runline b{font-family:var(--font-display);font-size:20px}.runline span{font-size:13px;color:var(--muted)}.runline .go{margin-left:auto;font-size:20px}
+.xadd{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.anview{grid-template-columns:repeat(auto-fit,minmax(64px,1fr))!important}
+.anview button{font-size:12.5px}
+.badge.run{color:#fff;border-color:#9b9b9b}
+.spine.run{background:#9b9b9b}
+.dot.run-good{background:#6e6e6e;border-color:#6e6e6e;color:#fff}
+.dot.run-bad{border-color:#6e6e6e}
 .uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
 .uppop[hidden]{display:none}
 .upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
@@ -542,6 +578,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 <div class="sheet" id="sheet" hidden></div>
 <div class="timer" id="timer" hidden></div>
 <div class="topoed" id="topoEd" hidden></div>
+<div class="runscr" id="runScr" hidden></div>
 
 <script>
 /* ============ Exercise library ============
@@ -683,7 +720,7 @@ function addExtra(date, type){
 function removeExtra(date, id){ const s = sessionFor(date); if (!s) return; s.extras = extrasOf(s).filter(x => x.id !== id); s.updatedAt = Date.now(); persist(); render(); refreshPD(date); }
 function refreshPD(date){ if (PD && PD.date === date && !document.getElementById('sheet').hidden && document.getElementById('pdDate')) openPastDay(date); }
 function setExtraTpl(date, id, t){ const x = extrasOf(sessionFor(date)).find(x => x.id === id); if (x) { x.template = t; sessionFor(date).updatedAt = Date.now(); persist(); render(); refreshPD(date); } }
-const XLABEL = {klettern:'Climbing', ausgleich:'Cross-training'};
+const XLABEL = {klettern:'Climbing', ausgleich:'Cross-training', run:'Run'};
 function extrasBlock(s){
   if (!s || (s.type !== 'rest' && !s.completed && !extrasOf(s).length)) { /* skipped main: still allow adding */ }
   const ex = extrasOf(s);
@@ -692,10 +729,12 @@ function extrasBlock(s){
       ${x.type === 'ausgleich' ? `<span class="xtpl">${['A','B'].map(t => `<button class="${x.template===t?'on':''}" onclick="setExtraTpl('${s.date}','${x.id}','${t}')">Plan ${t}</button>`).join('')}</span>` : ''}
       <button class="xdel" aria-label="Remove" onclick="removeExtra('${s.date}','${x.id}')">✕</button></div>
       ${x.type === 'klettern' && s.type !== 'klettern' ? boulderButton(s.date) : ''}
+      ${x.type === 'run' && x.runId ? runSummaryLine(x.runId) : ''}
       ${s.date === TODAY ? sessionRpeRow(s, x) : ''}</div>`).join('')}
     <div class="xadd"><span class="fl">${s.type === 'rest' ? 'Trained after all?' : 'Another training today?'}</span>
-      <button onclick="addExtra('${s.date}','klettern')"><img class="ico" src="/icons/ui/climb.png" alt="">+ Climbing</button>
-      <button onclick="addExtra('${s.date}','ausgleich')"><img class="ico" src="/icons/ui/train.png" alt="">+ Cross</button></div></div>`;
+      <button onclick="addExtra('${s.date}','klettern')"><img class="ico" src="/icons/ui/climb.png" alt="">+ Climb</button>
+      <button onclick="addExtra('${s.date}','ausgleich')"><img class="ico" src="/icons/ui/train.png" alt="">+ Cross</button>
+      ${s.date === TODAY ? `<button onclick="openRunTracker()"><img class="ico" src="/icons/ui/gps.png" alt="">+ Run</button>` : ''}</div></div>`;
 }
 function computeDraftForType(type){
   const d = computeDraftBase(type);
@@ -771,7 +810,7 @@ function climbQuick(){
   return `<div class="quick"><button onclick="openRoutine('warmup')">Warm-up first</button><button onclick="openRoutine('cooldown')">Cool-down after</button></div>`;
 }
 
-const TYPE_LABEL = {klettern:'Climbing day', ausgleich:'Cross-training day', rest:'Rest day'};
+const TYPE_LABEL = {klettern:'Climbing day', ausgleich:'Cross-training day', rest:'Rest day', run:'Run'};
 function restBlock(reason){
   return `<div class="note">${reason ? '<b>Rest day suggested.</b> ' + esc(reason) + ' ' : ''}Tendons rebuild collagen for 1–3 days after hard loading — rest is when that happens.</div>
     <div class="quick"><button onclick="openRoutine('stretch')">Optional: light stretching</button></div>
@@ -789,6 +828,7 @@ function renderToday(){
     ${painRow()}
       ${existing.template ? `<div class="note">${esc(PLANS[existing.template] ? PLANS[existing.template].title : 'Plan '+existing.template)}${existing.catchUp ? ' · with catch-up exercises' : ''}</div>` : ''}
       ${exList(existing.exercises)}
+      ${existing.runId ? runSummaryLine(existing.runId) : ''}
       ${sessionRpeRow(existing)}
       ${extrasBlock(existing)}
       ${existing.type === 'klettern' && existing.completed ? boulderButton(TODAY) : ''}
@@ -835,8 +875,9 @@ function renderHistory(){
   const el = document.getElementById('dots'); const list = sessions.slice(0,14);
   if (!list.length) { el.innerHTML = '<span style="color:var(--muted);font-size:13px">No entries yet. Forgot a day? Use “+ Add past day”.</span>'; return; }
   el.innerHTML = list.map(s => {
-    const cls = s.type === 'rest' ? 'rest' : (s.type==='klettern'?'klettern':'ausgleich') + '-' + (s.completed?'good':'bad');
-    const mark = (s.type === 'rest' ? 'R' : s.type === 'klettern' ? 'C' : 'X') + extrasOf(s).map(x => x.type === 'klettern' ? 'C' : 'X').join('');
+    const cls = s.type === 'rest' ? 'rest' : (s.type==='klettern'?'klettern':s.type==='run'?'run':'ausgleich') + '-' + (s.completed?'good':'bad');
+    const L = {rest:'R', klettern:'C', ausgleich:'X', run:'Rn'};
+    const mark = L[s.type] + extrasOf(s).map(x => L[x.type] || '').join('');
     return `<button class="hday" onclick="openPastDay('${s.date}')" aria-label="${dayShort(s.date)} — edit"><span class="dot ${cls}">${mark}</span><span class="hd">${dayShort(s.date).slice(0,5)}</span></button>`;
   }).join('');
 }
@@ -1189,12 +1230,13 @@ const TOOLS = {
   maxhang: {title:'Max hangs', sub:'Beastmaker · 10 s'},
   repeaters: {title:'Repeaters', sub:'Beastmaker · 7/3'},
   custom: {title:'Custom timer', sub:'any duration'},
+  run: {title:'Run', sub:'GPS tracker'},
   hanglog: {title:'Hangboard log', sub:'track finger strength'},
   bench: {title:'Benchmarks', sub:'every 4–6 weeks'},
 };
 function renderTools(){
   document.getElementById('tgrid').innerHTML = Object.entries(TOOLS).map(([k,t]) =>
-    `<button class="rcard${k==='bench' && benchDue().due ? ' due' : ''}" onclick="openTool('${k}')">${k==='comp' ? '<img class="ri" src="/icons/ui/comp.png" alt="">' : k==='bench' ? '<img class="ri" src="/icons/ui/analytics.png" alt="">' : (k==='maxhang'||k==='repeaters'||k==='hanglog') ? '<img class="ri" src="/icons/ui/hangboard.png" alt="">' : (k==='rest'||k==='custom') ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(k==='bench' ? benchDue().txt : t.sub)}</div></button>`).join('');
+    `<button class="rcard${k==='bench' && benchDue().due ? ' due' : ''}" onclick="openTool('${k}')">${k==='comp' ? '<img class="ri" src="/icons/ui/comp.png" alt="">' : k==='bench' ? '<img class="ri" src="/icons/ui/analytics.png" alt="">' : k==='run' ? '<img class="ri" src="/icons/ui/gps.png" alt="">' : (k==='maxhang'||k==='repeaters'||k==='hanglog') ? '<img class="ri" src="/icons/ui/hangboard.png" alt="">' : (k==='rest'||k==='custom') ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(k==='bench' ? benchDue().txt : t.sub)}</div></button>`).join('');
 }
 function runTimer(ex){ startRunner([{ex}], 0); }
 function restEx(min){ return {name:`Rest · ${min} min`, dose:`${min}:00`, cue:'Stay active: shake out, walk around, or do easy climbing — in climbers, active rest restored performance better than sitting still.',
@@ -1208,6 +1250,7 @@ const HANGS = {
     timer:{work:7, rest:3, reps:6, sets:3, setRest:180, setName:'Set', workLabel:'Hang', alert:true}},
 };
 function openTool(k){
+  if (k === 'run') return openRunTracker();
   if (k === 'hanglog') return openHangForm();
   if (k === 'bench') return openBench();
   const sh = document.getElementById('sheet'); let body = '';
@@ -1693,12 +1736,12 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     try {
       const { Filesystem, Share } = window.Capacitor.Plugins;
       const name = 'climbr-backup-' + TODAY + '.json';
-      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:8, sessions, customs, pain:painLog, fingers, week, boulders, bw:bwLog, hangs, benches, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
+      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:9, sessions, customs, pain:painLog, fingers, week, boulders, bw:bwLog, hangs, benches, runs, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
       await Share.share({ title: 'ClimbR backup', files: [res.uri], dialogTitle: 'Save or send your backup' });
     } catch(e) { if (!String(e && e.message || e).toLowerCase().includes('cancel')) alert('Backup failed: ' + (e && e.message || e)); }
     return;
   }
-  const blob = new Blob([JSON.stringify({app:'climbr', version:8, sessions, customs, pain:painLog, fingers, week, boulders, bw:bwLog, hangs, benches, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({app:'climbr', version:9, sessions, customs, pain:painLog, fingers, week, boulders, bw:bwLog, hangs, benches, runs, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'climbr-backup-' + TODAY + '.json';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
@@ -1716,7 +1759,7 @@ document.getElementById('importFile').addEventListener('change', async (ev) => {
     if (data.boulders && typeof data.boulders === 'object') { for (const [d, l] of Object.entries(data.boulders)) { if (!Array.isArray(l)) continue; const have = new Set(bFor(d).map(b => b.at)); const add = l.filter(b => b && BSYS[b.sys] && RES[b.r] && !have.has(b.at)); if (add.length) { boulders[d] = bFor(d).concat(add); nB += add.length; } } saveBoulders(); }
     if (data.bw && typeof data.bw === 'object') { bwLog = {...data.bw, ...bwLog}; saveJSON(BW_KEY, bwLog); }
     const mergeById = (cur, inc) => { const ids = new Set(cur.map(x => x.id)); return cur.concat((Array.isArray(inc) ? inc : []).filter(x => x && x.id && x.date && !ids.has(x.id))).sort((a,b) => a.date < b.date ? -1 : 1); };
-    hangs = mergeById(hangs, data.hangs); saveJSON(HB_KEY, hangs); benches = mergeById(benches, data.benches); saveJSON(BM_KEY, benches); renderTools();
+    hangs = mergeById(hangs, data.hangs); saveJSON(HB_KEY, hangs); runs = mergeById(runs, data.runs); saveJSON(RUN_KEY, runs); benches = mergeById(benches, data.benches); saveJSON(BM_KEY, benches); renderTools();
     if (data.week && (data.week.days === null || Array.isArray(data.week.days))) { week = data.week; try { localStorage.setItem(WEEK_KEY, JSON.stringify(week)); } catch(e){} }
     if (data.pain && typeof data.pain === 'object') { painLog = {...data.pain, ...painLog}; savePain(); }
     if (Array.isArray(data.customs)) { const ids = new Set(customs.map(c => c.id)); customs = customs.concat(data.customs.filter(c => c && c.id && !ids.has(c.id))); persistCustoms(); renderRoutines(); }
@@ -1857,11 +1900,17 @@ function pct(a, b){ return b ? Math.round(100 * a / b) + '%' : '–'; }
 function renderAnalytics(){
   if (!AN.view) AN.view = 'boulders';
   document.getElementById('anView').innerHTML = VIEWS.map(([k,l]) => `<button class="${AN.view===k?'on':''}" onclick="AN.view='${k}';renderAnalytics()">${l}</button>`).join('');
-  const timed = AN.view === 'boulders' || AN.view === 'routes';
+  const timed = AN.view === 'boulders' || AN.view === 'routes' || AN.view === 'runs';
   ['anPeriod','anNav','anSys'].forEach(id => document.getElementById(id).hidden = !timed);
   if (!timed) {
     document.getElementById('anBody').innerHTML = AN.view === 'strength' ? strengthBody() : loadBody();
     document.getElementById('anSub').textContent = AN.view === 'strength' ? 'Finger strength & benchmarks' : 'Training load · last 12 weeks';
+    return;
+  }
+  if (AN.view === 'runs') {
+    const [s, e] = anRange(); anControls(s, e); document.getElementById('anSys').innerHTML = '';
+    document.getElementById('anBody').innerHTML = runsBody(s, e) + trainingSummary(s, e);
+    document.getElementById('anSub').textContent = AN.period === 'all' ? 'All time' : anLabel([s, e]);
     return;
   }
   if (AN.view === 'routes') {
@@ -1934,13 +1983,14 @@ function trainingSummary(s, e){
   const climb = ss.filter(x => didType(x, 'klettern')).length, cross = ss.reduce((n, x) => n + (x.type === 'ausgleich' && x.completed ? 1 : 0) + extrasOf(x).filter(y => y.type === 'ausgleich').length, 0);
   const rest = ss.filter(x => x.type === 'rest' && !extrasOf(x).length).length, skipped = ss.filter(x => x.type !== 'rest' && !x.completed).length;
   const outs = outdoor.filter(r => r.date >= s && r.date <= e);
-  if (!ss.length && !outs.length) return '';
+  if (!ss.length && !outs.length && !runs.some(r => r.date >= s && r.date <= e)) return '';
   return `<section class="ansec"><h2>Training</h2><div class="antiles four">
     <div class="stat"><div class="n">${climb}</div><div class="l">climbing days</div></div>
     <div class="stat"><div class="n">${cross}</div><div class="l">cross-training</div></div>
     <div class="stat"><div class="n">${rest}</div><div class="l">rest days</div></div>
     <div class="stat"><div class="n">${skipped}</div><div class="l">skipped</div></div></div>
-    ${outs.length ? `<div class="hint" style="margin-top:8px">Outdoor log: ${outs.length} route${outs.length === 1 ? '' : 's'} in this period.</div>` : ''}</section>`;
+    ${outs.length ? `<div class="hint" style="margin-top:8px">Outdoor log: ${outs.length} route${outs.length === 1 ? '' : 's'} in this period.</div>` : ''}
+    ${(() => { const rl = runs.filter(r => r.date >= s && r.date <= e); return rl.length ? `<div class="hint" style="margin-top:4px">Running: ${rl.length} run${rl.length === 1 ? '' : 's'} · ${fmtKm(rl.reduce((a, r) => a + r.dist, 0))} km.</div>` : ''; })()}</section>`;
 }
 
 /* ============ Strength: bodyweight, hangboard log, benchmarks ============ */
@@ -2045,12 +2095,12 @@ function deleteBench(){ if (!confirm('Delete this benchmark test?')) return; ben
 
 /* ============ Effort (session RPE) & weekly load ============ */
 const RPE_WORD = {1:'very easy', 2:'easy', 3:'moderate', 4:'somewhat hard', 5:'hard', 6:'hard+', 7:'very hard', 8:'very hard+', 9:'near max', 10:'maximal'};
-function rpeFields(obj){
-  const o = (obj === 'PD' ? PD : obj === 'HF' ? HF : null) || {};
+function rpeFields(obj, noMins){
+  const o = (obj === 'PD' ? PD : obj === 'HF' ? HF : obj === 'RS' ? RS : null) || {};
   return `<div class="wrow rpe"><span class="wl">How hard was it overall? (optional)</span>
     <div class="rpegrid">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="${o.rpe===n?'on':''}" onclick="${obj}.rpe=(${obj}.rpe===${n}?null:${n});this.parentNode.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',${obj}.rpe===i+1));this.closest('.rpe').querySelector('.rpew').textContent=${obj}.rpe?${obj}.rpe+' · '+RPE_WORD[${obj}.rpe]:'1 = very easy · 10 = maximal'">${n}</button>`).join('')}</div>
     <span class="rpew">${o.rpe ? o.rpe + ' · ' + RPE_WORD[o.rpe] : '1 = very easy · 10 = maximal'}</span>
-    <div class="field" style="margin-top:6px"><label>Duration (minutes)</label><input type="number" inputmode="numeric" value="${o.mins ?? ''}" onchange="${obj}.mins=num(this.value)"></div></div>`;
+    ${noMins ? '' : `<div class="field" style="margin-top:6px"><label>Duration (minutes)</label><input type="number" inputmode="numeric" value="${o.mins ?? ''}" onchange="${obj}.mins=num(this.value)"></div>`}</div>`;
 }
 // effort row on today's finished card
 function sessionRpeRow(s, x){
@@ -2080,7 +2130,7 @@ function loadWarning(){
 }
 
 /* ============ Analytics views: routes, strength, load ============ */
-const VIEWS = [['boulders','Boulders'],['routes','Routes'],['strength','Strength'],['load','Load']];
+const VIEWS = [['boulders','Boulders'],['routes','Routes'],['runs','Runs'],['strength','Strength'],['load','Load']];
 const RSTY = {Onsight:'os', Flash:'fl', Redpoint:'rp', 'Top-rope':'tr', Project:'nt', Attempt:'nt'};
 const RCAT = [['os','Onsight'],['fl','Flash'],['rp','Redpoint'],['tr','Top-rope'],['nt','Not sent']];
 const BCAT = [['flash','Flash'],['send','Sent'],['try','Not sent']];
@@ -2302,6 +2352,190 @@ async function shareTopo(id){
       await navigator.share({files:[new File([blob], name, {type:'image/jpeg'})], title:r.title || 'Route'});
     } else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); }
   } catch(e) { const m = String(e && e.message || e); if (!/cancel|abort/i.test(m)) alert('Sharing failed: ' + m); }
+}
+
+/* ============ Running: GPS run tracker ============
+   Native: @capacitor-community/background-geolocation (foreground service → keeps tracking with the screen off).
+   Web: navigator.geolocation.watchPosition (only while the page is open).                                       */
+const RUN_KEY = 'climbr.runs.v1', RUN_LIVE = 'climbr.runLive.v1';
+let runs = loadJSON(RUN_KEY, []);
+let RUN = null;
+function haversine(a, b){ const R = 6371000, t = Math.PI / 180, dLa = (b[0] - a[0]) * t, dLo = (b[1] - a[1]) * t;
+  const h = Math.sin(dLa/2) ** 2 + Math.cos(a[0]*t) * Math.cos(b[0]*t) * Math.sin(dLo/2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
+function fmtDur(ms){ const s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60; return h ? `${h}:${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}` : `${m}:${String(ss).padStart(2,'0')}`; }
+function fmtPace(secPerKm){ if (!secPerKm || !isFinite(secPerKm) || secPerKm > 3600) return '–'; const m = Math.floor(secPerKm / 60), s = Math.round(secPerKm % 60); return `${m}:${String(s === 60 ? 59 : s).padStart(2,'0')}`; }
+function fmtKm(m){ return (m / 1000).toFixed(m < 10000 ? 2 : 1); }
+function runElapsed(r){ return r.paused ? r.pausedAt - r.startedAt - r.pausedTotal : Date.now() - r.startedAt - r.pausedTotal; }
+function saveLive(){ try { localStorage.setItem(RUN_LIVE, JSON.stringify({...RUN, watcher:null, tick:null})); } catch(e){} }
+
+function openRunTracker(){
+  if (RUN) { drawRun(); document.getElementById('runScr').hidden = false; return; }
+  const live = loadJSON(RUN_LIVE, null);
+  if (live && live.pts && live.pts.length && confirm('An unfinished run from ' + new Date(live.startedAt).toLocaleString('en-GB', {weekday:'short', hour:'2-digit', minute:'2-digit'}) + ' was found. Continue it? (Cancel = finish and review it)')) {
+    RUN = {...live, paused:true, pausedAt: live.paused ? live.pausedAt : (live.pts[live.pts.length-1][2] || Date.now())}; document.getElementById('runScr').hidden = false; drawRun(); runTicker(); return;
+  } else if (live && live.pts && live.pts.length) { RUN = {...live, paused:true, pausedAt: live.pausedAt || live.pts[live.pts.length-1][2]}; finishRun(true); return; }
+  RUN = {id:'run' + Date.now(), state:'idle', startedAt:0, pausedTotal:0, paused:false, pts:[], dist:0, gain:0, base:null, splits:[], acc:null, fix:false};
+  document.getElementById('runScr').hidden = false; drawRun(); startGps(true);
+}
+async function startGps(previewOnly){
+  stopGps();
+  const BG = IS_NATIVE && window.Capacitor.Plugins.BackgroundGeolocation;
+  try {
+    if (BG) {
+      RUN.watcher = await BG.addWatcher({backgroundMessage:'Tracking your run — open ClimbR to pause or finish.', backgroundTitle:'ClimbR · run in progress', requestPermissions:true, stale:false, distanceFilter:0},
+        (loc, err) => { if (err) { if (err.code === 'NOT_AUTHORIZED' && confirm('ClimbR needs location access to track runs. Open settings?')) BG.openSettings(); return; } onFix({lat:loc.latitude, lng:loc.longitude, acc:loc.accuracy, alt:loc.altitude, t:loc.time || Date.now()}); });
+      RUN.bg = true;
+    } else if (navigator.geolocation) {
+      RUN.webWatch = navigator.geolocation.watchPosition(p => onFix({lat:p.coords.latitude, lng:p.coords.longitude, acc:p.coords.accuracy, alt:p.coords.altitude, t:p.timestamp || Date.now()}),
+        e => { RUN.gpsErr = e.message || 'GPS error'; drawRunLive(); }, {enableHighAccuracy:true, maximumAge:0, timeout:30000});
+    } else { RUN.gpsErr = 'No GPS available.'; }
+  } catch(e) { RUN.gpsErr = String(e && e.message || e); }
+  drawRunLive();
+}
+function stopGps(){
+  if (!RUN) return;
+  const BG = IS_NATIVE && window.Capacitor.Plugins.BackgroundGeolocation;
+  if (RUN.watcher != null && BG) { try { BG.removeWatcher({id:RUN.watcher}); } catch(e){} }
+  if (RUN.webWatch != null && navigator.geolocation) navigator.geolocation.clearWatch(RUN.webWatch);
+  RUN.watcher = null; RUN.webWatch = null;
+}
+function onFix(f){
+  if (!RUN) return;
+  RUN.acc = f.acc; RUN.fix = f.acc != null && f.acc <= 30; RUN.gpsErr = null;
+  if (RUN.state !== 'running' || RUN.paused) { drawRunLive(); return; }
+  if (f.acc != null && f.acc > 30) { drawRunLive(); return; }          // too inaccurate — skip
+  const p = [r6(f.lat), r6(f.lng), f.t, f.alt != null ? Math.round(f.alt * 10) / 10 : null], last = RUN.pts[RUN.pts.length - 1];
+  if (last && !last[4]) {
+    const d = haversine(last, p), dt = (p[2] - last[2]) / 1000;
+    if (dt <= 0) return;
+    if (d / dt > 12) return;                                            // > 43 km/h = GPS jump
+    if (d < Math.max(3, (f.acc || 5) * 0.4)) { drawRunLive(); return; } // standing still / jitter
+    const before = RUN.dist; RUN.dist += d;
+    if (Math.floor(RUN.dist / 1000) > Math.floor(before / 1000)) {     // km split
+      const el = runElapsed(RUN), prev = RUN.splits.reduce((a, b) => a + b, 0); RUN.splits.push(el - prev);
+      beep(880, .15); setTimeout(() => beep(1175, .25), 180); buzz([200, 100, 200]);
+    }
+  }
+  if (p[3] != null) { if (RUN.base == null) RUN.base = p[3]; else if (p[3] > RUN.base + 5) { RUN.gain += p[3] - RUN.base; RUN.base = p[3]; } else if (p[3] < RUN.base - 5) RUN.base = p[3]; }
+  RUN.pts.push(p); saveLive(); drawRunLive();
+}
+function r6(n){ return Math.round(n * 1e6) / 1e6; }
+function runStart(){ RUN.state = 'running'; RUN.startedAt = Date.now(); RUN.pausedTotal = 0; RUN.paused = false; wakeLock(true); beep(880, .25); buzz(200); if (RUN.watcher == null && RUN.webWatch == null) startGps(); saveLive(); drawRun(); runTicker(); }
+function runPause(){ if (RUN.paused) { RUN.pausedTotal += Date.now() - RUN.pausedAt; RUN.paused = false; if (RUN.pts.length) RUN.pts[RUN.pts.length - 1][4] = 0; if (RUN.watcher == null && RUN.webWatch == null) startGps(); }
+  else { RUN.paused = true; RUN.pausedAt = Date.now(); if (RUN.pts.length) RUN.pts[RUN.pts.length - 1][4] = 1; }   // [4]=1: gap after this point (no distance across a pause)
+  beep(520, .2); buzz([80,60,80]); saveLive(); drawRun(); }
+function runTicker(){ clearInterval(RUN.tick); RUN.tick = setInterval(drawRunLive, 1000); }
+function currentPace(r){
+  const pts = r.pts, now = pts.length ? pts[pts.length - 1][2] : 0; let d = 0, i = pts.length - 1;
+  while (i > 0 && now - pts[i-1][2] <= 30000 && !pts[i-1][4]) { d += haversine(pts[i-1], pts[i]); i--; }
+  const dt = pts.length ? (now - pts[i][2]) / 1000 : 0; return d > 20 && dt > 5 ? dt / (d / 1000) : null;
+}
+function traceSVG(pts, cls){
+  const ok = (pts || []).filter(p => p && p[0] != null); if (ok.length < 2) return '';
+  const lat0 = ok[0][0], k = Math.cos(lat0 * Math.PI / 180);
+  const xy = ok.map(p => [(p[1] - ok[0][1]) * k * 111320, -(p[0] - lat0) * 110540]);
+  const xs = xy.map(p => p[0]), ys = xy.map(p => p[1]); const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const span = Math.max(maxX - minX, maxY - minY, 50), pad = span * 0.08;
+  let d = '', gap = false; xy.forEach((p, i) => { d += (i === 0 || gap ? 'M' : 'L') + (p[0] - minX + pad).toFixed(1) + ' ' + (p[1] - minY + pad).toFixed(1) + ' '; gap = !!ok[i][4]; });
+  const W = maxX - minX + 2 * pad, H = maxY - minY + 2 * pad, sw = span / 90;
+  const s = xy[0], e = xy[xy.length - 1];
+  return `<svg class="trace ${cls || ''}" viewBox="0 0 ${W.toFixed(1)} ${H.toFixed(1)}" preserveAspectRatio="xMidYMid meet" aria-label="Route trace"><path d="${d}" fill="none" stroke="#fff" stroke-width="${sw.toFixed(1)}" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${(s[0]-minX+pad).toFixed(1)}" cy="${(s[1]-minY+pad).toFixed(1)}" r="${(sw*1.6).toFixed(1)}" fill="#000" stroke="#fff" stroke-width="${(sw*0.7).toFixed(1)}"/><circle cx="${(e[0]-minX+pad).toFixed(1)}" cy="${(e[1]-minY+pad).toFixed(1)}" r="${(sw*1.6).toFixed(1)}" fill="#fff"/></svg>`;
+}
+function gpsBadge(){ if (!RUN) return ''; if (RUN.gpsErr) return `<span class="gpsb bad">GPS: ${esc(RUN.gpsErr)}</span>`; if (RUN.acc == null) return `<span class="gpsb">Searching for GPS…</span>`; return `<span class="gpsb ${RUN.fix ? 'ok' : 'bad'}">GPS ±${Math.round(RUN.acc)} m${RUN.fix ? '' : ' · waiting for better signal'}</span>`; }
+function drawRun(){
+  const el = document.getElementById('runScr'), r = RUN, st = r.state;
+  el.innerHTML = `<div class="rtop"><button onclick="closeRunScr()">${st === 'idle' ? '✕ Close' : '‹ Hide'}</button><b>Run</b><span id="rGps">${gpsBadge()}</span></div>
+    <div class="rmain"><div class="rdist"><span id="rDist">${fmtKm(r.dist)}</span><small>km</small></div><div class="rtime" id="rTime">${fmtDur(st === 'idle' ? 0 : runElapsed(r))}</div>
+      <div class="rstats"><div><b id="rAvg">–</b><span>avg pace /km</span></div><div><b id="rCur">–</b><span>current pace</span></div><div><b id="rGain">0</b><span>m climbed ≈</span></div></div>
+      <div class="rtrace" id="rTrace"></div></div>
+    <div class="rbtns">${st === 'idle' ? `<button class="main big" onclick="runStart()">▶ Start run</button>` :
+      `<button onclick="runPause()">${r.paused ? '▶ Resume' : '❚❚ Pause'}</button><button class="main" onclick="finishRun()">■ Finish</button>`}</div>
+    ${st === 'idle' ? `<div class="rhint">${IS_NATIVE ? 'Keeps tracking with the screen off — a notification shows while the run is recorded.' : 'Web version: keep this page open during the run (the screen can stay on).'} Wait for a GPS fix (±&nbsp;≤&nbsp;30&nbsp;m) before you start for the most exact distance.</div>` : `<div class="rhint">${r.paused ? 'Paused — distance and time are stopped.' : 'Beep + vibration every kilometre.'}</div>`}`;
+  drawRunLive();
+}
+function drawRunLive(){
+  if (!RUN || document.getElementById('runScr').hidden) return;
+  const r = RUN, q = id => document.getElementById(id); if (!q('rDist')) return;
+  const el = r.state === 'idle' ? 0 : runElapsed(r);
+  q('rDist').textContent = fmtKm(r.dist); q('rTime').textContent = fmtDur(el); q('rGps').innerHTML = gpsBadge();
+  q('rAvg').textContent = r.dist > 50 ? fmtPace(el / 1000 / (r.dist / 1000)) : '–';
+  q('rCur').textContent = r.paused ? '–' : fmtPace(currentPace(r)); q('rGain').textContent = Math.round(r.gain);
+  q('rTrace').innerHTML = traceSVG(r.pts);
+}
+function closeRunScr(){ if (RUN && RUN.state === 'idle') { stopGps(); RUN = null; } document.getElementById('runScr').hidden = true; }
+function finishRun(recovered){
+  if (!recovered && !confirm('Finish this run?')) return;
+  if (!RUN.paused) { RUN.paused = true; RUN.pausedAt = Date.now(); }
+  stopGps(); clearInterval(RUN.tick); wakeLock(false);
+  const r = RUN, ms = runElapsed(r);
+  RS = {id:r.id, date:isoDate(new Date(r.startedAt)), start:r.startedAt, ms, dist:Math.round(r.dist), gain:Math.round(r.gain), splits:r.splits, pts:thinPts(r.pts), rpe:null, notes:''};
+  document.getElementById('runScr').hidden = true; RUN = null; try { localStorage.removeItem(RUN_LIVE); } catch(e){}
+  drawRunSummary(true);
+}
+function thinPts(pts){ if (pts.length <= 1500) return pts; const step = Math.ceil(pts.length / 1500); return pts.filter((p, i) => i % step === 0 || p[4] || i === pts.length - 1); }
+let RS = null;
+function drawRunSummary(isNew){
+  const r = RS, sh = document.getElementById('sheet');
+  const pace = r.dist > 50 ? fmtPace(r.ms / 1000 / (r.dist / 1000)) : '–';
+  sh.innerHTML = `<div class="wrap">
+    <button class="close" onclick="${isNew ? 'discardRun()' : 'closeSheet()'}">${isNew ? '✕ Discard' : '← Back'}</button>
+    <header><div class="eyebrow">Run · ${esc(fmtDate(r.date))}</div><h1>${fmtKm(r.dist)} km</h1></header>
+    <div class="antiles"><div class="stat"><div class="n">${fmtDur(r.ms)}</div><div class="l">moving time</div></div><div class="stat"><div class="n">${pace}</div><div class="l">avg pace /km</div></div>
+      <div class="stat"><div class="n">${r.gain}</div><div class="l">m climbed (≈, GPS)</div></div><div class="stat"><div class="n">${r.splits.length}</div><div class="l">full km</div></div></div>
+    ${traceSVG(r.pts, 'big')}
+    ${r.splits.length ? `<section class="ansec"><h2>Splits</h2><ul class="splits">${r.splits.map((s, i) => `<li><span>km ${i + 1}</span><i style="width:${Math.round(100 * Math.min(...r.splits) / s)}%"></i><b>${fmtPace(s / 1000)}</b></li>`).join('')}</ul></section>` : ''}
+    ${isNew ? rpeFields('RS', true) : ''}
+    ${isNew ? `<div class="field"><label>Notes (optional)</label><input value="" placeholder="Route, how it felt…" onchange="RS.notes=this.value"></div>
+      <button class="btn main" onclick="saveRun()">Save run</button>` : `${r.notes ? `<div class="intro">${esc(r.notes)}</div>` : ''}<button class="btn danger" onclick="deleteRun('${r.id}')">Delete run</button>`}
+    <div class="hint">Distance from GPS is usually within a few percent; tall buildings, forest and steep valleys make it less exact. Height gain from GPS is a rough estimate.</div>
+  </div>`;
+  sh.hidden = false; sh.scrollTop = 0;
+}
+function discardRun(){ if (confirm('Discard this run? It will not be saved.')) { RS = null; closeSheet(); } }
+function saveRun(){
+  const r = {...RS, rpe:num(RS.rpe), mins:Math.max(1, Math.round(RS.ms / 60000))};
+  delete r.isNew; runs = runs.filter(x => x.id !== r.id).concat(r).sort((a,b) => a.start - b.start); saveJSON(RUN_KEY, runs);
+  // count it as training on that day (own day entry, or an extra on an existing one)
+  const s = sessionFor(r.date), entry = {runId:r.id, rpe:r.rpe, mins:r.mins};
+  if (!s) { sessions.push({date:r.date, type:'run', template:null, exercises:[], completed:true, catchUp:false, updatedAt:Date.now(), ...entry}); sortSessions(); }
+  else if (s.type === 'rest' && !extrasOf(s).length) { Object.assign(s, {type:'run', completed:true, template:null, exercises:[], ...entry, updatedAt:Date.now()}); }
+  else { (s.extras = s.extras || []).push({id:'x' + Date.now(), type:'run', template:null, ...entry}); s.updatedAt = Date.now(); }
+  persist(); if (r.date === TODAY) draft = null;
+  RS = null; closeSheet(); render(); if (!document.getElementById('tabStats').hidden) renderAnalytics();
+}
+function openRunDetail(id){ const r = runs.find(x => x.id === id); if (!r) return; RS = {...r}; drawRunSummary(false); }
+function deleteRun(id){
+  if (!confirm('Delete this run?')) return;
+  runs = runs.filter(x => x.id !== id); saveJSON(RUN_KEY, runs);
+  sessions = sessions.filter(s => {
+    s.extras = extrasOf(s).filter(x => x.runId !== id);
+    if (s.runId !== id) return true;
+    if (!s.extras.length) return false;                              // the day only existed for this run
+    const x = s.extras.shift(); Object.assign(s, {type:x.type, template:x.template, rpe:x.rpe || null, mins:x.mins || null, runId:x.runId || undefined, completed:true}); return true;
+  });
+  persist(); closeSheet(); render(); if (!document.getElementById('tabStats').hidden) renderAnalytics();
+}
+function runSummaryLine(id){ const r = runs.find(x => x.id === id); if (!r) return ''; return `<button class="runline" onclick="openRunDetail('${r.id}')"><b>${fmtKm(r.dist)} km</b><span>${fmtDur(r.ms)} · ${r.dist > 50 ? fmtPace(r.ms / 1000 / (r.dist / 1000)) + ' /km' : ''}</span><span class="go">›</span></button>`; }
+function runsBody(s, e){
+  const list = runs.filter(r => r.date >= s && r.date <= e);
+  if (!list.length) return `<button class="guided" onclick="openRunTracker()"><img class="ico inv" src="/icons/ui/gps.png" alt=""> Start a run</button><div class="anempty">No runs ${AN.period === 'day' ? 'on this day' : 'in this period'}.</div>`;
+  const dist = list.reduce((a, r) => a + r.dist, 0), ms = list.reduce((a, r) => a + r.ms, 0), gain = list.reduce((a, r) => a + r.gain, 0), longest = Math.max(...list.map(r => r.dist));
+  let h = `<button class="guided" onclick="openRunTracker()"><img class="ico inv" src="/icons/ui/gps.png" alt=""> Start a run</button>
+    <div class="antiles"><div class="stat"><div class="n">${fmtKm(dist)}</div><div class="l">km · ${list.length} run${list.length === 1 ? '' : 's'}</div></div><div class="stat"><div class="n">${fmtDur(ms)}</div><div class="l">total time</div></div>
+    <div class="stat"><div class="n">${dist > 50 ? fmtPace(ms / 1000 / (dist / 1000)) : '–'}</div><div class="l">avg pace /km</div></div><div class="stat"><div class="n">${fmtKm(longest)}</div><div class="l">longest run (km)</div></div></div>`;
+  if (AN.period !== 'day') {
+    const days = Math.round((parseISO(e) - parseISO(s)) / 864e5) + 1; let buckets = [];
+    if (days <= 7) for (let i = 0; i < 7; i++) { const d = isoAdd(s, i); buckets.push({s:d, e:d, l:parseISO(d).toLocaleDateString('en-GB', {weekday:'narrow'})}); }
+    else if (days <= 31) { let d = s; while (d <= e) { const dow = (parseISO(d).getDay() + 6) % 7, end = isoAdd(d, 6 - dow); buckets.push({s:d, e:end > e ? e : end, l:String(parseISO(d).getDate())}); d = isoAdd(end, 1); } }
+    else { let a = parseISO(s); a = new Date(a.getFullYear(), a.getMonth(), 1); while (isoDate(a) <= e) { const b = new Date(a.getFullYear(), a.getMonth() + 1, 0); buckets.push({s:isoDate(a), e:isoDate(b), l:a.toLocaleDateString('en-GB', {month:'narrow'})}); a = new Date(a.getFullYear(), a.getMonth() + 1, 1); } }
+    buckets = buckets.slice(-24); buckets.forEach(b => b.v = list.filter(r => r.date >= b.s && r.date <= b.e).reduce((a, r) => a + r.dist, 0) / 1000);
+    const max = Math.max(0.1, ...buckets.map(b => b.v));
+    h += `<section class="ansec"><h2>Distance</h2><div class="vol">${buckets.map(b => `<div class="vcol" title="${b.v.toFixed(1)} km"><span class="vn">${b.v ? b.v.toFixed(b.v < 10 ? 1 : 0) : ''}</span><span class="vb"><i class="k-flash" style="height:${100 * b.v / max}%"></i></span><span class="vl">${esc(b.l)}</span></div>`).join('')}</div><div class="hint">Kilometres per ${days <= 7 ? 'day' : days <= 31 ? 'week' : 'month'}.</div></section>`;
+  }
+  h += `<section class="ansec"><h2>Runs</h2><ul class="andays">${list.slice().reverse().map(r => `<li><button onclick="openRunDetail('${r.id}')"><span class="ad">${esc(parseISO(r.date).toLocaleDateString('en-GB', {weekday:'short', day:'2-digit', month:'2-digit'}))}</span><span class="am">${fmtDur(r.ms)} · ${r.dist > 50 ? fmtPace(r.ms / 1000 / (r.dist / 1000)) + ' /km' : ''}${r.gain ? ' · ↑' + r.gain + ' m' : ''}</span><span class="ag">${fmtKm(r.dist)} km</span></button></li>`).join('')}</ul></section>`;
+  if (gain) h += `<div class="hint">Total climbed ≈ ${gain} m (GPS estimate).</div>`;
+  return h;
 }
 
 /* ============ Update check (GitHub releases) ============ */
