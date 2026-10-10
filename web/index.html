@@ -872,7 +872,7 @@ function renderStats(){
     <div class="stat"><div class="n">${rate}%</div><div class="l">completion, last 14 days</div></div>`;
 }
 function renderHistory(){
-  const el = document.getElementById('dots'); const list = sessions.slice(0,14);
+  const el = document.getElementById('dots'); const list = sessions.slice(0,14).reverse(); // oldest left → newest right
   if (!list.length) { el.innerHTML = '<span style="color:var(--muted);font-size:13px">No entries yet. Forgot a day? Use “+ Add past day”.</span>'; return; }
   el.innerHTML = list.map(s => {
     const cls = s.type === 'rest' ? 'rest' : (s.type==='klettern'?'klettern':s.type==='run'?'run':'ausgleich') + '-' + (s.completed?'good':'bad');
