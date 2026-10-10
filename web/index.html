@@ -734,7 +734,7 @@ function extrasBlock(s){
     <div class="xadd"><span class="fl">${s.type === 'rest' ? 'Trained after all?' : 'Another training today?'}</span>
       <button onclick="addExtra('${s.date}','klettern')"><img class="ico" src="/icons/ui/climb.png" alt="">+ Climb</button>
       <button onclick="addExtra('${s.date}','ausgleich')"><img class="ico" src="/icons/ui/train.png" alt="">+ Cross</button>
-      ${s.date === TODAY ? `<button onclick="openRunTracker()"><img class="ico" src="/icons/ui/gps.png" alt="">+ Run</button>` : ''}</div></div>`;
+      ${s.date === TODAY ? `<button onclick="openRunTracker()"><img class="ico" src="/icons/ui/run.png" alt="">+ Run</button>` : ''}</div></div>`;
 }
 function computeDraftForType(type){
   const d = computeDraftBase(type);
@@ -1236,7 +1236,7 @@ const TOOLS = {
 };
 function renderTools(){
   document.getElementById('tgrid').innerHTML = Object.entries(TOOLS).map(([k,t]) =>
-    `<button class="rcard${k==='bench' && benchDue().due ? ' due' : ''}" onclick="openTool('${k}')">${k==='comp' ? '<img class="ri" src="/icons/ui/comp.png" alt="">' : k==='bench' ? '<img class="ri" src="/icons/ui/analytics.png" alt="">' : k==='run' ? '<img class="ri" src="/icons/ui/gps.png" alt="">' : (k==='maxhang'||k==='repeaters'||k==='hanglog') ? '<img class="ri" src="/icons/ui/hangboard.png" alt="">' : (k==='rest'||k==='custom') ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(k==='bench' ? benchDue().txt : t.sub)}</div></button>`).join('');
+    `<button class="rcard${k==='bench' && benchDue().due ? ' due' : ''}" onclick="openTool('${k}')">${k==='comp' ? '<img class="ri" src="/icons/ui/comp.png" alt="">' : k==='bench' ? '<img class="ri" src="/icons/ui/bench.png" alt="">' : k==='run' ? '<img class="ri" src="/icons/ui/run.png" alt="">' : (k==='maxhang'||k==='repeaters'||k==='hanglog') ? '<img class="ri" src="/icons/ui/hangboard.png" alt="">' : (k==='rest'||k==='custom') ? '<img class="ri" src="/icons/ui/timer.png" alt="">' : ''}<div class="rt">${esc(t.title)}</div><div class="rm">${esc(k==='bench' ? benchDue().txt : t.sub)}</div></button>`).join('');
 }
 function runTimer(ex){ startRunner([{ex}], 0); }
 function restEx(min){ return {name:`Rest · ${min} min`, dose:`${min}:00`, cue:'Stay active: shake out, walk around, or do easy climbing — in climbers, active rest restored performance better than sitting still.',
@@ -1549,7 +1549,7 @@ async function openRoute(id){
   sh.innerHTML = `<div class="wrap">
     <button class="close" onclick="closeSheet()">← Back</button>
     ${r.photo ? `<div class="pwrap full"><img class="photo-full" id="detImg" alt="">${topoSVG(r.lines, r.ar, 'meet')}</div>
-      <div class="row2"><button class="btn" onclick="openTopoForRoute('${r.id}')"><img class="ico" src="/icons/ui/add.png" alt=""> ${r.lines && r.lines.length ? 'Edit line' : 'Draw route line'}</button><button class="btn" onclick="shareTopo('${r.id}')"><img class="ico" src="/icons/ui/gallery.png" alt=""> Share photo</button></div>` : ''}
+      <div class="row2"><button class="btn" onclick="openTopoForRoute('${r.id}')"><img class="ico" src="/icons/ui/draw.png" alt=""> ${r.lines && r.lines.length ? 'Edit line' : 'Draw route line'}</button><button class="btn" onclick="shareTopo('${r.id}')"><img class="ico" src="/icons/ui/share.png" alt=""> Share photo</button></div>` : ''}
     <header><div class="eyebrow">${esc([r.kind, r.style].filter(Boolean).join(' · '))}</div><h1>${esc(r.title)}</h1></header>
     <div class="statrow"><div class="stat"><div class="n"><img src="/icons/ui/grade.png" alt="">${esc(r.grade || '–')}</div><div class="l">${esc(r.system || '')} grade</div></div>
       <div class="stat"><div class="n" style="font-size:22px">${r.date ? esc(dayShort(r.date)) : '–'}</div><div class="l">${r.date ? r.date.slice(0,4) : 'date'}</div></div></div>
@@ -1576,7 +1576,7 @@ async function openRouteForm(id){
     <header><div class="eyebrow">Outdoor</div><h1>${RF.isNew ? 'New route' : 'Edit route'}</h1></header>
     <div class="box2"><h3>Photo</h3>
       <div class="pwrap full" id="rfWrap" ${RF.photo ? '' : 'hidden'}><img class="photo-full" id="rfImg" alt=""><div id="rfTopo" class="ovl">${topoSVG(RF.lines, RF.ar, 'meet')}</div></div>
-      <button class="btn main" id="rfDrawBtn" onclick="openTopoEditor()" ${RF.photo ? '' : 'hidden'}><img class="ico inv" src="/icons/ui/add.png" alt=""> ${RF.lines && RF.lines.length ? 'Edit route line' : 'Draw route line'}</button>
+      <button class="btn main" id="rfDrawBtn" onclick="openTopoEditor()" ${RF.photo ? '' : 'hidden'}><img class="ico inv" src="/icons/ui/draw.png" alt=""> ${RF.lines && RF.lines.length ? 'Edit route line' : 'Draw route line'}</button>
       <div class="row2"><button class="btn" onclick="pickPhoto('camera')"><img class="ico" src="/icons/ui/camera.png" alt=""> Take photo</button><button class="btn" onclick="pickPhoto('gallery')"><img class="ico" src="/icons/ui/gallery.png" alt=""> From gallery</button></div>
       <button class="btn danger" id="rfImgDel" onclick="dropPhoto()" ${RF.photo ? '' : 'hidden'}>Remove photo</button>
       <input type="file" id="rfFile" accept="image/*" hidden onchange="photoFromInput(this)">
@@ -2188,7 +2188,7 @@ function strengthBody(){
   let h = `<div class="bwrow"><span>Body weight</span><input type="number" inputmode="decimal" step="0.1" value="${bw ?? ''}" placeholder="kg" aria-label="Body weight in kg" onchange="if(setBW(TODAY,num(this.value)))renderAnalytics()"><span class="u">kg</span></div>`;
   // benchmarks
   h += `<section class="ansec"><h2>Benchmarks</h2>
-    <button class="guided" onclick="openBench()"><img class="ico inv" src="/icons/ui/analytics.png" alt=""> ${due.due ? 'Do benchmark test · ' + due.txt : 'New benchmark test · ' + due.txt}</button>`;
+    <button class="guided" onclick="openBench()"><img class="ico inv" src="/icons/ui/bench.png" alt=""> ${due.due ? 'Do benchmark test · ' + due.txt : 'New benchmark test · ' + due.txt}</button>`;
   if (benches.length) {
     h += `<div class="bgrid">${BENCH.map(t => { const pts = benches.map(b => ({d:b.date, v:benchVal(b, t.k)})).filter(p => p.v != null);
       if (!pts.length) return `<div class="bcard"><div class="bt">${t.name}</div><div class="hint">No result yet.</div></div>`;
@@ -2333,7 +2333,7 @@ function closeTopo(save){
   else if (save) { RF.lines = TD.lines; RF.ar = TD.ar; showFormPhotoTopo(); }
   document.getElementById('topoEd').hidden = true; document.getElementById('topoEd').innerHTML = ''; TD = null;
 }
-function showFormPhotoTopo(){ const o = document.getElementById('rfTopo'); if (o) o.innerHTML = topoSVG(RF.lines, RF.ar, 'meet'); const b = document.getElementById('rfDrawBtn'); if (b) b.innerHTML = `<img class="ico" src="/icons/ui/add.png" alt=""> ${RF.lines && RF.lines.length ? 'Edit route line' : 'Draw route line'}`; }
+function showFormPhotoTopo(){ const o = document.getElementById('rfTopo'); if (o) o.innerHTML = topoSVG(RF.lines, RF.ar, 'meet'); const b = document.getElementById('rfDrawBtn'); if (b) b.innerHTML = `<img class="ico inv" src="/icons/ui/draw.png" alt=""> ${RF.lines && RF.lines.length ? 'Edit route line' : 'Draw route line'}`; }
 // share the photo with the line baked in
 async function shareTopo(id){
   const r = outdoor.find(x => x.id === id); if (!r || !r.photo) return;
@@ -2519,9 +2519,9 @@ function deleteRun(id){
 function runSummaryLine(id){ const r = runs.find(x => x.id === id); if (!r) return ''; return `<button class="runline" onclick="openRunDetail('${r.id}')"><b>${fmtKm(r.dist)} km</b><span>${fmtDur(r.ms)} · ${r.dist > 50 ? fmtPace(r.ms / 1000 / (r.dist / 1000)) + ' /km' : ''}</span><span class="go">›</span></button>`; }
 function runsBody(s, e){
   const list = runs.filter(r => r.date >= s && r.date <= e);
-  if (!list.length) return `<button class="guided" onclick="openRunTracker()"><img class="ico inv" src="/icons/ui/gps.png" alt=""> Start a run</button><div class="anempty">No runs ${AN.period === 'day' ? 'on this day' : 'in this period'}.</div>`;
+  if (!list.length) return `<button class="guided" onclick="openRunTracker()"><img class="ico inv" src="/icons/ui/run.png" alt=""> Start a run</button><div class="anempty">No runs ${AN.period === 'day' ? 'on this day' : 'in this period'}.</div>`;
   const dist = list.reduce((a, r) => a + r.dist, 0), ms = list.reduce((a, r) => a + r.ms, 0), gain = list.reduce((a, r) => a + r.gain, 0), longest = Math.max(...list.map(r => r.dist));
-  let h = `<button class="guided" onclick="openRunTracker()"><img class="ico inv" src="/icons/ui/gps.png" alt=""> Start a run</button>
+  let h = `<button class="guided" onclick="openRunTracker()"><img class="ico inv" src="/icons/ui/run.png" alt=""> Start a run</button>
     <div class="antiles"><div class="stat"><div class="n">${fmtKm(dist)}</div><div class="l">km · ${list.length} run${list.length === 1 ? '' : 's'}</div></div><div class="stat"><div class="n">${fmtDur(ms)}</div><div class="l">total time</div></div>
     <div class="stat"><div class="n">${dist > 50 ? fmtPace(ms / 1000 / (dist / 1000)) : '–'}</div><div class="l">avg pace /km</div></div><div class="stat"><div class="n">${fmtKm(longest)}</div><div class="l">longest run (km)</div></div></div>`;
   if (AN.period !== 'day') {
