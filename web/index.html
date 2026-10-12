@@ -351,6 +351,19 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .tplsw{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
 .tplsw button{padding:9px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-body);font-weight:700;font-size:13.5px}
 .tplsw button.on{background:#fff;color:#000;border-color:#fff}
+.prog{margin:12px 0 4px}
+.prog .pl{display:flex;justify-content:space-between;gap:8px;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--muted);margin-bottom:5px}
+.prog .pb{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.prog .pb i{display:block;height:100%;background:#fff;border-radius:99px;transition:width .3s ease}
+.prog.full .pl{color:#fff}
+.timer .sbar{width:100%;max-width:420px;height:4px;border-radius:99px;background:var(--line);overflow:hidden;margin:8px auto 0}
+.timer .sbar i{display:block;height:100%;background:#9b9b9b;transition:width .3s ease}
+.timer .bar i{transition:width .2s linear!important}
+.setdots{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.setdots i{width:12px;height:12px;border-radius:50%;border:2px solid #9b9b9b}
+.setdots i.d{background:#fff;border-color:#fff}.setdots i.c{border-color:#fff}
+.rprog{height:4px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}
+.rprog i{display:block;height:100%;background:#fff}
 .uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
 .uppop[hidden]{display:none}
 .upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
@@ -812,6 +825,11 @@ function exList(exercises, ctx){
       ${timerBtn}
     </li>`; }).join('') + '</ul>';
 }
+function progBar(done, total, unit){
+  if (!total) return '';
+  const pct = Math.round(100 * done / total);
+  return `<div class="prog${done >= total ? ' full' : ''}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><div class="pl"><span>${done >= total ? '✓ All ' + total + ' ' + unit + ' done' : done + ' / ' + total + ' ' + unit}</span><span>${pct}%</span></div><div class="pb"><i style="width:${pct}%"></i></div></div>`;
+}
 function fmtShort(t){ return (t.reps||1) > 1 ? `${t.work}s×${t.reps}` : (t.work >= 60 ? Math.round(t.work/60)+'m' : t.work+'s'); }
 
 function climbQuick(){
@@ -838,6 +856,7 @@ function renderTodayInner(){
       ${fingerRow()}
     ${painRow()}
       ${existing.template ? `<div class="note">${esc(PLANS[existing.template] ? PLANS[existing.template].title : 'Plan '+existing.template)}${existing.catchUp ? ' · with catch-up exercises' : ''}</div>` : ''}
+      ${existing.exercises && existing.exercises.length ? progBar(existing.exercises.filter(e => e.done).length, existing.exercises.length, 'exercises') : ''}
       ${exList(existing.exercises)}
       ${existing.runId ? runSummaryLine(existing.runId) : ''}
       ${sessionRpeRow(existing)}
@@ -866,6 +885,7 @@ function renderTodayInner(){
     ${d.removed && d.removed.length ? `<div class="note"><b>Adjusted for pain:</b> paused ${d.removed.map(x => esc(x.name) + ' (' + x.areas.map(k => AREA_NAME[k].split(' /')[0].toLowerCase()).join(', ') + ')').join(', ')}.</div>` : ''}
     ${d.type==='klettern' ? climbAdvice() : ''}
     ${d.type==='klettern' ? `<div class="note">Climbing day: start with the warm-up, finish with the cool-down.</div>${climbQuick()}${boulderButton(TODAY)}` : ''}
+    ${d.exercises && d.exercises.length ? progBar(d.exercises.filter(e => e.done).length, d.exercises.length, 'exercises') : ''}
     ${exList(d.exercises)}
     ${d.type==='ausgleich' ? `<button class="guided" onclick="runToday()">▶ ${d.exercises.some(e => e.done) && !d.exercises.every(e => e.done) ? 'Continue guided session' : 'Start guided session'}</button>` : ''}
     <div class="actions">
@@ -986,7 +1006,7 @@ const ICONS = {warmup:'warmup', cooldown:'cooldown', stretch:'stretch'};
 function renderRoutines(){
   const cards = ['warmup','cooldown','stretch'].concat(customs.map(c => c.id)).map(k => {
     const r = getRoutine(k);
-    return `<button class="rcard" onclick="openRoutine('${k}')">${ICONS[k] ? `<img class="ri" src="/icons/ui/${ICONS[k]}.png" alt="">` : ''}<div class="rt">${esc(r.title)}</div><div class="rm">${esc(r.sub.replace('Before climbing','before').replace('After climbing','after').replace('Any day','any day'))}</div></button>`;
+    return `<button class="rcard" onclick="openRoutine('${k}')">${ICONS[k] ? `<img class="ri" src="/icons/ui/${ICONS[k]}.png" alt="">` : ''}<div class="rt">${esc(r.title)}</div><div class="rm">${esc(r.sub.replace('Before climbing','before').replace('After climbing','after').replace('Any day','any day'))}</div>${(() => { const dn = routineDone(k).length, n = r.items.length; return dn ? `<div class="rprog"><i style="width:${Math.round(100 * Math.min(dn, n) / n)}%"></i></div>` : ''; })()}</button>`;
   });
   cards.push(`<button class="rcard add" onclick="openBuilder()"><div class="rt">+</div><div class="rm">New routine</div></button>`);
   document.getElementById('rgrid').innerHTML = cards.join('');
@@ -997,9 +1017,11 @@ function openRoutine(key){
     <button class="close" onclick="closeSheet()">← Back</button>
     <header><div class="eyebrow">${esc(r.sub)}</div><h1>${esc(r.title)}</h1></header>
     ${r.intro ? `<div class="intro">${esc(r.intro)}</div>` : ''}
-    <button class="guided" style="margin:0" onclick="runRoutine('${key}')">▶ Start ${esc(r.title)}</button>
+    ${(() => { const dn = routineDone(key).length; return dn ? progBar(dn, r.items.length, 'done today') : ''; })()}
+    <button class="guided" style="margin:0" onclick="runRoutine('${key}')">▶ ${(() => { const dn = routineDone(key).length; return dn && dn < r.items.length ? 'Continue ' : dn >= r.items.length ? 'Do again: ' : 'Start '; })()}${esc(r.title)}</button>
+    ${routineDone(key).length ? `<button class="btn danger" style="margin:0" onclick="resetRoutine('${key}')">Reset today's progress</button>` : ''}
     <ul class="exlist" style="margin:0">${r.items.map((e,i) => `
-      <li class="ex"><span class="tx"><span class="nm">${esc(e.name)}</span><br><span class="sets">${esc(e.dose)}</span>${e.cue ? `<span class="cue">${esc(e.cue)}</span>` : ''}</span>
+      <li class="ex ${routineDone(key).includes(i) ? 'done' : ''}"><span class="box">${routineDone(key).includes(i) ? '✓' : ''}</span><span class="tx"><span class="nm">${esc(e.name)}</span><br><span class="sets">${esc(e.dose)}</span>${e.cue ? `<span class="cue">${esc(e.cue)}</span>` : ''}</span>
       ${e.timer ? `<button class="tbtn" onclick="runRoutine('${key}', ${i}, true)"><img class="ico" src="/icons/ui/timer.png" alt=""> ${fmtShort(e.timer)}</button>` : ''}</li>`).join('')}</ul>
     ${r.evidence ? `<div class="evidence">${esc(r.evidence)}</div>` : ''}
     ${r.custom ? `<button class="btn" onclick="openBuilder('${key}')">Edit routine</button>` : ''}
@@ -1172,7 +1194,7 @@ function togglePause(){
   drawTimer();
 }
 function addTime(s){ if (!T.paused) T.endAt += s*1000; T.left += s; drawTimer(); }
-function closeRunner(){ clearInterval(T.tick); T.after = null; wakeLock(false); document.getElementById('timer').hidden = true; render(); }
+function closeRunner(){ clearInterval(T.tick); T.after = null; try { renderRoutines(); const sh = document.getElementById('sheet'); const m = !sh.hidden && sh.innerHTML.match(/runRoutine\('([^']+)'\)/); if (m) openRoutine(m[1]); } catch(e){} wakeLock(false); document.getElementById('timer').hidden = true; render(); }
 function finishRunner(){
   clearInterval(T.tick); wakeLock(false);
   const el = document.getElementById('timer'); el.className = 'timer rest';
@@ -1180,10 +1202,21 @@ function finishRunner(){
     <div><div class="tdose">Nice work ✓</div><div class="tcue">${T.queue.length > 1 ? 'All exercises completed.' : 'Exercise completed.'}</div></div>
     <div class="tbtns"><button class="main" onclick="closeRunner()">Close</button></div>`;
 }
+function sessProg(){
+  const n = T.queue.length; if (n < 2 || T.qi >= n) return null;
+  const e = exOf(T.queue[T.qi]); let f = 0;
+  if (T.after && !e.timer) f = T.set / manualSets(e);                    // resting between sets
+  else if (!T.after && e.timer && T.phases.length) f = T.pi / T.phases.length;
+  else if (!T.after && !e.timer) f = (T.set - 1) / manualSets(e);
+  return Math.min(1, (T.qi + f) / n);
+}
+function phasePct(){ const p = T.phases[T.pi]; return p && p.secs ? Math.min(100, 100 * (1 - T.left / p.secs)) : 0; }
 function header(){
   const it = T.queue[T.qi], e = exOf(it);
   const next = T.queue[T.qi+1] ? exOf(T.queue[T.qi+1]).name : '';
-  return `<div><div class="tprog">${T.queue.length > 1 ? `Exercise ${T.qi+1}/${T.queue.length}` : esc(e.dose)}</div>
+  const sp = sessProg();
+  return `<div><div class="tprog">${T.queue.length > 1 ? `Exercise ${T.qi+1}/${T.queue.length}` : esc(e.dose)}${sp != null ? ` · <span id="spPct">${Math.round(sp * 100)}</span>%` : ''}</div>
+    ${sp != null ? `<div class="sbar"><i id="spBar" style="width:${sp * 100}%"></i></div>` : ''}
     <div class="tname">${esc(e.name)}</div>${e.load ? `<div class="tload">Weight: ${esc(e.load)}</div>` : ''}<div class="tcue">${esc(e.cue)}</div>${next ? `<div class="tsub">Next: ${esc(next)}</div>` : ''}</div>`;
 }
 function drawTimer(){
@@ -1191,16 +1224,16 @@ function drawTimer(){
   const key = T.qi + ':' + T.pi + ':' + T.paused;
   if (T.drawn === key) { // only refresh the clock so taps on buttons never get lost
     const c = el.querySelector('.tclock');
-    if (c) { c.textContent = T.left >= 60 ? `${Math.floor(T.left/60)}:${String(T.left%60).padStart(2,'0')}` : String(T.left); return; }
+    if (c) { c.textContent = T.left >= 60 ? `${Math.floor(T.left/60)}:${String(T.left%60).padStart(2,'0')}` : String(T.left); const b = el.querySelector('.bar i'); if (b) b.style.width = phasePct() + '%'; return; }
   }
   T.drawn = key;
   el.className = 'timer ' + (p.kind === 'work' ? 'work' : 'rest');
   const m = Math.floor(T.left/60), s = T.left % 60;
   const clock = T.left >= 60 ? `${m}:${String(s).padStart(2,'0')}` : String(T.left);
-  const pct = Math.round(100 * (T.pi) / T.phases.length);
+  const pct = phasePct();
   el.innerHTML = header() + `
     <div><div class="tphase">${esc(p.label)}${T.paused ? ' · paused' : ''}</div><div class="tclock">${clock}</div><div class="tsub">${esc(p.info || '')}</div>
-      <div class="bar"><i style="width:${pct}%"></i></div></div>
+      <div class="bar" aria-label="Time in this phase"><i style="width:${pct}%"></i></div></div>
     <div style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center">
       <div class="tbtns"><button onclick="addTime(10)">+10 s</button><button class="main" onclick="togglePause()">${T.paused ? 'Resume' : 'Pause'}</button><button onclick="nextPhase()">Skip ›</button></div>
       <div class="tbtns"><button onclick="closeRunner()">✕ Stop</button>${T.queue.length > 1 ? `<button onclick="skipExercise()">Skip exercise »</button>` : ''}</div>
@@ -1211,7 +1244,7 @@ function drawManual(){
   const el = document.getElementById('timer'), e = exOf(T.queue[T.qi]);
   el.className = 'timer manual';
   const n = manualSets(e), last = T.set >= n;
-  el.innerHTML = header() + `<div><div class="tphase">${n > 1 ? `Set ${T.set}/${n} · your pace` : 'Your pace'}</div><div class="tdose">${esc(e.dose)}</div>${e.sr && n > 1 ? `<div class="tsub">${e.sr} s rest between sets</div>` : ''}</div>
+  el.innerHTML = header() + `<div><div class="tphase">${n > 1 ? `Set ${T.set}/${n} · your pace` : 'Your pace'}</div><div class="tdose">${esc(e.dose)}</div>${n > 1 ? `<div class="setdots">${Array.from({length:n}, (_, i) => `<i class="${i < T.set - 1 ? 'd' : i === T.set - 1 ? 'c' : ''}"></i>`).join('')}</div>` : ''}${e.sr && n > 1 ? `<div class="tsub">${e.sr} s rest between sets</div>` : ''}</div>
     <div style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center">
       <div class="tbtns"><button class="main" onclick="manualSetDone()"><img class="ico inv" src="/icons/ui/done.png" alt=""> ${last ? 'Done — next' : `Set ${T.set} done`}</button></div>
       <div class="tbtns"><button onclick="closeRunner()">✕ Stop</button>${T.queue.length > 1 ? `<button onclick="skipExercise()">Skip exercise »</button>` : ''}</div>
@@ -1227,10 +1260,16 @@ function runToday(idx){
   if (!picks.length) return;
   startRunner(picks.map(x => ({id:x.e.id, onComplete:() => setDone(x.i, true)})), 0, picks.length > 1 ? 90 : 0);
 }
+const RPROG_KEY = 'climbr.routineProg.v1';
+function routineDone(key){ const v = loadJSON(RPROG_KEY, {}); return v.date === TODAY && Array.isArray(v[key]) ? v[key] : []; }
+function markRoutineItem(key, i){ let v = loadJSON(RPROG_KEY, {}); if (v.date !== TODAY) v = {date:TODAY}; v[key] = [...new Set([...(v[key] || []), i])]; saveJSON(RPROG_KEY, v); }
+function resetRoutine(key){ const v = loadJSON(RPROG_KEY, {}); if (v.date === TODAY) { delete v[key]; saveJSON(RPROG_KEY, v); } openRoutine(key); renderRoutines(); }
 function runRoutine(key, idx, single){
   const r = getRoutine(key); if (!r) return;
-  const items = (single ? [r.items[idx]] : r.items).map(ex => ({ex}));
-  startRunner(items, 0, single ? 0 : 15);
+  const done = routineDone(key);
+  let idxs = single ? [idx] : r.items.map((_, i) => i).filter(i => !done.includes(i));
+  if (!idxs.length) idxs = r.items.map((_, i) => i);          // all done → run it again from the start
+  startRunner(idxs.map(i => ({ex:r.items[i], onComplete:() => markRoutineItem(key, i)})), 0, single ? 0 : 15);
 }
 
 
@@ -1703,6 +1742,7 @@ function renderWeek(){
     return;
   }
   el.innerHTML = `<div class="wh"><span class="wt">Your week</span><button onclick="openWeek()">Edit</button></div>
+    ${(() => { const mon = isoAdd(TODAY, -ti), planned = week.days.filter(t => t !== 'rest').length; let done = 0; for (let i = 0; i < 7; i++) if (trainedOn(sessionFor(isoAdd(mon, i)))) done++; return planned ? progBar(Math.min(done, planned), planned, 'training days this week') : ''; })()}
     <div class="wdays">${week.days.map((t,i) => `<div class="wd ${i===ti?'today':''}"><span class="dn">${DAYS[i]}</span><img src="/icons/ui/${WTYPES[t].icon}.png" alt=""><span class="dx">${WTYPES[t].label}</span></div>`).join('')}</div>`;
 }
 let WK = null;
