@@ -348,6 +348,9 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .spine.run{background:#9b9b9b}
 .dot.run-good{background:#6e6e6e;border-color:#6e6e6e;color:#fff}
 .dot.run-bad{border-color:#6e6e6e}
+.tplsw{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.tplsw button{padding:9px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg);font-family:var(--font-body);font-weight:700;font-size:13.5px}
+.tplsw button.on{background:#fff;color:#000;border-color:#fff}
 .uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
 .uppop[hidden]{display:none}
 .upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
@@ -736,17 +739,17 @@ function extrasBlock(s){
       <button onclick="addExtra('${s.date}','ausgleich')"><img class="ico" src="/icons/ui/train.png" alt="">+ Cross</button>
       ${s.date === TODAY ? `<button onclick="openRunTracker()"><img class="ico" src="/icons/ui/run.png" alt="">+ Run</button>` : ''}</div></div>`;
 }
-function computeDraftForType(type){
-  const d = computeDraftBase(type);
+function computeDraftForType(type, tpl){
+  const d = computeDraftBase(type, tpl);
   if (d.exercises && d.exercises.length) { const r = adaptExercises(d.exercises); d.exercises = r.kept; d.removed = r.removed; }
   return d;
 }
-function computeDraftBase(type){
+function computeDraftBase(type, forceTpl){
   const before = sessions.filter(s => s.date < TODAY);
   let template = null, exercises = [], catchUp = false, note = '';
   if (type === 'ausgleich') {
     const count = crossCountBefore(TODAY);
-    template = (count % 2 === 0) ? 'A' : 'B';
+    template = forceTpl || ((count % 2 === 0) ? 'A' : 'B');
     const lastA = before.find(s => s.type === 'ausgleich');
     let ids = [...PLANS[template].ids];
     if (lastA && lastA.completed === false) {
@@ -782,7 +785,7 @@ function setDone(idx, value){
     const exercises = existing.exercises.map((e,i) => i===idx ? {...e, done: value===undefined ? !e.done : value} : e);
     sessions = sessions.map(s => s.date === TODAY ? {...s, exercises, updatedAt:Date.now()} : s); persist();
   } else if (draft) {
-    draft = {...draft, exercises: draft.exercises.map((e,i) => i===idx ? {...e, done: value===undefined ? !e.done : value} : e)};
+    draft = {...draft, auto:false, exercises: draft.exercises.map((e,i) => i===idx ? {...e, done: value===undefined ? !e.done : value} : e)};
   }
   render();
 }
@@ -790,6 +793,11 @@ function toggleExercise(idx){ setDone(idx); }
 let keepExtras = null;
 function reedit(){ const ex = sessionFor(TODAY); keepExtras = ex && ex.extras && ex.extras.length ? ex.extras : null; sessions = sessions.filter(s => s.date !== TODAY); persist(); draft = null; render(); }
 function setType(type){ draft = computeDraftForType(type); render(); }
+function setTemplate(t){ const done = new Set((draft && draft.exercises || []).filter(e => e.done).map(e => e.id)); draft = computeDraftForType('ausgleich', t); draft.exercises = draft.exercises.map(e => done.has(e.id) ? {...e, done:true} : e); render(); }
+/* ---- keep today's unfinished plan across app restarts (calls, Android closing the app) ---- */
+const DRAFT_KEY = 'climbr.draft.v1';
+function saveDraft(){ try { if (draft && !sessionFor(TODAY) && !draft.auto) localStorage.setItem(DRAFT_KEY, JSON.stringify({date:TODAY, draft})); else localStorage.removeItem(DRAFT_KEY); } catch(e){} }
+function restoreDraft(){ try { const v = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); if (v && v.date === TODAY && v.draft && !sessionFor(TODAY)) draft = v.draft; else localStorage.removeItem(DRAFT_KEY); } catch(e){} }
 function showBanner(msg){ document.getElementById('banner').innerHTML = msg ? '<div class="banner">' + msg + '</div>' : ''; }
 
 /* ============ Rendering ============ */
@@ -817,6 +825,9 @@ function restBlock(reason){
     <div class="hint" style="margin-top:8px">Stretching won't speed up recovery, but a rest day is a good time for hip mobility.</div>`;
 }
 function renderToday(){
+  try { renderTodayInner(); } finally { saveDraft(); }
+}
+function renderTodayInner(){
   const el = document.getElementById('todayCard');
   const existing = sessionFor(TODAY);
   if (existing) {
@@ -851,12 +862,12 @@ function renderToday(){
     </div>
     ${d.type==='rest' ? restBlock(d.auto ? restReason() : '') : ''}
     ${d.type!=='rest' ? loadWarning() : ''}
-    ${d.type==='ausgleich' && d.template ? `<div class="note">${esc(PLANS[d.template].title)}${d.note ? ' — ' + esc(d.note) : ''}</div>` : ''}
+    ${d.type==='ausgleich' && d.template ? `<div class="tplsw">${['A','B'].map(t => `<button class="${d.template===t?'on':''}" onclick="setTemplate('${t}')">Plan ${t}</button>`).join('')}</div><div class="note">${esc(PLANS[d.template].title)}${d.note ? ' — ' + esc(d.note) : ''}</div>` : ''}
     ${d.removed && d.removed.length ? `<div class="note"><b>Adjusted for pain:</b> paused ${d.removed.map(x => esc(x.name) + ' (' + x.areas.map(k => AREA_NAME[k].split(' /')[0].toLowerCase()).join(', ') + ')').join(', ')}.</div>` : ''}
     ${d.type==='klettern' ? climbAdvice() : ''}
     ${d.type==='klettern' ? `<div class="note">Climbing day: start with the warm-up, finish with the cool-down.</div>${climbQuick()}${boulderButton(TODAY)}` : ''}
     ${exList(d.exercises)}
-    ${d.type==='ausgleich' ? `<button class="guided" onclick="runToday()">▶ Start guided session</button>` : ''}
+    ${d.type==='ausgleich' ? `<button class="guided" onclick="runToday()">▶ ${d.exercises.some(e => e.done) && !d.exercises.every(e => e.done) ? 'Continue guided session' : 'Start guided session'}</button>` : ''}
     <div class="actions">
       <button class="yes" onclick="saveToday(true)"><img class="ico inv" src="/icons/ui/done.png" alt=""> ${d.type==='klettern' ? 'Climbed' : d.type==='rest' ? 'Rest day' : 'Done'}</button>
       ${d.type==='rest' ? '' : `<button class="no" onclick="saveToday(false)"><img src="/icons/ui/skip.png" alt="">Skipped</button>`}
@@ -2592,8 +2603,13 @@ async function installUpdate(url){
 function skipUpdate(tag){ try { localStorage.setItem('climbr.updateSkipped', tag); } catch(e){} document.getElementById('updatePop').hidden = true; }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
 
+/* ============ New day while the app stayed open in the background → reload with the right date ============ */
+function checkNewDay(){ if (todayISO() !== TODAY && document.getElementById('timer').hidden && !RUN) location.reload(); }
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkNewDay(); });
+setInterval(checkNewDay, 60000);
+
 /* ============ Boot ============ */
-sessions = loadSessions(); sortSessions(); customs = loadCustoms();
+sessions = loadSessions(); sortSessions(); customs = loadCustoms(); restoreDraft();
 renderReference(); renderRoutines(); renderTools(); render();
 try { const t = localStorage.getItem('climbr.tab'); if (t === 'out' || t === 'stats') showTab(t); } catch(e){}
 setTimeout(() => checkForUpdate(), 1500);
