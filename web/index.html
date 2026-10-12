@@ -364,6 +364,10 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .setdots i.d{background:#fff;border-color:#fff}.setdots i.c{border-color:#fff}
 .rprog{height:4px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}
 .rprog i{display:block;height:100%;background:#fff}
+#banner:empty{display:none}
+.subtabs{position:sticky;top:0;z-index:12;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px 4px;margin:0 -4px;background:var(--bg);border-bottom:1px solid var(--line)}
+.subtabs button{padding:10px 2px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-family:var(--font-body);font-size:14px;font-weight:700;min-width:0}
+.subtabs button.on{background:#fff;color:#000}
 .uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
 .uppop[hidden]{display:none}
 .upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
@@ -525,38 +529,44 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 
   <div class="uppop" id="updatePop" hidden></div>
 
-  <div id="banner"></div>
+  <nav class="subtabs" id="subtabs" aria-label="Training sections">
+    <button data-sub="today" onclick="showSub('today')">Today</button>
+    <button data-sub="routines" onclick="showSub('routines')">Routines</button>
+    <button data-sub="tools" onclick="showSub('tools')">Tools</button>
+    <button data-sub="plans" onclick="showSub('plans')">Plans</button>
+  </nav>
 
-  <div class="statrow" id="statrow"></div>
+  <div id="banner" data-sub="today"></div>
 
-  <section class="week" id="weekStrip"></section>
+  <div class="statrow" id="statrow" data-sub="today"></div>
 
-  <section class="card" id="todayCard"></section>
+  <section class="week" id="weekStrip" data-sub="today"></section>
 
-  <section class="routines">
-    <h2>Routines</h2>
+  <section class="card" id="todayCard" data-sub="today"></section>
+
+  <section class="routines" data-sub="routines">
     <div class="rgrid" id="rgrid"></div>
+    <div class="hint">Warm-up before climbing, cool-down after, stretching on any day. Tap a routine for the guided version, or build your own with “+”.</div>
   </section>
 
-  <section class="routines">
-    <h2>Tools</h2>
+  <section class="routines" data-sub="tools">
     <div class="rgrid" id="tgrid"></div>
   </section>
 
-  <section class="history">
+  <section class="history" data-sub="today">
     <div class="hhead"><h2>Recent days</h2><button class="mini2" onclick="openPastDay()">+ Add past day</button></div>
     <div class="dots" id="dots"></div>
   </section>
 
-  <section class="reference">
+  <section class="reference" data-sub="plans">
     <button class="ref-toggle" id="refToggle" aria-expanded="false">
       <span>View training plans &amp; evidence</span><span class="car">&#9662;</span>
     </button>
     <div class="ref-body" id="refBody" hidden></div>
   </section>
 
-  <div class="foot" id="foot"></div>
-  <div class="backup">
+  <div class="foot" id="foot" data-sub="plans"></div>
+  <div class="backup" data-sub="plans">
     <button id="exportBtn"><img src="/icons/ui/backup.png" alt="" style="transform:rotate(180deg)">Export backup</button>
     <button id="importBtn"><img src="/icons/ui/backup.png" alt="">Import backup</button>
     <input type="file" id="importFile" accept="application/json" hidden>
@@ -1502,6 +1512,14 @@ function climbAdvice(){
   return `<div class="note">${up >= 4 ? '<b>Climbing isn’t ideal today.</b> ' + (sharpUp ? 'You logged sharp pain in your arms or hands' : 'Your arms or hands hurt at ' + up + '/10') + ' — cross-training for the rest of the body or a rest day is the safer choice.<br>' : '<b>Climbing with a niggle:</b> keep it easy and pain ≤ 3/10.<br>'}${tips.map(esc).join('<br>')}</div>`;
 }
 
+
+/* ============ Training sub-tabs (Today · Routines · Tools · Plans) ============ */
+function showSub(k){
+  document.querySelectorAll('#tabTrain [data-sub]').forEach(el => { if (el.closest('#subtabs')) el.classList.toggle('on', el.dataset.sub === k); else el.hidden = el.dataset.sub !== k; });
+  try { localStorage.setItem('climbr.sub', k); } catch(e){}
+  if (k === 'plans' && document.getElementById('refBody').hidden) document.getElementById('refToggle').click();
+  window.scrollTo(0, 0);
+}
 
 /* ============ Tabs ============ */
 function showTab(t){
@@ -2652,6 +2670,7 @@ setInterval(checkNewDay, 60000);
 sessions = loadSessions(); sortSessions(); customs = loadCustoms(); restoreDraft();
 renderReference(); renderRoutines(); renderTools(); render();
 try { const t = localStorage.getItem('climbr.tab'); if (t === 'out' || t === 'stats') showTab(t); } catch(e){}
+try { showSub(localStorage.getItem('climbr.sub') || 'today'); } catch(e){ showSub('today'); }
 setTimeout(() => checkForUpdate(), 1500);
 fetch('/version.json', {cache:'no-store'}).then(r => r.json()).then(v => { window.APP_VERSION = v.version; render(); }).catch(() => {});
 if (!IS_NATIVE && 'serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
