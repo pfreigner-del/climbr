@@ -368,6 +368,15 @@ button.guided{background:#fff;color:#000;border-color:#fff}
 .subtabs{position:sticky;top:0;z-index:12;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px 4px;margin:0 -4px;background:var(--bg);border-bottom:1px solid var(--line)}
 .subtabs button{padding:10px 2px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-family:var(--font-body);font-size:14px;font-weight:700;min-width:0}
 .subtabs button.on{background:#fff;color:#000}
+.btime{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.bth{display:flex;justify-content:space-between;align-items:center}
+.bth .fl{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bth .live{font-family:var(--font-mono);font-size:11px;color:#ff6b5e}
+.btclock{font-family:var(--font-display);font-size:44px;line-height:1;text-align:center;font-variant-numeric:tabular-nums}
+.btrow{display:flex;gap:8px;align-items:center}
+.btrow .btn{flex:1}
+.bmin{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.bmin input{width:70px;padding:10px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-family:var(--font-mono);font-size:15px;text-align:right}
 .uppop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
 .uppop[hidden]{display:none}
 .upbox{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;text-align:center}
@@ -1805,12 +1814,12 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     try {
       const { Filesystem, Share } = window.Capacitor.Plugins;
       const name = 'climbr-backup-' + TODAY + '.json';
-      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:9, sessions, customs, pain:painLog, fingers, week, boulders, bw:bwLog, hangs, benches, runs, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
+      const res = await Filesystem.writeFile({ path: name, data: JSON.stringify({app:'climbr', version:10, sessions, customs, pain:painLog, fingers, week, boulders, boulderMeta:bmeta, bw:bwLog, hangs, benches, runs, outdoor: await outdoorBackup()}, null, 2), directory: 'CACHE', encoding: 'utf8' });
       await Share.share({ title: 'ClimbR backup', files: [res.uri], dialogTitle: 'Save or send your backup' });
     } catch(e) { if (!String(e && e.message || e).toLowerCase().includes('cancel')) alert('Backup failed: ' + (e && e.message || e)); }
     return;
   }
-  const blob = new Blob([JSON.stringify({app:'climbr', version:9, sessions, customs, pain:painLog, fingers, week, boulders, bw:bwLog, hangs, benches, runs, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({app:'climbr', version:10, sessions, customs, pain:painLog, fingers, week, boulders, boulderMeta:bmeta, bw:bwLog, hangs, benches, runs, outdoor: await outdoorBackup()}, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'climbr-backup-' + TODAY + '.json';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
@@ -1826,6 +1835,7 @@ document.getElementById('importFile').addEventListener('change', async (ev) => {
     const nOut = await outdoorRestore(data.outdoor);
     let nB = 0;
     if (data.boulders && typeof data.boulders === 'object') { for (const [d, l] of Object.entries(data.boulders)) { if (!Array.isArray(l)) continue; const have = new Set(bFor(d).map(b => b.at)); const add = l.filter(b => b && BSYS[b.sys] && RES[b.r] && !have.has(b.at)); if (add.length) { boulders[d] = bFor(d).concat(add); nB += add.length; } } saveBoulders(); }
+    if (data.boulderMeta && typeof data.boulderMeta === 'object') { bmeta = {...data.boulderMeta, ...bmeta}; saveBMeta(); }
     if (data.bw && typeof data.bw === 'object') { bwLog = {...data.bw, ...bwLog}; saveJSON(BW_KEY, bwLog); }
     const mergeById = (cur, inc) => { const ids = new Set(cur.map(x => x.id)); return cur.concat((Array.isArray(inc) ? inc : []).filter(x => x && x.id && x.date && !ids.has(x.id))).sort((a,b) => a.date < b.date ? -1 : 1); };
     hangs = mergeById(hangs, data.hangs); saveJSON(HB_KEY, hangs); runs = mergeById(runs, data.runs); saveJSON(RUN_KEY, runs); benches = mergeById(benches, data.benches); saveJSON(BM_KEY, benches); renderTools();
@@ -1872,9 +1882,32 @@ function bFor(date){ return boulders[date] || []; }
 function bCount(list){ const c = {n:list.length, flash:0, send:0, try:0}; list.forEach(b => c[b.r]++); c.sent = c.flash + c.send; return c; }
 function bSysPref(){ try { const s = localStorage.getItem('climbr.boulderSys'); if (BSYS[s]) return s; } catch(e){} return 'Font'; }
 function gIdx(sys, g){ return BSYS[sys] ? BSYS[sys].indexOf(g) : -1; }
+/* ---- time spent bouldering (per day): manual minutes or a session stopwatch ---- */
+const BMETA_KEY = 'climbr.boulderMeta.v1';
+let bmeta = loadJSON(BMETA_KEY, {});
+function saveBMeta(){ saveJSON(BMETA_KEY, bmeta); }
+function bRunning(date){ return !!(bmeta[date] && bmeta[date].start); }
+function bMins(date){ const m = bmeta[date] || {}; return (m.mins || 0) + (m.start ? (Date.now() - m.start) / 60000 : 0); }
+function fmtHM(mins){ mins = Math.round(mins); const h = Math.floor(mins / 60), m = mins % 60; return h ? `${h}:${String(m).padStart(2,'0')} h` : `${m} min`; }
+function bTimerToggle(){
+  const d = BL.date, m = bmeta[d] = bmeta[d] || {mins:0};
+  if (m.start) { m.mins = Math.round((m.mins || 0) + (Date.now() - m.start) / 60000); m.start = null; syncClimbMins(d); }
+  else { m.start = Date.now(); markClimbed(d); }
+  saveBMeta(); drawBoulders();
+}
+function bSetMins(v){ const d = BL.date, n = Math.max(0, Math.round(num(v) || 0)); bmeta[d] = {...(bmeta[d] || {}), mins:n, start:null}; if (!n && !bFor(d).length) delete bmeta[d]; saveBMeta(); syncClimbMins(d); drawBoulders(); }
+// put the bouldering time into the day's climbing entry (used for training load), unless the user typed their own minutes there
+function syncClimbMins(date){
+  const s = sessionFor(date), mins = Math.round(bMins(date)); if (!s || !mins) return;
+  const e = s.type === 'klettern' ? s : extrasOf(s).find(x => x.type === 'klettern'); if (!e) return;
+  if (!e.mins || e.minsFromBoulder) { e.mins = mins; e.minsFromBoulder = true; s.updatedAt = Date.now(); persist(); }
+}
+setInterval(() => { const el = document.getElementById('bTime'); if (el && BL && bRunning(BL.date)) { el.textContent = fmtHMS(bMins(BL.date) * 60000); const r = document.getElementById('bRate'); if (r) r.innerHTML = bRateText(BL.date); } }, 1000);
+function fmtHMS(ms){ const t = Math.floor(ms / 1000), h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60; return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+function bRateText(date){ const n = bFor(date).length, mins = bMins(date); if (!n || mins < 1) return 'Time per boulder appears once you log boulders.'; return `<b>${(mins / n).toFixed(1)} min</b> per boulder · <b>${(n / (mins / 60)).toFixed(1)}</b> boulders per hour`; }
 function boulderButton(date){
   const n = bFor(date).length;
-  return `<button class="guided" onclick="openBoulders('${date}')"><img class="ico inv" src="/icons/ui/boulder.png" alt=""> Log boulders${n ? ' · ' + n + ' logged' : ''}</button>`;
+  return `<button class="guided" onclick="openBoulders('${date}')"><img class="ico inv" src="/icons/ui/boulder.png" alt=""> Log boulders${n ? ' · ' + n + ' logged' : ''}${bRunning(date) ? ' · ⏱ running' : bMins(date) >= 1 ? ' · ' + fmtHM(bMins(date)) : ''}</button>`;
 }
 let BL = null;
 function openBoulders(date){
@@ -1894,6 +1927,11 @@ function drawBoulders(){
       <div><b>${c.flash}</b><span>flashed</span></div>
       <div><b>${c.sent}</b><span>sent</span></div>
       <div><b>${c.try}</b><span>not sent</span></div></div>
+    <div class="btime"><div class="bth"><span class="fl">Time bouldering</span>${bRunning(BL.date) ? '<span class="live">● running</span>' : ''}</div>
+      ${bRunning(BL.date) ? `<div class="btclock" id="bTime">${fmtHMS(bMins(BL.date) * 60000)}</div><button class="btn main" onclick="bTimerToggle()">■ Stop session timer</button>`
+        : `<div class="btrow"><button class="btn main" onclick="bTimerToggle()">▶ ${bMins(BL.date) >= 1 ? 'Continue' : 'Start'} session timer</button><label class="bmin"><input type="number" inputmode="numeric" min="0" value="${Math.round(bMins(BL.date)) || ''}" placeholder="0" onchange="bSetMins(this.value)"> min</label></div>`}
+      <div class="hint" id="bRate">${bRateText(BL.date)}</div>
+      <div class="hint">Start the timer when you start climbing (it keeps running if you close the app), or type the minutes afterwards. Count the whole session including rests.</div></div>
     <div class="wrow"><span class="wl">Grade system</span><div class="wpick">
       ${Object.keys(BSYS).map(s => `<button class="${BL.sys===s?'on':''}" onclick="setBSys('${s}')">${BSYS_LABEL[s]}</button>`).join('')}</div></div>
     <div class="wrow"><span class="wl">1 · Pick the grade</span>
@@ -2022,10 +2060,11 @@ function renderBoulderAnalytics(){
       <div class="stat"><div class="n"><img src="/icons/ui/project.png" alt="">${c.try}</div><div class="l">not sent</div></div>
       <div class="stat"><div class="n">${topSend ? esc(topSend) : '–'}</div><div class="l">hardest send</div></div>
       <div class="stat"><div class="n">${topFlash ? esc(topFlash) : '–'}</div><div class="l">hardest flash</div></div></div>`;
+    h += boulderTimeStats(s, e);
     { const rows = {}; list.forEach(b => { (rows[b.g] = rows[b.g] || {})[b.r] = (rows[b.g][b.r] || 0) + 1; }); h += pyramidOf(rows, g => gIdx(sys, g), BCAT, ['flash','send']); }
     if (AN.period !== 'day') h += volumeChart(list, s, e);
     if (AN.period !== 'day') h += `<section class="ansec"><h2>Climbing days</h2><ul class="andays">${days.map(d => { const dl = list.filter(b => b.date === d), dc = bCount(dl), tg = topGrade(dl, sys, b => b.r !== 'try');
-      return `<li><button onclick="anOpenDay('${d}')"><span class="ad">${esc(parseISO(d).toLocaleDateString('en-GB', {weekday:'short', day:'2-digit', month:'2-digit'}))}</span><span class="am">${dc.n} · ${dc.flash} flash · ${dc.sent} sent</span><span class="ag">${tg ? esc(tg) : '–'}</span></button></li>`; }).join('')}</ul></section>`;
+      return `<li><button onclick="anOpenDay('${d}')"><span class="ad">${esc(parseISO(d).toLocaleDateString('en-GB', {weekday:'short', day:'2-digit', month:'2-digit'}))}</span><span class="am">${dc.n} · ${dc.flash} flash · ${dc.sent} sent${bMins(d) >= 1 ? ' · ' + fmtHM(bMins(d)) : ''}</span><span class="ag">${tg ? esc(tg) : '–'}</span></button></li>`; }).join('')}</ul></section>`;
     else h += `<section class="ansec"><h2>Boulders this day</h2><ul class="blist">${list.map(b => `<li><img class="ico" src="/icons/ui/${RES[b.r].ico}.png" alt=""><b>${esc(b.g)}</b><span class="br">${RES[b.r].l}</span></li>`).join('')}</ul></section>`;
   }
   h += trainingSummary(s, e);
@@ -2203,6 +2242,18 @@ const VIEWS = [['boulders','Boulders'],['routes','Routes'],['runs','Runs'],['str
 const RSTY = {Onsight:'os', Flash:'fl', Redpoint:'rp', 'Top-rope':'tr', Project:'nt', Attempt:'nt'};
 const RCAT = [['os','Onsight'],['fl','Flash'],['rp','Redpoint'],['tr','Top-rope'],['nt','Not sent']];
 const BCAT = [['flash','Flash'],['send','Sent'],['try','Not sent']];
+function boulderTimeStats(s, e){
+  const days = Object.keys(bmeta).filter(d => d >= s && d <= e && bMins(d) >= 1);
+  if (!days.length) return `<div class="hint">Add the time you spent bouldering (timer or minutes in “Log boulders”) to see time per boulder and boulders per hour.</div>`;
+  const mins = days.reduce((a, d) => a + bMins(d), 0), bl = days.flatMap(d => bFor(d)), c = bCount(bl);
+  return `<section class="ansec"><h2>Time</h2><div class="antiles">
+    <div class="stat"><div class="n">${fmtHM(mins)}</div><div class="l">bouldering${days.length > 1 ? ' · ' + days.length + ' sessions' : ''}</div></div>
+    <div class="stat"><div class="n">${c.n ? (mins / c.n).toFixed(1) : '–'}</div><div class="l">min per boulder</div></div>
+    <div class="stat"><div class="n">${c.n ? (c.n / (mins / 60)).toFixed(1) : '–'}</div><div class="l">boulders per hour</div></div>
+    <div class="stat"><div class="n">${c.sent ? (mins / c.sent).toFixed(1) : '–'}</div><div class="l">min per send</div></div>
+    ${days.length > 1 ? `<div class="stat"><div class="n">${fmtHM(mins / days.length)}</div><div class="l">average session</div></div><div class="stat"><div class="n">${c.flash ? (mins / c.flash).toFixed(0) : '–'}</div><div class="l">min per flash</div></div>` : ''}</div>
+    <div class="hint">Includes rests and all grade systems on days with a recorded time${bl.length < bouldersIn(s, e).length ? ' — days without a time are left out' : ''}.</div></section>`;
+}
 function pyramidOf(rows, order, cats, sentKeys, title){
   const gs = Object.keys(rows).sort((a,b) => order(b) - order(a));
   const tot = g => cats.reduce((t,[k]) => t + (rows[g][k] || 0), 0);
